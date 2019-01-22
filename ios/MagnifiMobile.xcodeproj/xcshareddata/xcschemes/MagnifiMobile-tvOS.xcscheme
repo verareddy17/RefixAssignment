@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-               BuildableName = "MagnifyMobile-tvOS.app"
-               BlueprintName = "MagnifyMobile-tvOS"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobile-tvOS.app"
+               BlueprintName = "MagnifiMobile-tvOS"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
-               BuildableName = "MagnifyMobile-tvOSTests.xctest"
-               BlueprintName = "MagnifyMobile-tvOSTests"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobile-tvOSTests.xctest"
+               BlueprintName = "MagnifiMobile-tvOSTests"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,9 +61,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
-               BuildableName = "MagnifyMobile-tvOSTests.xctest"
-               BlueprintName = "MagnifyMobile-tvOSTests"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobile-tvOSTests.xctest"
+               BlueprintName = "MagnifiMobile-tvOSTests"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "MagnifyMobile-tvOS.app"
-            BlueprintName = "MagnifyMobile-tvOS"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile-tvOS.app"
+            BlueprintName = "MagnifiMobile-tvOS"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -94,9 +94,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "MagnifyMobile-tvOS.app"
-            BlueprintName = "MagnifyMobile-tvOS"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile-tvOS.app"
+            BlueprintName = "MagnifiMobile-tvOS"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -113,9 +113,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "MagnifyMobile-tvOS.app"
-            BlueprintName = "MagnifyMobile-tvOS"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile-tvOS.app"
+            BlueprintName = "MagnifiMobile-tvOS"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,4 +1,4 @@
-package com.magnifymobile;
+package com.magnifimobile;
 
 import android.app.Application;
 

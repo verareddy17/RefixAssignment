@@ -1,4 +1,4 @@
-package com.magnifymobile;
+package com.magnifimobile;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "MagnifyMobile";
+        return "MagnifiMobile";
     }
 }

@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MagnifyMobile.app"
-               BlueprintName = "MagnifyMobile"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobile.app"
+               BlueprintName = "MagnifiMobile"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MagnifyMobileTests.xctest"
-               BlueprintName = "MagnifyMobileTests"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobileTests.xctest"
+               BlueprintName = "MagnifiMobileTests"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,9 +61,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MagnifyMobileTests.xctest"
-               BlueprintName = "MagnifyMobileTests"
-               ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+               BuildableName = "MagnifiMobileTests.xctest"
+               BlueprintName = "MagnifiMobileTests"
+               ReferencedContainer = "container:MagnifiMobile.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MagnifyMobile.app"
-            BlueprintName = "MagnifyMobile"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile.app"
+            BlueprintName = "MagnifiMobile"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -94,9 +94,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MagnifyMobile.app"
-            BlueprintName = "MagnifyMobile"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile.app"
+            BlueprintName = "MagnifiMobile"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -113,9 +113,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MagnifyMobile.app"
-            BlueprintName = "MagnifyMobile"
-            ReferencedContainer = "container:MagnifyMobile.xcodeproj">
+            BuildableName = "MagnifiMobile.app"
+            BlueprintName = "MagnifiMobile"
+            ReferencedContainer = "container:MagnifiMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
