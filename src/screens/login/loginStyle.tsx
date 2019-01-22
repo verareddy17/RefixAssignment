@@ -3,22 +3,26 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'skyblue',
         justifyContent: 'center',
         alignItems: 'center'
     },
     loginContainer: {
         backgroundColor: '#000',
         padding: 10,
-        width: 300
+        width: 350
     },
     text: {
         color: '#fff',
         textAlign: 'center',
         marginBottom: 10
     },
+    item: {
+        borderRadius: 10
+    },
     inputText: {
-        color: '#fff'
+        backgroundColor: '#fff',
+        borderRadius:10,
+        height: 40
     },
     buttonContainer: {
         justifyContent: 'center',
