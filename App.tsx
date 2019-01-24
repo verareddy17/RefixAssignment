@@ -1,12 +1,17 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import LoginScreen from './src/screens/login/loginScreen';
+import store from './src/redux/store';
+import {Provider} from 'react-redux';
 
 interface Props {}
 export default class App extends Component<Props> {
   render() {
     return (
-      <LoginScreen/>
+      <Provider store={store}>
+        <LoginScreen/>
+      </Provider>
+      
     );
   }
 }
