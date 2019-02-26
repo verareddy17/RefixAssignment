@@ -1,4 +1,5 @@
-export interface ApiResponse <T> {
+export interface ApiResponse<T> {
    results: T;
    errors: Error[]
 }
+

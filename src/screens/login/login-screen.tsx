@@ -1,56 +1,72 @@
 import React, { Component } from 'react';
 import { View, ImageBackground, ActivityIndicator } from 'react-native';
 import { Button, Text, Item, Input } from 'native-base';
-import styles from './loginStyle';
+import styles from './login-style';
 import { connect } from 'react-redux';
-import { fetchPeople, User } from '../../redux/actions/userAction';
-
+import { fetchPeople, User } from '../../redux/actions/user-action';
+import localDbManager from '../../manager/localdb-manager';
+import { NavigationScreenProp } from 'react-navigation';
 
 interface Props {
+    navigation: NavigationScreenProp<any>;
     userState: User;
     getusername(): object;
 }
 
 interface state {
-    userData : any
+    userData: any
 }
 
 
 class LoginScreen extends Component<Props> {
+    static navigationOptions = {
+        header: null
+    }
     componentDidMount() {
         console.log('props', this.props);
         // this.props.getusername();
     }
     render() {
-        {console.log('props::', this.props);}
+        { console.log('props::', this.props); }
         return (
             <ImageBackground source={require('../../assets/images/login_bg.png')} style={{ width: '100%', height: '100%' }}>
                 <View style={styles.container}>
                     <View style={styles.loginContainer}>
-                        <Text style={styles.text}>Enter iPad Activation PIN</Text>
+                        <Text style={styles.text}>Enter Activation PIN</Text>
                         <Item regular style={styles.item}>
                             <Input placeholder='' style={styles.inputText}
                                 onChangeText={(text) => console.log(text)}
                             />
                         </Item>
                         <View style={styles.buttonContainer}>
+                            <Button onPress={this._signInAsync}>
+                                <Text>Login</Text>
+                            </Button>
                             <Button onPress={() => this.props.getusername()}>
                                 <Text>GO</Text>
                             </Button>
-                            
                         </View>
-                        {this.props.userState.isLoading ? <ActivityIndicator size="large" color="#0000ff" />:
-                        
+                        {this.props.userState.isLoading ? <ActivityIndicator size="large" color="#0000ff" /> :
+
                             <View>
-                                <Text style={{color:'#fff',textAlign:'center'}}>{this.props.userState.user.email}</Text>
-                                <Text style={{color:'#fff',textAlign:'center'}}>{this.props.userState.user.gender}</Text>
+                                <Text style={{ color: '#fff', textAlign: 'center' }}>{this.props.userState.user.email}</Text>
+                                <Text style={{ color: '#fff', textAlign: 'center' }}>{this.props.userState.user.gender}</Text>
                             </View>
-                            }
+                        }
                     </View>
                 </View>
             </ImageBackground>
         )
     }
+    _signInAsync = async () => {
+        console.log('login clicked');
+        await localDbManager.insert<string>('userToken', 'abc', (err) => {
+            if (err === null) {
+                console.log('successfully inserted');
+            }
+        });
+        this.props.navigation.navigate('Home');
+    };
 }
 
 const mapStateToProps = (state: state) => {

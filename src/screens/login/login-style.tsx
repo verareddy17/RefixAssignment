@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     },
     inputText: {
         backgroundColor: '#fff',
-        borderRadius:10,
+        borderRadius: 10,
         height: 40
     },
     buttonContainer: {
