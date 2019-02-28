@@ -1,18 +1,22 @@
 export default class apiManager {
+
     static httpMethod = {
         get: 'GET',
         post: 'POST',
         put: 'PUT'
     };
-    static baseUrl: string = 'https://randomuser.me';
-    static async get<T>(urlStr: string, callBack: (response?: T, error?: String) => void) {
-        const response = await fetch(urlStr, {
+
+    static baseUrl: string = 'https://randomuser.me/api';
+
+    static async get<T>(url: string, callBack: (response?: T, error?: String) => void) {
+        let endpointUrl = `${this.baseUrl}${url}`;
+        const response = await fetch(endpointUrl, {
             method: apiManager.httpMethod.get,
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         })
         if (response !== null) {
-            console.log('responseSatusCode:', response)
-            callBack(await response.json())
+            const res = await response.json();
+            callBack(res);
             return
         }
         callBack(response, 'Unkonwn error occured');
@@ -23,13 +27,12 @@ export default class apiManager {
             method: apiManager.httpMethod.post,
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify(params)
-
         })
         if (response !== null) {
-            console.log('responseSatusCode:', response)
             callBack(await response.json())
             return
         }
         callBack(response, 'Unkonwn error occured');
     }
+
 }

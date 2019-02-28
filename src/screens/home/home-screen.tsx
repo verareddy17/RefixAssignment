@@ -8,11 +8,6 @@ interface Props {
     navigation: NavigationScreenProp<any>;
 }
 export default class HomeScreen extends Component<Props> {
-    componentDidMount() {
-        localDbManager.get<string>('userToken',(err, data) => {
-            console.log('local data', data)
-        });
-    }
     render() {
         return (
             <View style={styles.container}>

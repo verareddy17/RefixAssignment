@@ -9,7 +9,6 @@ export default class localDbManager {
     static async get<T>(key: string, callBack: (error?: Error, result?: T) => void) {
         await AsyncStorage.getItem(key, async (error, result) => {
             if (result !== null) {
-                console.log('result', result)
                 let parseJson = await JSON.parse(result!)
                 callBack(error, parseJson)
             } else {
