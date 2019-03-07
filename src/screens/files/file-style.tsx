@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -13,14 +13,5 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: '#fff'
     },
-    searchBarHeader: {
-        backgroundColor: '#999',
-        ...Platform.select({
-            ios: {
-                height: 40,
-                paddingTop: 0
-            }
-        })
-    }
 });
 export default styles;

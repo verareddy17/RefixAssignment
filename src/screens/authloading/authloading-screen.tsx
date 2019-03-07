@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
-    ActivityIndicator,
     AsyncStorage,
     View,
 } from 'react-native';
+import { Spinner } from 'native-base';
 import styles from './authloading-style';
 import { NavigationScreenProp } from 'react-navigation';
 
@@ -28,7 +28,7 @@ export default class AuthLoadingScreen extends Component<Props> {
     render() {
         return (
             <View style={styles.container}>
-                <ActivityIndicator />
+                <Spinner color="#87bc2b" />
             </View>
         );
     }

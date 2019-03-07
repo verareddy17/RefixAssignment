@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import styles from './home-style';
-import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, List, ListItem, Thumbnail } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right } from 'native-base';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
+import styles from './filemanager-style';
 
 interface Props {
     navigation: NavigationScreenProp<any>;
 }
-
-export default class HomeScreen extends Component<Props> {
+export default class FileManagerScreen extends Component<Props> {
     render() {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
@@ -19,22 +18,14 @@ export default class HomeScreen extends Component<Props> {
                             </Button>
                         </Left>
                         <Body>
-                            <Title style={styles.headerTitle}>Home</Title>
+                            <Title style={styles.headerTitle}>File Manager</Title>
                         </Body>
-                        <Right>
-                            <Button transparent>
-                                <Icon name="refresh" style={styles.iconColor}></Icon>
-                            </Button>
-                        </Right>
+                        <Right />
                     </Header>
                     <Content contentContainerStyle={styles.container}>
-                        <Header noShadow searchBar rounded style={styles.searchBarHeader}>
-                            <Item>
-                                <Icon name="search" />
-                                <Input placeholder="Search" />
-                            </Item>
-                            <Button transparent><Text>Go</Text></Button>
-                        </Header>
+                        <View>
+                            <Text>Filemanager Screen</Text>
+                        </View>
                     </Content>
                 </Container>
             </SafeAreaView>

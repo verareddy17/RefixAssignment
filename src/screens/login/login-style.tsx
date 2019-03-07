@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flexDirection: 'row',
         marginVertical: 10
+    },
+    bgImageStyle: {
+        flex: 1
     }
 });
 
