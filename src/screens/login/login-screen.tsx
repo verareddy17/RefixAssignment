@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { Button, Text, Item, Input } from 'native-base';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { Button, Text, Item, Input, Icon, Header, Label } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
@@ -8,6 +8,7 @@ import { fetchPeople, User } from '../../redux/actions/user-action';
 import localDbManager from '../../manager/localdb-manager';
 import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
+import Config from 'react-native-config';
 
 interface Props {
     navigation: NavigationScreenProp<any>;
@@ -22,35 +23,39 @@ class LoginScreen extends Component<Props> {
     }
     render() {
         return (
-            <ImageBackground source={require('../../assets/images/login_bg.png')} style={styles.bgImageStyle}>
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.container}>
-                        <View style={styles.loginContainer}>
-                            <Text style={styles.text}>Enter Activation PIN</Text>
-                            <Item regular style={styles.item}>
-                                <Input placeholder='' style={styles.inputText}
-                                    onChangeText={(text) => console.log(text)}
+            <View style={styles.rootContainer}>
+                <ImageBackground source={require('../../assets/images/login-bg.png')} style={styles.bgImageStyle}>
+                    <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <View style={styles.container}>
+                            <View style={styles.logoWrapper}>
+                                <Image
+                                    source={require(`../../assets/images/hubspot_logo.png`)}
+                                    style={styles.logoImage}
                                 />
-                            </Item>
-                            <View style={styles.buttonContainer}>
-                                <Button onPress={this._signInAsync}>
-                                    <Text>Login</Text>
-                                </Button>
-                                <Button onPress={() => this.props.getusername()}>
-                                    <Text>GO</Text>
-                                </Button>
                             </View>
-                            {this.props.userState.isLoading ? <ActivityIndicator size="large" color="#0000ff" /> :
-
-                                <View>
-                                    <Text style={{ color: '#fff', textAlign: 'center' }}>{this.props.userState.user.email}</Text>
-                                    <Text style={{ color: '#fff', textAlign: 'center' }}>{this.props.userState.user.gender}</Text>
+                            <View style={styles.loginContainer}>
+                                <Text style={styles.text} adjustsFontSizeToFit>Login</Text>
+                                <View style={styles.lineContainer}>
+                                    <View style={styles.line}></View>
                                 </View>
-                            }
+                                <Item floatingLabel>
+                                    <Label>Password</Label>
+                                    <Input secureTextEntry={true} />
+                                </Item>
+                                <View style={styles.buttonContainer}>
+                                    <TouchableOpacity style={styles.button} onPress={this._signInAsync}>
+                                        <View>
+                                            <Icon name='arrow-round-forward' style={styles.buttonIcon} />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </ImageBackground>
+                    </TouchableWithoutFeedback>
+                </ImageBackground>
+            </View>
+
         )
     }
     _signInAsync = async () => {
