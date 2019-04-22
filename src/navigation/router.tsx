@@ -16,13 +16,13 @@ const HomeStackNavigator = createStackNavigator(
             screen: HomeScreen,
         },
         File: {
-            screen: FileScreen
+            screen: FileScreen,
         },
     },
     {
         initialRouteName: 'Home',
         headerMode: 'none',
-    },
+    }
 );
 const AppDrawerNavigator = createDrawerNavigator(
     {
@@ -32,8 +32,8 @@ const AppDrawerNavigator = createDrawerNavigator(
                 drawerLabel: 'Home',
                 drawerIcon: () => (
                     <Icon name='home' />
-                )
-            }
+                ),
+            },
         },
         Bookmarks: {
             screen: BookmarkScreen,
@@ -41,8 +41,8 @@ const AppDrawerNavigator = createDrawerNavigator(
                 drawerLabel: 'Bookmarks',
                 drawerIcon: () => (
                     <Icon name='star' />
-                )
-            }
+                ),
+            },
         },
         FileManager: {
             screen: FileManagerScreen,
@@ -50,8 +50,8 @@ const AppDrawerNavigator = createDrawerNavigator(
                 drawerLabel: 'File Manager',
                 drawerIcon: () => (
                     <Icon name='folder' />
-                )
-            }
+                ),
+            },
         },
         Recent: {
             screen: RecentViewScreen,
@@ -59,12 +59,12 @@ const AppDrawerNavigator = createDrawerNavigator(
                 drawerLabel: 'Recently Viewed',
                 drawerIcon: () => (
                     <Icon name='eye' />
-                )
-            }
-        }
+                ),
+            },
+        },
     },
     {
-        contentComponent: CustomDrawerComponent
+        contentComponent: CustomDrawerComponent,
     }
 );
 

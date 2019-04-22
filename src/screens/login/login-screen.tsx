@@ -1,27 +1,33 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { Button, Text, Item, Input, Icon, Header, Label } from 'native-base';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator } from 'react-native';
+import { Text, Item, Input, Icon, Header, Label, Spinner } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
-import { Dispatch, bindActionCreators } from 'redux';
-import { fetchPeople, User } from '../../redux/actions/user-action';
+import { Dispatch, bindActionCreators, AnyAction } from 'redux';
+import { LoginResponse } from '../../redux/actions/user-action';
+import onchangeText from '../../redux/actions/input-action';
 import localDbManager from '../../manager/localdb-manager';
 import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
+import loginApi from '../../redux/actions/user-action';
+import { Constant } from '../../constant';
 import Config from 'react-native-config';
-
+import { ActionPayload } from '../../models/action-payload';
 interface Props {
+    // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
-    userState: User;
-    getusername(): object;
+    userState: LoginResponse;
+    inputText: string;
+    getActivationPin(pin: string): ActionPayload<string>;
+    requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 
 class LoginScreen extends Component<Props> {
-    static navigationOptions = {
-        header: null
-    }
-    render() {
+    public static navigationOptions = {
+        header: null,
+    };
+    public render() {
         return (
             <View style={styles.rootContainer}>
                 <ImageBackground source={require('../../assets/images/login-bg.png')} style={styles.bgImageStyle}>
@@ -41,8 +47,18 @@ class LoginScreen extends Component<Props> {
                                 </View>
                                 <Item floatingLabel>
                                     <Label>Password</Label>
-                                    <Input secureTextEntry={true} />
+                                    <Input onChangeText={(text) =>
+                                        this.props.getActivationPin(text)
+                                    }
+                                        value={this.props.inputText}
+                                        autoCapitalize='none'
+                                        secureTextEntry={true}
+                                    />
                                 </Item>
+                                {this.props.userState.isLoading ?
+                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                                    : <View />
+                                }
                                 <View style={styles.buttonContainer}>
                                     <TouchableOpacity style={styles.button} onPress={this._signInAsync}>
                                         <View>
@@ -55,25 +71,34 @@ class LoginScreen extends Component<Props> {
                     </TouchableWithoutFeedback>
                 </ImageBackground>
             </View>
-
-        )
+        );
     }
-    _signInAsync = async () => {
-        await localDbManager.insert<string>('userToken', 'abc', (err) => {
-            if (err === null) {
-                console.log('successfully inserted');
-            }
-        });
-        this.props.navigation.navigate('Home');
-    };
+    public _signInAsync = async () => {
+        if (this.props.inputText.length === 0) {
+            Alert.alert(Config.APP_NAME, Constant.validationPin);
+            return;
+        }
+        await this.props.requestLoginApi(this.props.inputText);
+        if (this.props.userState.error === '' && this.props.userState.user !== null) {
+            await localDbManager.insert<string>('userToken', 'abc', async (err) => {
+                if (err === null) {
+                    this.props.navigation.navigate('Home');
+                }
+            });
+        } else {
+            Alert.alert(Config.APP_NAME, Constant.validationPin);
+        }
+    }
 }
 
 const mapStateToProps = (state: AppState) => ({
-    userState: state.userData
-})
+    inputText: state.inputText.pin,
+    userState: state.loginData,
+});
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-    getusername: bindActionCreators(fetchPeople, dispatch)
-})
+    getActivationPin: bindActionCreators(onchangeText, dispatch),
+    requestLoginApi: bindActionCreators(loginApi, dispatch),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

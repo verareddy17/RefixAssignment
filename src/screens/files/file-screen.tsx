@@ -4,18 +4,19 @@ import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import styles from './file-style';
 
 interface Props {
+    // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
 }
 export default class FileScreen extends Component<Props> {
 
-    render() {
+    public render() {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={'#87bc2b'} iosBarStyle={'light-content'}>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.goBack()}>
-                                <Icon name="arrow-back" style={styles.iconColor} />
+                                <Icon name='arrow-back' style={styles.iconColor} />
                             </Button>
                         </Left>
                         <Body>
@@ -30,6 +31,6 @@ export default class FileScreen extends Component<Props> {
                     </Content>
                 </Container>
             </SafeAreaView>
-        )
+        );
     }
 }

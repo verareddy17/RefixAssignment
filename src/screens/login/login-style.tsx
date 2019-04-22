@@ -2,33 +2,34 @@ import { StyleSheet } from 'react-native';
 import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
+
     rootContainer: {
         backgroundColor: Config.PRIMARY_COLOR,
-        flex: 1
+        flex: 1,
     },
     header: {
-        display: 'none'
+        display: 'none',
     },
     logoWrapper: {
-        marginBottom: 25
+        marginBottom: 25,
     },
     logoImage: {
         width: 75,
-        height: 75
+        height: 75,
     },
     lineContainer: {
         alignItems: 'center',
-        marginTop: -8
+        marginTop: -8,
     },
     line: {
         width: 35,
         height: 3,
-        backgroundColor: '#87bc2b'
+        backgroundColor: Config.PRIMARY_COLOR,
     },
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     loginContainer: {
         backgroundColor: '#fff',
@@ -41,23 +42,24 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
-        shadowRadius: 2
+        shadowRadius: 2,
+        alignItems: 'center',
     },
     text: {
-        color: '#87bc2b',
+        color: Config.PRIMARY_COLOR,
         textAlign: 'center',
         marginBottom: 10,
-        fontSize: 25
+        fontSize: 25,
     },
     buttonContainer: {
         alignItems: 'center',
         position: 'absolute',
         left: '50%',
         right: '50%',
-        bottom: -23
+        bottom: -23,
     },
     bgImageStyle: {
-        flex: 1
+        flex: 1,
     },
     button: {
         backgroundColor: Config.SECONDARY_COLOR,
@@ -70,11 +72,21 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
-        shadowRadius: 2
+        shadowRadius: 2,
     },
     buttonIcon: {
-        color: '#fff'
-    }
+        color: '#fff',
+    },
+    refreshContainer: {
+        position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        width: 75,
+        height: 75,
+        borderRadius: 4,
+        marginBottom: 10,
+    },
 });
 
 export default styles;

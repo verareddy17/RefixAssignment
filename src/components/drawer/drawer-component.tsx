@@ -16,7 +16,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                     <DrawerItems {...props} />
                     <TouchableOpacity onPress={() => _signout(props)}>
                         <View style={styles.logoutContainer}>
-                            <Icon name="log-out" style={styles.logoutIcon} ></Icon>
+                            <Icon name='log-out' style={styles.logoutIcon} ></Icon>
                             <Text style={styles.logoutText}>Logout</Text>
                         </View>
                     </TouchableOpacity>
@@ -24,7 +24,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
             </Container >
         </SafeAreaView>
     );
-}
+};
 
 const _signout = async (props: DrawerItemsProps) => {
     await localDbManager.delete('userToken', (err) => {
@@ -32,7 +32,7 @@ const _signout = async (props: DrawerItemsProps) => {
             console.log('removed from db..');
         }
     });
-    props.navigation.navigate('Login')
-}
+    props.navigation.navigate('Login');
+};
 
 export default CustomDrawerComponent;

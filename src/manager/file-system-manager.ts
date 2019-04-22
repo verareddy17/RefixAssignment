@@ -1,3 +1,2 @@
-export class fileSystemManager  {
-    
+export class FileSystemManager  {
 }

@@ -4,17 +4,18 @@ import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import styles from './recentlyviewed-style';
 
 interface Props {
+    // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
 }
 export default class RecentViewScreen extends Component<Props> {
-    render() {
+    public render() {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={'#87bc2b'} iosBarStyle={'light-content'}>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                <Icon name="menu" style={styles.iconColor}></Icon>
+                                <Icon name='menu' style={styles.iconColor}></Icon>
                             </Button>
                         </Left>
                         <Body>
@@ -29,6 +30,6 @@ export default class RecentViewScreen extends Component<Props> {
                     </Content>
                 </Container>
             </SafeAreaView>
-        )
+        );
     }
 }
