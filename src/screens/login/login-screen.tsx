@@ -3,10 +3,10 @@ import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWith
 import { Text, Item, Input, Icon, Header, Label, Spinner } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
+import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
 import onchangeText from '../../redux/actions/input-action';
-import localDbManager from '../../manager/localdb-manager';
 import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
@@ -21,7 +21,6 @@ interface Props {
     getActivationPin(pin: string): ActionPayload<string>;
     requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
-
 
 class LoginScreen extends Component<Props> {
     public static navigationOptions = {
@@ -80,7 +79,7 @@ class LoginScreen extends Component<Props> {
         }
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
-            await localDbManager.insert<string>('userToken', 'abc', async (err) => {
+            await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
                 if (err === null) {
                     this.props.navigation.navigate('Home');
                 }

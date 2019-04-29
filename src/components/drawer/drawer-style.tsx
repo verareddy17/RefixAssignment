@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
+import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
     drawerHeader: {
-        backgroundColor: '#75a225',
+        backgroundColor: Config.SECONDARY_COLOR,
         height: 200,
         alignItems: 'center',
     },
@@ -27,4 +28,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 });
+
 export default styles;

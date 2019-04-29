@@ -1,4 +1,5 @@
-import { NetInfo, Alert } from 'react-native';
+import { NetInfo } from 'react-native';
+import Config from 'react-native-config';
 
 export default class ApiManager {
 
@@ -8,27 +9,31 @@ export default class ApiManager {
         put: 'PUT',
     };
 
-    public static baseUrl: string = 'https://randomuser.me/api';
 
-    public static async get<T>(url: string, callBack: (response?: T, error?: String) => void) {
-        let endpointUrl = `${this.baseUrl}${url}`;
-        const response = await fetch(endpointUrl, {
-            method: ApiManager.httpMethod.get,
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        });
-        if (response !== null) {
-            const res = await response.json();
-            callBack(res);
-            return;
-        }
-        callBack(response, 'Unkonwn error occured');
-    }
-
-    public static async post<T>(urlStr: string, params: object, callBack: (response?: T, error?: String) => void) {
-
+    public static async get<T>(url: string, callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
         await ApiManager.checkNetworkConnection().then(async (networkType) => {
             if (networkType === 'wifi' || networkType === 'cellular') {
-                const response = await fetch(urlStr, {
+                const response = await fetch(url, {
+                    method: ApiManager.httpMethod.get,
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                });
+                if (response !== null) {
+                    const res = await response.json();
+                    callBack(res);
+                    return;
+                }
+                callBack(response, 'Unkonwn error occured');
+            } else {
+                callBack(undefined, undefined, true);
+            }
+        });
+
+    }
+
+    public static async post<T>(url: string, params: object, callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
+        await ApiManager.checkNetworkConnection().then(async (networkType) => {
+            if (networkType === 'wifi' || networkType === 'cellular') {
+                const response = await fetch(url, {
                     method: ApiManager.httpMethod.post,
                     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify(params),
@@ -36,14 +41,12 @@ export default class ApiManager {
                 if (response !== null) {
                     callBack(await response.json());
                     return;
-                } else {
-                    callBack(response, 'Unkonwn error occured');
                 }
+                callBack(response, 'Unkonwn error occured');
             } else {
-                Alert.alert('Please check internet connection');
+                callBack(undefined, undefined, true);
             }
         });
-
     }
 
     public static checkNetworkConnection() {

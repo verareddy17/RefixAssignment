@@ -3,13 +3,14 @@ import { TouchableOpacity } from 'react-native';
 import { View, Text, Container, Content, Header, Icon } from 'native-base';
 import { SafeAreaView, DrawerItemsProps, DrawerItems } from 'react-navigation';
 import styles from './drawer-style';
-import localDbManager from '../../manager/localdb-manager';
+import LocalDbManager from '../../manager/localdb-manager';
+import Config from 'react-native-config';
 
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
     return (
         <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
             <Container>
-                <Header noShadow style={styles.drawerHeader} androidStatusBarColor={'#87bc2b'} iosBarStyle={'light-content'}>
+                <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                     <Text>Welcome</Text>
                 </Header>
                 <Content>
@@ -27,7 +28,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
 };
 
 const _signout = async (props: DrawerItemsProps) => {
-    await localDbManager.delete('userToken', (err) => {
+    await LocalDbManager.delete('userToken', (err) => {
         if (err == null) {
             console.log('removed from db..');
         }

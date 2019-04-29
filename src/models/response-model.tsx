@@ -1,6 +1,6 @@
 export interface ApiResponse<T> {
-    results: T;
-    errors: Error[];
+   data: T;
+   errors: Error[];
 }
 
 export default interface ResponseJson<T> {

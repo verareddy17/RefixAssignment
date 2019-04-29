@@ -9,6 +9,7 @@ import FileManagerScreen from '../screens/filemamager/filemanager-screen';
 import RecentViewScreen from '../screens/recentlyviewed/recentlyviewed-screen';
 import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
+import Config from 'react-native-config';
 
 const HomeStackNavigator = createStackNavigator(
     {
@@ -24,6 +25,7 @@ const HomeStackNavigator = createStackNavigator(
         headerMode: 'none',
     }
 );
+
 const AppDrawerNavigator = createDrawerNavigator(
     {
         Home: {
@@ -65,10 +67,14 @@ const AppDrawerNavigator = createDrawerNavigator(
     },
     {
         contentComponent: CustomDrawerComponent,
+        contentOptions: {
+            activeTintColor: Config.PRIMARY_COLOR,
+        },
     }
 );
 
 const AuthStack = createStackNavigator({ Login: LoginScreen });
+
 const BaseNavigation = createAppContainer(createSwitchNavigator(
     {
         AuthLoading: AuthLoadingScreen,
@@ -79,5 +85,6 @@ const BaseNavigation = createAppContainer(createSwitchNavigator(
         initialRouteName: 'AuthLoading',
     }
 ));
+
 export default BaseNavigation;
 

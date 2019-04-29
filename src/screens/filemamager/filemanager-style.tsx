@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
+import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
     headerBg: {
-        backgroundColor: '#87bc2b',
+        backgroundColor: Config.PRIMARY_COLOR,
     },
     iconColor: {
         color: '#fff',
@@ -14,4 +15,5 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 });
+
 export default styles;
