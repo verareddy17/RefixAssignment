@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, List, ListItem, Badge } from 'native-base';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
-import { Alert, ListView, Image, TouchableOpacity } from 'react-native';
+import { ListView, Image, TouchableOpacity } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
@@ -58,7 +58,6 @@ class HomeScreen extends Component<Props, State> {
                             <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
                                 <Icon name='menu' style={styles.iconColor}></Icon>
                             </TouchableOpacity>
-
                         </Left>
                         <Body>
                             <Title style={styles.headerTitle}>Home</Title>

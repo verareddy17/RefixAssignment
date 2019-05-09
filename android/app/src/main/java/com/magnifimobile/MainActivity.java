@@ -14,8 +14,7 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "MagnifiMobile";
-    }
-
+    }   
     @Override
     protected ReactActivityDelegate createReactActivityDelegate() {
         return new ReactActivityDelegate(this, getMainComponentName()) {

@@ -61,6 +61,18 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: '#fff',
     },
+    progressBarConainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+    },
+    progressBarWidth: {
+        width: '100%',
+    },
+    progressBarText: {
+        color: '#fff',
+        textAlign: 'center',
+    },
 });
 
 export default styles;
