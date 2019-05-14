@@ -9,7 +9,6 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import Config from 'react-native-config';
 import LocalDbManager from '../../manager/localdb-manager';
-
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -84,7 +83,7 @@ class HomeScreen extends Component<Props, State> {
                                         <View>
                                             <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                                 <View style={styles.resourceImageConatiner}>
-                                                    <Image source={{ uri: rowData.ResourceFolderImage, cache: 'only-if-cached' }}
+                                                    <Image source={{ uri: rowData.ResourceFolderImage }}
                                                         style={styles.resourceImage} />
                                                     <Badge style={styles.badge}>
                                                         <Text style={styles.text}>{rowData.ResourcesCount}</Text>

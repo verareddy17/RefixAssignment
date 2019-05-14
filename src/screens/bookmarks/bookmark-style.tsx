@@ -14,6 +14,20 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: '#fff',
     },
+    swipeButton: {
+        alignSelf: 'center',
+    },
+    swipeContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    },
+    resourceImage: {
+        height: 30,
+        width: 30,
+    },
+    listContainer: {
+        flex: 1,
+    }
 });
 
 export default styles;

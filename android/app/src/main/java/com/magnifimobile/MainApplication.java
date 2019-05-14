@@ -28,11 +28,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-          new RNFetchBlobPackage(),
-          new RNVersionNumberPackage(),
-          new RNGestureHandlerPackage(),
-          new RNReactNativeDocViewerPackage(),
-          new ReactNativeConfigPackage()
+            new RNFetchBlobPackage(),
+            new RNVersionNumberPackage(),
+            new RNGestureHandlerPackage(),
+            new RNReactNativeDocViewerPackage(),
+            new ReactNativeConfigPackage()
       );
     }
 

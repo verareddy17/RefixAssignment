@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast } from 'native-base';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS } from 'react-native';
 import Config from 'react-native-config';
 import styles from './file-style';
+import LocalDbManager from '../../manager/localdb-manager';
+import { object, array, number } from 'prop-types';
+import Bookmarks from '../../models/bookmark-model';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, AsyncStorage } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import OpenFile from 'react-native-doc-viewer';
 import RNFetchBlob from 'rn-fetch-blob';
-import LocalDbManager from '../../manager/localdb-manager';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
 import { Constant } from '../../constant';
 
@@ -18,6 +20,8 @@ interface Props {
 }
 
 interface State {
+    swipe: boolean;
+    bookmarkedFiles: Bookmarks[];
     isProgress: boolean;
     progressValue: number;
     downloadedFiles: Array<DownloadedFilesModel>;
@@ -29,16 +33,53 @@ export default class FileScreen extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            swipe: false,
+            bookmarkedFiles: [],
             isProgress: false,
             progressValue: 0,
-            downloadedFiles: [],
-        };
+            downloadedFiles: []
+        }
     }
 
     public async componentWillMount() {
+        await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
+            if (data) {
+                this.setState({
+                    bookmarkedFiles: data
+                });
+            }
+        });
         await LocalDbManager.get<Array<DownloadedFilesModel>>('downloadedFiles', (err, data) => {
             if (data) {
                 this.setState({ downloadedFiles: data } as State);
+            }
+        });
+    }
+
+    setColorIfFileIsBookmarked(resourceID: number) {
+        let bookmarks = this.state.bookmarkedFiles || []
+        const search = (resourceID: number) => bookmarks.find(element => element.resourceId === resourceID);
+        if (search(resourceID)) {
+            return Constant.blueColor
+        }
+        return Constant.blackColor
+    }
+
+    async onBookmarkButtonPressed(data: ResourceModel) {
+        let bookmarkFiles = this.state.bookmarkedFiles || [];
+        let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
+        if (index > -1) {
+            bookmarkFiles.splice(index, 1); // unbookmarking
+        } else {
+            bookmarkFiles.push({ resourceId: data.ResourceID, resourceName: data.ResourceName, resourceImage: data.ResourceImage }) // adding bookmark
+        }
+        await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
+            if (error !== null) {
+                Alert.alert(error!.message)
+            } else {
+                this.setState({
+                    bookmarkedFiles: bookmarkFiles
+                });
             }
         });
     }
@@ -55,7 +96,7 @@ export default class FileScreen extends Component<Props, State> {
                             body={
                                 <View style={styles.folderContainer}>
                                     <View style={styles.folderImageContainer}>
-                                        <Image source={{ uri: data.ResourceFolderImage, cache: 'only-if-cached' }}
+                                        <Image source={{ uri: data.ResourceFolderImage }}
                                             style={styles.image} />
                                         <Badge style={styles.badge}>
                                             <Text style={styles.badgeText}>{data.ResourcesCount}</Text>
@@ -81,7 +122,7 @@ export default class FileScreen extends Component<Props, State> {
                             body={
                                 <View style={styles.folderContainer}>
                                     <View style={styles.folderImageContainer}>
-                                        <Image source={{ uri: data.ResourceImage, cache: 'only-if-cached' }}
+                                        <Image source={{ uri: data.ResourceImage }}
                                             style={styles.image} />
                                     </View>
                                     <View style={styles.resourceContainer}>
@@ -90,13 +131,13 @@ export default class FileScreen extends Component<Props, State> {
                                         </TouchableOpacity>
                                     </View>
                                     <View style={styles.bookmarkIconContainer}>
-                                        <Icon name='star' />
+                                        <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
                                     </View>
                                 </View>
                             }
                             right={
                                 <View style={styles.folderContainer}>
-                                    <Button warning full onPress={() => Alert.alert('Bookmark')} style={styles.bookmarkContainer}>
+                                    <Button warning full onPress={() => this.onBookmarkButtonPressed(data)} style={styles.bookmarkContainer}>
                                         <Icon active name='star' />
                                         <Text style={styles.bookmarkText}>Bookmark</Text>
                                     </Button>
@@ -121,7 +162,6 @@ export default class FileScreen extends Component<Props, State> {
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.pop()}>
-
                                 <Icon name='arrow-back' style={styles.iconColor} />
                             </Button>
                         </Left>
