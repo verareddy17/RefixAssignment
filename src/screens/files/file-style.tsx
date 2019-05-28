@@ -3,7 +3,7 @@ import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
     },
     headerBg: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
         right: -10,
     },
     badgeText: {
+        top: -2.5,
         fontSize: 10,
         lineHeight: 20,
     },

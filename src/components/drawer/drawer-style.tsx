@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
         backgroundColor: Config.SECONDARY_COLOR,
         height: 200,
         alignItems: 'center',
+        flexDirection: 'column',
     },
     logoutContainer: {
         flex: 1,
@@ -26,6 +27,29 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         fontWeight: 'bold',
         fontSize: 14,
+    },
+    logoImage: {
+        height: 100,
+        width: 100,
+    },
+    businessUnitTitle: {
+        fontSize: 20,
+        color: '#ffffff',
+    },
+    userNameContainer: {
+        height: 40,
+        width: '100%',
+        flexDirection: 'row',
+        backgroundColor: '#d3d3d3',
+    },
+    userNameTitle: {
+        padding: 8,
+    },
+    spaceContainer: {
+        height: 20,
+    },
+    profileIcon: {
+        marginLeft: 40,
     },
 });
 

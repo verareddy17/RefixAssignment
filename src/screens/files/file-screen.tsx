@@ -37,15 +37,15 @@ export default class FileScreen extends Component<Props, State> {
             bookmarkedFiles: [],
             isProgress: false,
             progressValue: 0,
-            downloadedFiles: []
-        }
+            downloadedFiles: [],
+        };
     }
 
     public async componentWillMount() {
         await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
             if (data) {
                 this.setState({
-                    bookmarkedFiles: data
+                    bookmarkedFiles: data,
                 });
             }
         });
@@ -56,29 +56,29 @@ export default class FileScreen extends Component<Props, State> {
         });
     }
 
-    setColorIfFileIsBookmarked(resourceID: number) {
-        let bookmarks = this.state.bookmarkedFiles || []
+    public setColorIfFileIsBookmarked(resourceID: number) {
+        let bookmarks = this.state.bookmarkedFiles || [];
         const search = (resourceID: number) => bookmarks.find(element => element.resourceId === resourceID);
         if (search(resourceID)) {
-            return Constant.blueColor
+            return Constant.blueColor;
         }
-        return Constant.blackColor
+        return Constant.blackColor;
     }
 
-    async onBookmarkButtonPressed(data: ResourceModel) {
+    public async onBookmarkButtonPressed(data: ResourceModel) {
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
         if (index > -1) {
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
-            bookmarkFiles.push({ resourceId: data.ResourceID, resourceName: data.ResourceName, resourceImage: data.ResourceImage }) // adding bookmark
+            bookmarkFiles.push({ resourceId: data.ResourceID, resourceName: data.ResourceName, resourceImage: data.ResourceImage }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
             if (error !== null) {
-                Alert.alert(error!.message)
+                Alert.alert(error!.message);
             } else {
                 this.setState({
-                    bookmarkedFiles: bookmarkFiles
+                    bookmarkedFiles: bookmarkFiles,
                 });
             }
         });

@@ -1,25 +1,38 @@
 import React, { Component } from 'react';
 import styles from './home-style';
-import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, List, ListItem, Badge } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge } from 'native-base';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
-import { ListView, Image, TouchableOpacity } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
-import { Dispatch, bindActionCreators } from 'redux';
+import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import Config from 'react-native-config';
 import LocalDbManager from '../../manager/localdb-manager';
+import { Constant } from '../../constant';
+import { SettingsResponse } from '../../redux/actions/settings-actions';
+import deviceTokenApi from '../../redux/actions/settings-actions';
+
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     resourceState: ResourceResponse;
+    deviceTokenResponse: SettingsResponse;
     getresources(token: string): object;
     getresourcesfromdb(): object;
     updateresource(): object;
+    requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDeviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+
 }
 
 interface State {
     token: '';
+    BUId: number;
+    UserID: number;
+    confirmationMessage: string;
+    confirmationModifiedDate: string;
+    isFromLogin: boolean;
 }
 
 class HomeScreen extends Component<Props, State> {
@@ -28,6 +41,11 @@ class HomeScreen extends Component<Props, State> {
         super(props);
         this.state = {
             token: '',
+            BUId: 0,
+            UserID: 0,
+            confirmationMessage: '',
+            confirmationModifiedDate: '',
+            isFromLogin: false,
         };
     }
 
@@ -36,19 +54,70 @@ class HomeScreen extends Component<Props, State> {
             this.setState({ token: data } as State);
         });
         await this.getAllResources();
+        await LocalDbManager.get<string>(Constant.confirmationMessage, (err, message) => {
+            if (message !== null && message !== '') {
+                this.setState({
+                    confirmationMessage: message!,
+                });
+            }
+        });
+        const isFromLogin = this.props.navigation.getParam('isFromLogin');
+        if (isFromLogin === true) {
+            LocalDbManager.showConfirmationAlert(this.state.confirmationMessage);
+        }
     }
 
     public async getAllResources() {
         this.props.getresources(this.state.token);
     }
 
-    public updateResouces() {
-        this.props.updateresource();
+    public async updateResouces() {
+        await this.props.updateresource();
+        await LocalDbManager.get<number>(Constant.buid, async (err, buid) => {
+            if (err === null) {
+                this.setState({
+                    BUId: buid!,
+                });
+            }
+        });
+        await LocalDbManager.get<number>(Constant.userID, async (err, userID) => {
+            if (err === null) {
+                await this.setState({
+                    UserID: userID!,
+                });
+            }
+        });
+        await this.props.requestDeviceTokenApi(this.state.UserID, this.state.BUId);
+        console.log('update device token response: ', this.props.deviceTokenResponse.settings);
+        await this.showConfirmationMessage(this.props.deviceTokenResponse.settings.ConfirmationMessage || '', this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate || '');
+    }
+
+    public async showConfirmationMessage(message: string, date: string) {
+        LocalDbManager.get<string>(Constant.confirmationModifiedDate, (err, date) => {
+            if (err === null) {
+                if (date !== null && date !== '') {
+                    this.setState({
+                        confirmationModifiedDate: date!,
+                    });
+                }
+            }
+        });
+        console.log('date..confirmation date', date, this.state.confirmationModifiedDate);
+        if (date !== this.state.confirmationModifiedDate) {
+            if (message!.length > 0) {
+                LocalDbManager.insert<string>(Constant.confirmationMessage, message!, (err) => {
+                    console.log('Successfully inserted');
+                });
+                LocalDbManager.insert<string>(Constant.confirmationModifiedDate, date!, (err) => {
+                    console.log('Successfully inserted');
+                });
+                LocalDbManager.showConfirmationAlert(message!);
+            }
+        }
     }
 
     public render() {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
@@ -105,11 +174,13 @@ class HomeScreen extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
     resourceState: state.resource,
+    deviceTokenResponse: state.settings,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     getresources: bindActionCreators(fetchResources, dispatch),
     updateresource: bindActionCreators(updateResources, dispatch),
+    requestDeviceTokenApi: bindActionCreators(deviceTokenApi, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

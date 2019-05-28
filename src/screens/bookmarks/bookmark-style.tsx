@@ -27,7 +27,12 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         flex: 1,
-    }
+    },
+    noBookmarksContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });
 
 export default styles;

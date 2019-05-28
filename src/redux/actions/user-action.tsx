@@ -33,6 +33,7 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
         dispatch(loadUserRequest());
         await ApiManager.post<ResponseJson<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { 'iPadPin': pin }, (data, err) => {
             if (data) {
+                console.log('loginData', data.ResponseJSON)
                 dispatch(loadUserSuccess(data.ResponseJSON));
             } else {
                 dispatch(loadUserFailed(err !== null ? err as string : ''));

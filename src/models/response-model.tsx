@@ -8,3 +8,4 @@ export default interface ResponseJson<T> {
     ResponseCode: number;
     ResponseMessage: string;
 }
+

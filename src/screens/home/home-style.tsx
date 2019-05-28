@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
         right: -10,
     },
     text: {
+        top: -2.5,
         fontSize: 10,
         lineHeight: 20,
     },

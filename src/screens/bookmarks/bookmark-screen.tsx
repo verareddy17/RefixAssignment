@@ -3,10 +3,11 @@ import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import styles from './bookmark-style';
 import Config from 'react-native-config';
-import { ListView, Alert, Image } from 'react-native'
-import LocalDbManager from '../../manager/localdb-manager'
+import { ListView, Alert, Image } from 'react-native';
+import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
 import { Constant } from '../../constant';
+import { RectButton } from 'react-native-gesture-handler';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -19,13 +20,14 @@ interface State {
 
 export default class BookmarkScreen extends Component<Props, State> {
     constructor(props: Props) {
-        super(props)
+        super(props);
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
             bookmarks: [],
         };
     }
 
-    async componentWillMount() {
+    public async componentWillMount() {
         await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
             if (data) {
                 this.setState({
@@ -35,13 +37,15 @@ export default class BookmarkScreen extends Component<Props, State> {
         });
     }
 
-    async onDeleteButtonPressed(data: Bookmarks) {
-        let bookmarkFiles = this.state.bookmarks || [];
-        let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.resourceId);
+    public async onDeleteButtonPressed(data: Bookmarks, secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }) {
+        rowMap[`${secId}${rowId}`].props.closeRow();
+        let newData = [...this.state.bookmarks];
+        console.log('newdata', newData);
+        const index = newData.findIndex(resource => resource.resourceId === data.resourceId);
         if (index > -1) {
-            bookmarkFiles.splice(index, 1); // unbookmarking
-            this.setState({
-                bookmarks: bookmarkFiles,
+            newData.splice(index, 1); // unbookmarking
+            await this.setState({
+                bookmarks: newData,
             });
             await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, this.state.bookmarks, (error) => {
                 if (error !== null) {
@@ -50,9 +54,43 @@ export default class BookmarkScreen extends Component<Props, State> {
             });
         }
     }
-
-    public render() {
+    public bookmarksList() {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        if (this.state.bookmarks.length > 0) {
+            return (
+                <List
+                    rightOpenValue={-50}
+                    dataSource={ds.cloneWithRows(this.state.bookmarks)}
+                    renderRow={data =>
+                        <ListItem icon>
+                            <Left>
+                                <Image source={{ uri: data.resourceImage }} style={styles.resourceImage} />
+                            </Left>
+                            <Body>
+                                <Text> {data.resourceName} </Text>
+                            </Body>
+                            <Right>
+                                <Icon style={{ color: Constant.blueColor }} name='star' />
+                            </Right>
+                        </ListItem>}
+                    renderRightHiddenRow={(data, secId, rowId, rowMap) =>
+                        <View style={styles.swipeContainer}>
+                            <Button full warning style={styles.swipeButton} onPress={() => this.onDeleteButtonPressed(data, secId, rowId, rowMap)}>
+                                <Icon active name='trash' />
+                            </Button>
+                        </View>
+                    }
+                />
+            );
+        } else {
+            return (
+                <View style={styles.noBookmarksContainer}>
+                    <Text>No Bookmarks Available</Text>
+                </View>
+            );
+        }
+    }
+    public render() {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <NavigationEvents
@@ -73,29 +111,7 @@ export default class BookmarkScreen extends Component<Props, State> {
                     </Header>
                     <Content contentContainerStyle={styles.container}>
                         <View style={styles.listContainer}>
-                            <List
-                                rightOpenValue={-50}
-                                dataSource={ds.cloneWithRows(this.state.bookmarks)}
-                                renderRow={data =>
-                                    <ListItem icon>
-                                        <Left>
-                                            <Image source={{ uri: data.resourceImage }} style={styles.resourceImage} />
-                                        </Left>
-                                        <Body>
-                                            <Text> {data.resourceName} </Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon style={{ color: Constant.blueColor }} name='star' />
-                                        </Right>
-                                    </ListItem>}
-                                renderRightHiddenRow={(data) =>
-                                    <View style={styles.swipeContainer}>
-                                        <Button full warning style={styles.swipeButton} onPress={() => this.onDeleteButtonPressed(data)}>
-                                            <Icon active name='trash' />
-                                        </Button>
-                                    </View>
-                                }
-                            />
+                            {this.bookmarksList()}
                         </View>
                     </Content>
                 </Container>

@@ -1,5 +1,5 @@
-import { AsyncStorage } from 'react-native';
-import Bookmarks from '../models/bookmark-model';
+import { AsyncStorage, Alert } from 'react-native';
+import Config from 'react-native-config';
 
 export default class LocalDbManager {
 
@@ -31,5 +31,9 @@ export default class LocalDbManager {
         await AsyncStorage.removeItem(key, (error) => {
             callBack(error);
         });
+    }
+
+    public static async showConfirmationAlert(confirmationMessage: string) {
+        Alert.alert(Config.APP_NAME, confirmationMessage);
     }
 }

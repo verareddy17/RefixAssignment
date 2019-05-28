@@ -6,7 +6,6 @@ import HomeScreen from '../screens/home/home-screen';
 import FileScreen from '../screens/files/file-screen';
 import BookmarkScreen from '../screens/bookmarks/bookmark-screen';
 import FileManagerScreen from '../screens/filemamager/filemanager-screen';
-import RecentViewScreen from '../screens/recentlyviewed/recentlyviewed-screen';
 import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
 import Config from 'react-native-config';
@@ -52,15 +51,6 @@ const AppDrawerNavigator = createDrawerNavigator(
                 drawerLabel: 'File Manager',
                 drawerIcon: () => (
                     <Icon name='folder' />
-                ),
-            },
-        },
-        Recent: {
-            screen: RecentViewScreen,
-            navigationOptions: {
-                drawerLabel: 'Recently Viewed',
-                drawerIcon: () => (
-                    <Icon name='eye' />
                 ),
             },
         },

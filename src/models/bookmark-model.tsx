@@ -1,6 +1,6 @@
 export default class Bookmarks {
-    resourceId?: number;
-    resourceName?: string;
-    resourceImage?: string;
+   public resourceId?: number;
+   public resourceName?: string;
+   public resourceImage?: string;
 }
 
