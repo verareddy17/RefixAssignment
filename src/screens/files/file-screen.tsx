@@ -13,7 +13,7 @@ import OpenFile from 'react-native-doc-viewer';
 import RNFetchBlob from 'rn-fetch-blob';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
 import { Constant } from '../../constant';
-
+import { unzip } from 'react-native-zip-archive';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -126,7 +126,7 @@ export default class FileScreen extends Component<Props, State> {
                                             style={styles.image} />
                                     </View>
                                     <View style={styles.resourceContainer}>
-                                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage)}>
+                                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
                                             <Text>{data.ResourceName}</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -141,7 +141,7 @@ export default class FileScreen extends Component<Props, State> {
                                         <Icon active name='star' />
                                         <Text style={styles.bookmarkText}>Bookmark</Text>
                                     </Button>
-                                    <Button danger full onPress={() => Alert.alert('Trash')} style={styles.bookmarkContainer}>
+                                    <Button danger full onPress={() => this.deleteFileIfAlreadyDownloads(data.ResourceID)} style={styles.bookmarkContainer}>
                                         <Icon active name='trash' />
                                         <Text style={styles.bookmarkText}>Delete</Text>
                                     </Button>
@@ -180,11 +180,11 @@ export default class FileScreen extends Component<Props, State> {
         );
     }
 
-    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string) {
+    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (data.ResourceType === 'folder') {
             this.props.navigation.push('File', { 'item': data });
         }
-        this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage);
+        this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
     }
 
     public progress() {
@@ -202,29 +202,44 @@ export default class FileScreen extends Component<Props, State> {
         }
     }
 
-    public openPreview(dir: string, fileName: string, fileType: string) {
-        OpenFile.openDoc([{
-            url: `${dir}/${fileName}`,
-            fileName: fileName,
-            fileType: fileType,
-            cache: false,
-        }], (error, url) => {
-            if (error) {
-                console.log('error of fteching path: ', error);
-            } else {
-                console.log('fetching path of downloaded file : ', url);
-            }
-        });
+    public async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string) {
+        if (fileType === 'zip') {
+            let parameter_Start_index = fileName.indexOf('.');
+            let subName = fileName.substring(0, parameter_Start_index);
+            let file = subName.split(' ').join('');
+            const sourcePath = `${dir}/${resourceId}.${fileType}`;
+            const targetPath = `${dir}/${resourceId}/${file}`;
+            await unzip(sourcePath, targetPath).then((path) => {
+                this.props.navigation.push('display', { 'rootPath': `${dir}/${resourceId}`, 'launcherFile': launcherFile, 'fileName': file });
+            })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else {
+            OpenFile.openDoc([{
+                url: `${dir}/${fileName}`,
+                fileName: fileName,
+                fileType: fileType,
+                cache: false,
+            }], (error, url) => {
+                if (error) {
+                    console.log('error of feteching path: ', error);
+                } else {
+                    console.log('fetching path of downloaded file : ', url);
+                }
+            });
+        }
     }
 
-    public downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string) {
+    public downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         let params = {
             'AppUserResourceID': resourceId,
             'UserID': 2653,
             'BUId': 274,
         };
+        const filename = resourceType === 'zip' ? `${resourceId}.${resourceType}` : resourceName;
         RNFetchBlob.config({
-            path: `${dirs}/${resourceName}`,
+            path: `${dirs}/${filename}`,
         }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
             'Content-Type': 'application/json',
         }, JSON.stringify(params)).progress((received, total) => {
@@ -233,16 +248,32 @@ export default class FileScreen extends Component<Props, State> {
             });
         }).then(async (res) => {
             this.setState({ isProgress: false });
-            this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage });
+            this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
             await LocalDbManager.insert<Array<DownloadedFilesModel>>('downloadedFiles', this.state.downloadedFiles, async (err) => {
                 console.log('Successfully inserted');
             });
             let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-            this.openPreview(path, resourceName, resourceType);
+            this.openPreview(path, resourceName, resourceType, resourceId, launcherFile);
         });
     }
 
-    public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string) {
+    public async deleteFileIfAlreadyDownloads(resoureID: number) {
+        let newData = [...this.state.downloadedFiles];
+        const index = newData.findIndex(resource => resource.resourceId === resoureID);
+        if (index > -1) {
+            newData.splice(index, 1); // removing file if already downloaded
+            await this.setState({
+                downloadedFiles: newData,
+            });
+            await LocalDbManager.insert<DownloadedFilesModel[]>('downloadedFiles', this.state.downloadedFiles, (error) => {
+                if (error !== null) {
+                    Alert.alert(error!.message);
+                }
+            });
+        }
+
+    }
+    public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (!(resourceId && resourceName)) {
             console.log('file-screen: loadResourceAsync: resourceId or resourceName is null or undefined');
             return;
@@ -250,23 +281,23 @@ export default class FileScreen extends Component<Props, State> {
         try {
             await LocalDbManager.get<Array<DownloadedFilesModel>>('downloadedFiles', async (err, data) => {
                 if (!data) {
-                    await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!);
+                    await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
                 const fileExists = data.find(i => i.resourceId === resourceId);
                 if (!fileExists) {
-                    await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!);
+                    await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
                 let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-                this.openPreview(path, fileExists.resourceName, fileExists.resourceType);
+                this.openPreview(path, fileExists.resourceName, fileExists.resourceType, resourceId, launcherFile || '');
             });
         } catch (error) {
             console.log('file-screen: loadResourceAsync', error);
         }
     }
 
-    public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string) {
+    public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         let isConnected = await NetworkCheckManager.isConnected();
         if (!isConnected) {
             Toast.show({
@@ -277,6 +308,6 @@ export default class FileScreen extends Component<Props, State> {
             return;
         }
         this.setState({ isProgress: true });
-        this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!);
+        this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile);
     }
 }

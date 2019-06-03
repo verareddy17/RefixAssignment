@@ -9,7 +9,7 @@ import FileManagerScreen from '../screens/filemamager/filemanager-screen';
 import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
 import Config from 'react-native-config';
-
+import DisplayScreen from '../screens/display/display-screen';
 const HomeStackNavigator = createStackNavigator(
     {
         Home: {
@@ -17,6 +17,9 @@ const HomeStackNavigator = createStackNavigator(
         },
         File: {
             screen: FileScreen,
+        },
+        display: {
+            screen: DisplayScreen,
         },
     },
     {
@@ -77,4 +80,3 @@ const BaseNavigation = createAppContainer(createSwitchNavigator(
 ));
 
 export default BaseNavigation;
-

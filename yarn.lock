@@ -4927,6 +4927,11 @@ react-native-version-number@^0.3.5:
   resolved "https://registry.yarnpkg.com/react-native-version-number/-/react-native-version-number-0.3.5.tgz#90f1b49bcb5e72f801bdc22ed6bad6c7cbbc2222"
   integrity sha512-iANHQrYyDSe5Yts2qVjAjFXpK5EHkJGSFAqnVa3Bu/UKBRUjhnMqvskc3EH+IIvvJH9N2Qpidm1KCq42BWa6jQ==
 
+react-native-zip-archive@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-zip-archive/-/react-native-zip-archive-4.0.1.tgz#8a47a2c40bf982c907fae1190686f3ce00b52021"
+  integrity sha512-if0fyRmZMEgXXl8RkgUkly4lwXjHgNt8y0vG1nzKEvylztvvKkVh8eZd1pa2WThknihuJG0GXh4z0jYv5954kQ==
+
 react-native@0.57.8:
   version "0.57.8"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.57.8.tgz#1a840fbe144cd3902cc14313a783ce28efc48cb9"
