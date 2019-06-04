@@ -4,7 +4,7 @@ import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './file-style';
 import LocalDbManager from '../../manager/localdb-manager';
-import { object, array, number } from 'prop-types';
+import { object, array, number, string } from 'prop-types';
 import Bookmarks from '../../models/bookmark-model';
 import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, AsyncStorage } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
@@ -12,12 +12,14 @@ import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import OpenFile from 'react-native-doc-viewer';
 import RNFetchBlob from 'rn-fetch-blob';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 import { unzip } from 'react-native-zip-archive';
+
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
 }
+
 
 interface State {
     swipe: boolean;
@@ -203,18 +205,23 @@ export default class FileScreen extends Component<Props, State> {
     }
 
     public async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string) {
-        if (fileType === 'zip') {
+        if (fileType === FileType.zip) {
             let parameter_Start_index = fileName.indexOf('.');
             let subName = fileName.substring(0, parameter_Start_index);
             let file = subName.split(' ').join('');
             const sourcePath = `${dir}/${resourceId}.${fileType}`;
             const targetPath = `${dir}/${resourceId}/${file}`;
             await unzip(sourcePath, targetPath).then((path) => {
-                this.props.navigation.push('display', { 'rootPath': `${dir}/${resourceId}`, 'launcherFile': launcherFile, 'fileName': file });
+                this.props.navigation.push('display', { 'dir': `${dir}/${resourceId}`, 'launcherFile': launcherFile, 'fileName': file, fileType: fileType });
             })
                 .catch((error) => {
                     console.log(error);
                 });
+        } else if (fileType === FileType.video) {
+            let parameter_Start_index = fileName.indexOf('.');
+            let subName = fileName.substring(0, parameter_Start_index);
+            let storedFileName = subName.split(' ').join('');
+            this.props.navigation.push('display', { 'dir': `${dir}`, 'launcherFile': launcherFile, 'fileName': storedFileName, fileType: fileType });
         } else {
             OpenFile.openDoc([{
                 url: `${dir}/${fileName}`,
@@ -237,7 +244,7 @@ export default class FileScreen extends Component<Props, State> {
             'UserID': 2653,
             'BUId': 274,
         };
-        const filename = resourceType === 'zip' ? `${resourceId}.${resourceType}` : resourceName;
+        const filename = resourceType === 'zip' ? `${resourceId}.${resourceType}` : resourceType === 'mp4' ? resourceName.split(' ').join('') : resourceName;
         RNFetchBlob.config({
             path: `${dirs}/${filename}`,
         }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {

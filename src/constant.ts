@@ -15,3 +15,8 @@ export class Constant {
     public static username = 'username';
     public static clientName = 'clientName';
 }
+
+export enum FileType {
+    zip = 'zip',
+    video = 'mp4',
+}
