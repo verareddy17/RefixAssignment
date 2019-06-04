@@ -20,7 +20,6 @@ interface Props {
     navigation: NavigationScreenProp<any>;
 }
 
-
 interface State {
     swipe: boolean;
     bookmarkedFiles: Bookmarks[];
