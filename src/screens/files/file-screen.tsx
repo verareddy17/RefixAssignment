@@ -142,7 +142,7 @@ export default class FileScreen extends Component<Props, State> {
                                         <Icon active name='star' />
                                         <Text style={styles.bookmarkText}>Bookmark</Text>
                                     </Button>
-                                    <Button danger full onPress={() => this.deleteFileIfAlreadyDownloads(data.ResourceID)} style={styles.bookmarkContainer}>
+                                    <Button danger full onPress={() => this.deleteFileIfAlreadyDownloaded(data.ResourceID)} style={styles.bookmarkContainer}>
                                         <Icon active name='trash' />
                                         <Text style={styles.bookmarkText}>Delete</Text>
                                     </Button>
@@ -263,7 +263,7 @@ export default class FileScreen extends Component<Props, State> {
         });
     }
 
-    public async deleteFileIfAlreadyDownloads(resoureID: number) {
+    public async deleteFileIfAlreadyDownloaded(resoureID: number) {
         let newData = [...this.state.downloadedFiles];
         const index = newData.findIndex(resource => resource.resourceId === resoureID);
         if (index > -1) {
