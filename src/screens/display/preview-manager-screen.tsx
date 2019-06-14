@@ -3,9 +3,10 @@ import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title
 import { WebView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
-import styles from './display-style';
+import styles from './preview-manager-style';
 import Video from 'react-native-video';
 import { FileType } from '../../constant';
+import RNFetchBlob from 'rn-fetch-blob';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -15,12 +16,37 @@ interface Props {
 interface State {
     isLoading: boolean;
 }
-export default class DisplayScreen extends Component<Props, State> {
+export default class PreviewManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
             isLoading: false,
         };
+    }
+
+    public async findHtmlFile(folder: string) {
+        const zipFile = `${RNFetchBlob.fs.dirs.DocumentDir}/${folder}/`;
+        try {
+            let files = await RNFetchBlob.fs.ls(zipFile);
+            console.log('files in main folder', files);
+            let htmlFile = files.filter((file) => {
+                return file === 'index.html';
+            });
+            if (htmlFile.length > 0) {
+                return `${folder}/${htmlFile[0] as string}`;
+            } else {
+                let subFolder = await RNFetchBlob.fs.ls(files[0]);
+                console.log('subFolder', subFolder);
+                let htmlFile = subFolder.filter((file) => {
+                    return file === 'index.html';
+                });
+                if (htmlFile.length > 0) {
+                    return `${subFolder}/${htmlFile[0] as string}`;
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string) {
