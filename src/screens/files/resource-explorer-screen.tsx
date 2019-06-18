@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast } from 'native-base';
-import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast, List, ListItem } from 'native-base';
+import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
-import { object, array, number, string } from 'prop-types';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, AsyncStorage } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, AsyncStorage, ListView, PanResponder, PanResponderInstance } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -18,6 +17,8 @@ import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import downloadFile from '../../redux/actions/download-action';
+import { any } from 'prop-types';
+
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -37,6 +38,8 @@ interface State {
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 
 class ResourceExplorerScreen extends Component<Props, State> {
+    public swipeClose!: SwipeRow;
+    public _panResponder!: PanResponderInstance;
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -44,6 +47,42 @@ class ResourceExplorerScreen extends Component<Props, State> {
             bookmarkedFiles: [],
             downloadedFiles: [],
         };
+        this._panResponder = PanResponder.create({
+            // Ask to be the responder:
+            onStartShouldSetPanResponder: (evt, gestureState) => true,
+            onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+            onMoveShouldSetPanResponder: (evt, gestureState) => true,
+            onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      
+            onPanResponderGrant: (evt, gestureState) => {
+              // The gesture has started. Show visual feedback so the user knows
+              // what is happening!
+              // gestureState.d{x,y} will be set to zero now
+              console.log('x,y axis', gestureState);
+            },
+            onPanResponderMove: (evt, gestureState) => {
+              // The most recent move distance is gestureState.move{X,Y}
+              // The accumulated gesture distance since becoming responder is
+              // gestureState.d{x,y}
+              console.log('x,y axis', gestureState);
+
+            },
+            onPanResponderTerminationRequest: (evt, gestureState) => true,
+            onPanResponderRelease: (evt, gestureState) => {
+              // The user has released all touches while this view is the
+              // responder. This typically means a gesture has succeeded
+              console.log('gesture relesed', gestureState);
+            },
+            onPanResponderTerminate: (evt, gestureState) => {
+              // Another component has become the responder, so this gesture
+              // should be cancelled
+            },
+            onShouldBlockNativeResponder: (evt, gestureState) => {
+              // Returns whether this component should block native components from becoming the JS
+              // responder. Returns true by default. Is currently only supported on android.
+              return true;
+            },
+          });
     }
 
     public async componentWillMount() {
@@ -93,6 +132,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async onBookmarkButtonPressed(data: ResourceModel) {
+        // secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }
+        // rowMap[`${secId}${rowId}`].props.closeRow();
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
         if (index > -1) {
@@ -102,7 +143,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
             if (error !== null) {
-                Toast.show({ text: error!.message , type: 'warning', position: 'top'});
+                Toast.show({ text: error!.message, type: 'warning', position: 'top' });
             } else {
                 this.setState({
                     bookmarkedFiles: bookmarkFiles,
@@ -113,6 +154,14 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public resourceList() {
         let item = this.props.navigation.getParam('item');
+        let files = item.Children.filter((data: SubResourceModel) => {
+            return data.ResourceType !== 'folder';
+        });
+        let folders = item.Children.filter((data: SubResourceModel) => {
+            return data.ResourceType === 'folder';
+        });
+        console.log('files', files);
+        console.log('folders', folders);
         return item.Children.map((data: SubResourceModel, index: number) => {
             if (data.ResourceType === 'folder') {
                 return (
@@ -141,11 +190,17 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 );
             } else {
                 return (
-                    <View key={index}>
+                    <View key={index} {...this._panResponder.panHandlers}>
                         <SwipeRow
                             style={styles.swipeContainer}
                             disableRightSwipe={true}
-                            rightOpenValue={-153}
+                            rightOpenValue={-150}
+                            onRowClose={() => {
+                                console.log('onRowClose', index);
+                            }}
+                            onRowOpen={() => {
+                                console.log('onRowOpen', index);
+                            }}
                             body={
                                 <View style={styles.folderContainer}>
                                     <View style={styles.folderImageContainer}>
@@ -215,7 +270,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public progress() {
-        console.log('downloadProgress', this.props.downloadState);
         const downloadProgress = Math.floor(this.props.downloadState.progress * 100);
         if (Platform.OS === 'ios') {
             return (
@@ -223,12 +277,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <Text style={styles.progressBarText}>{`Downloading(${downloadProgress})`}</Text>
                     <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                 </View>
-
             );
         } else {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>Downloading</Text>
+                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress})`}</Text>
                     <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                 </View>
             );
@@ -248,6 +301,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
+        // rowMap[`${secId}${rowId}`].props.closeRow();
+        // secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }
         let newData = [...this.state.downloadedFiles];
         const index = newData.findIndex(resource => resource.resourceId === resoureID);
         if (index > -1) {
@@ -257,7 +312,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             });
             await LocalDbManager.insert<DownloadedFilesModel[]>('downloadedFiles', this.state.downloadedFiles, (error) => {
                 if (error !== null) {
-                    Toast.show({ text: error!.message , type: 'warning', position: 'top'});
+                    Toast.show({ text: error!.message, type: 'warning', position: 'top' });
                 }
             });
         }
@@ -266,7 +321,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (!(resourceId && resourceName)) {
-            Toast.show({ text: 'File data not available' , type: 'warning', position: 'top'});
+            Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
             return;
         }
         try {
@@ -286,7 +341,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 });
             });
         } catch (error) {
-            Toast.show({ text: error , type: 'warning', position: 'top'});
+            Toast.show({ text: error, type: 'warning', position: 'top' });
         }
     }
 

@@ -22,8 +22,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     resourceImage: {
-        height: 30,
-        width: 30,
+        height: 40,
+        width: 40,
     },
     listContainer: {
         flex: 1,

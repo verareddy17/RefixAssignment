@@ -3,9 +3,9 @@ package com.magnifimobile;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.brentvatne.react.ReactVideoPackage;
-import com.rnziparchive.RNZipArchivePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
+import com.rnziparchive.RNZipArchivePackage;
+import com.brentvatne.react.ReactVideoPackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.reactlibrary.RNReactNativeDocViewerPackage;
@@ -30,9 +30,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new ReactVideoPackage(),
-            new RNZipArchivePackage(),
             new RNFetchBlobPackage(),
+            new RNZipArchivePackage(),
+            new ReactVideoPackage(),
             new RNVersionNumberPackage(),
             new RNGestureHandlerPackage(),
             new RNReactNativeDocViewerPackage(),

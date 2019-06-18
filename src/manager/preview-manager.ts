@@ -1,5 +1,5 @@
 import { FileType } from '../constant';
-import { unzip } from 'react-native-zip-archive';
+import { unzip, unzipAssets } from 'react-native-zip-archive';
 import OpenFile from 'react-native-doc-viewer';
 import { Toast } from 'native-base';
 
