@@ -16,8 +16,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     image: {
-        width: 50,
-        height: 50,
+        width: 65,
+        height: 65,
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     },
     swipeContainer: {
         paddingRight: 0,
-        paddingLeft: 5,
+        paddingLeft: 0,
     },
     bookmarkIconContainer: {
         justifyContent: 'center',

@@ -18,6 +18,7 @@ import { AppState } from '../../redux/reducers/index';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import downloadFile from '../../redux/actions/download-action';
 import { any } from 'prop-types';
+import Swipeout from 'react-native-swipeout';
 
 
 interface Props {
@@ -33,6 +34,8 @@ interface State {
     downloadedFiles: Array<DownloadedFilesModel>;
     UserID?: number;
     BUId?: number;
+    marginLeft: number;
+    isRowClosed: boolean;
 }
 
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -46,43 +49,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
             swipe: false,
             bookmarkedFiles: [],
             downloadedFiles: [],
+            marginLeft: 1,
+            isRowClosed: false,
         };
-        this._panResponder = PanResponder.create({
-            // Ask to be the responder:
-            onStartShouldSetPanResponder: (evt, gestureState) => true,
-            onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-            onMoveShouldSetPanResponder: (evt, gestureState) => true,
-            onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-      
-            onPanResponderGrant: (evt, gestureState) => {
-              // The gesture has started. Show visual feedback so the user knows
-              // what is happening!
-              // gestureState.d{x,y} will be set to zero now
-              console.log('x,y axis', gestureState);
-            },
-            onPanResponderMove: (evt, gestureState) => {
-              // The most recent move distance is gestureState.move{X,Y}
-              // The accumulated gesture distance since becoming responder is
-              // gestureState.d{x,y}
-              console.log('x,y axis', gestureState);
-
-            },
-            onPanResponderTerminationRequest: (evt, gestureState) => true,
-            onPanResponderRelease: (evt, gestureState) => {
-              // The user has released all touches while this view is the
-              // responder. This typically means a gesture has succeeded
-              console.log('gesture relesed', gestureState);
-            },
-            onPanResponderTerminate: (evt, gestureState) => {
-              // Another component has become the responder, so this gesture
-              // should be cancelled
-            },
-            onShouldBlockNativeResponder: (evt, gestureState) => {
-              // Returns whether this component should block native components from becoming the JS
-              // responder. Returns true by default. Is currently only supported on android.
-              return true;
-            },
-          });
     }
 
     public async componentWillMount() {
@@ -134,6 +103,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async onBookmarkButtonPressed(data: ResourceModel) {
         // secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }
         // rowMap[`${secId}${rowId}`].props.closeRow();
+        // this.setState({
+        //     isRowClosed: true,
+        // });
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
         if (index > -1) {
@@ -162,6 +134,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
         console.log('files', files);
         console.log('folders', folders);
+        
         return item.Children.map((data: SubResourceModel, index: number) => {
             if (data.ResourceType === 'folder') {
                 return (
@@ -189,48 +162,82 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     </View>
                 );
             } else {
+                // console.log('isRowClosed');
                 return (
-                    <View key={index} {...this._panResponder.panHandlers}>
-                        <SwipeRow
-                            style={styles.swipeContainer}
-                            disableRightSwipe={true}
-                            rightOpenValue={-150}
-                            onRowClose={() => {
-                                console.log('onRowClose', index);
-                            }}
-                            onRowOpen={() => {
-                                console.log('onRowOpen', index);
-                            }}
-                            body={
-                                <View style={styles.folderContainer}>
-                                    <View style={styles.folderImageContainer}>
-                                        <Image source={{ uri: data.ResourceImage }}
-                                            style={styles.image} />
-                                    </View>
-                                    <View style={styles.resourceContainer}>
-                                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
-                                            <Text>{data.ResourceName}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={styles.bookmarkIconContainer}>
-                                        <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
-                                    </View>
-                                </View>
-                            }
-                            right={
-                                <View style={styles.folderContainer}>
-                                    <Button warning full onPress={() => this.onBookmarkButtonPressed(data)} style={styles.bookmarkContainer}>
-                                        <Icon active name='star' />
-                                        <Text style={styles.bookmarkText}>Bookmark</Text>
-                                    </Button>
-                                    <Button danger full onPress={() => this.deleteFileIfAlreadyDownloaded(data.ResourceID)} style={styles.bookmarkContainer}>
-                                        <Icon active name='trash' />
-                                        <Text style={styles.bookmarkText}>Delete</Text>
-                                    </Button>
-                                </View>
-                            }
-                        />
-                    </View>
+                    // <View key={index}>
+                    //     <SwipeRow
+                    //         style={styles.swipeContainer}
+                    //         disableRightSwipe={true}
+                    //         rightOpenValue={-150}
+                    //         onRowClose={() => {
+                    //             console.log('onRowClose', index);
+                    //         }}
+                    //         onRowOpen={() => {
+                    //             console.log('onRowOpen', index);
+                    //         }}
+                    //         closeOnRowPress= {this.state.isRowClosed}
+                    //         body={
+                    //             <View style={styles.folderContainer}>
+                    //                 <View style={styles.folderImageContainer}>
+                    //                     <Image source={{ uri: data.ResourceImage }}
+                    //                         style={styles.image} />
+                    //                 </View>
+                    //                 <View style={styles.resourceContainer}>
+                    //                     <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
+                    //                         <Text>{data.ResourceName}</Text>
+                    //                     </TouchableOpacity>
+                    //                 </View>
+                    //                 <View style={styles.bookmarkIconContainer}>
+                    //                     <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
+                    //                 </View>
+                    //             </View>
+                    //         }
+                    //         right={
+                    //             <View style={styles.folderContainer}>
+                    //                 <Button warning full onPress={() => this.onBookmarkButtonPressed(data)} style={styles.bookmarkContainer}>
+                    //                     <Icon active name='star' />
+                    //                     <Text style={styles.bookmarkText}>Bookmark</Text>
+                    //                 </Button>
+                    //                 <Button danger full onPress={() => this.deleteFileIfAlreadyDownloaded(data.ResourceID)} style={styles.bookmarkContainer}>
+                    //                     <Icon active name='trash' />
+                    //                     <Text style={styles.bookmarkText}>Delete</Text>
+                    //                 </Button>
+                    //             </View>
+                    //         }
+                    //     />
+                    // </View>
+                    <Swipeout key={index} right={[{
+                        text: 'Bookmarks',
+                        backgroundColor: 'green',
+                        onPress: () => {
+                           this.onBookmarkButtonPressed(data);
+                        },
+                      },
+                      {
+                        text: 'Delete',
+                        backgroundColor: 'red',
+                        onPress: () => {
+                            this.deleteFileIfAlreadyDownloaded(data.ResourceID);
+                        },
+                      },
+                    ]}
+                      autoClose={true} style={styles.swipeContainer}>
+                        <View style={[styles.folderContainer, { height: 70 }, { justifyContent: 'center' }, {backgroundColor:'white'}]}>
+                            <View style={styles.folderImageContainer}>
+                                <Image source={{ uri: data.ResourceImage }}
+                                    style={styles.image} />
+                            </View>
+                            <View style={styles.resourceContainer}>
+                                <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
+                                    <Text>{data.ResourceName}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.bookmarkIconContainer}>
+                                <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
+                            </View>
+                        </View>
+                        <View style= {{width: '100%', height: 1, backgroundColor: 'darkGray'}}/>
+                    </Swipeout>
                 );
             }
         });
