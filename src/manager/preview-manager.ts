@@ -14,14 +14,16 @@ export default class PreviewManager {
 
     public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string) => void) {
         if (fileType === FileType.zip) {
+            console.log('started unziping')
             let resourceName = await PreviewManager.extractFileName(fileName);
             const sourcePath = `${dir}/${resourceId}.${fileType}`;
             const targetPath = `${dir}/${resourceId}/${resourceName}`;
+            console.log('source path', sourcePath);
             await unzip(sourcePath, targetPath).then(() => {
                 callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType);
             })
                 .catch((error) => {
-                    console.log(error);
+                    console.log('failed to unzip the file ', error);
                 });
         } else if (fileType === FileType.video) {
             let resourceName = await PreviewManager.extractFileName(fileName);

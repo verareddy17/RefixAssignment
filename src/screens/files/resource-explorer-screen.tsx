@@ -101,11 +101,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async onBookmarkButtonPressed(data: ResourceModel) {
-        // secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }
-        // rowMap[`${secId}${rowId}`].props.closeRow();
-        // this.setState({
-        //     isRowClosed: true,
-        // });
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
         if (index > -1) {
@@ -126,15 +121,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public resourceList() {
         let item = this.props.navigation.getParam('item');
-        let files = item.Children.filter((data: SubResourceModel) => {
-            return data.ResourceType !== 'folder';
-        });
-        let folders = item.Children.filter((data: SubResourceModel) => {
-            return data.ResourceType === 'folder';
-        });
-        console.log('files', files);
-        console.log('folders', folders);
-        
         return item.Children.map((data: SubResourceModel, index: number) => {
             if (data.ResourceType === 'folder') {
                 return (
@@ -162,50 +148,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     </View>
                 );
             } else {
-                // console.log('isRowClosed');
                 return (
-                    // <View key={index}>
-                    //     <SwipeRow
-                    //         style={styles.swipeContainer}
-                    //         disableRightSwipe={true}
-                    //         rightOpenValue={-150}
-                    //         onRowClose={() => {
-                    //             console.log('onRowClose', index);
-                    //         }}
-                    //         onRowOpen={() => {
-                    //             console.log('onRowOpen', index);
-                    //         }}
-                    //         closeOnRowPress= {this.state.isRowClosed}
-                    //         body={
-                    //             <View style={styles.folderContainer}>
-                    //                 <View style={styles.folderImageContainer}>
-                    //                     <Image source={{ uri: data.ResourceImage }}
-                    //                         style={styles.image} />
-                    //                 </View>
-                    //                 <View style={styles.resourceContainer}>
-                    //                     <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
-                    //                         <Text>{data.ResourceName}</Text>
-                    //                     </TouchableOpacity>
-                    //                 </View>
-                    //                 <View style={styles.bookmarkIconContainer}>
-                    //                     <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
-                    //                 </View>
-                    //             </View>
-                    //         }
-                    //         right={
-                    //             <View style={styles.folderContainer}>
-                    //                 <Button warning full onPress={() => this.onBookmarkButtonPressed(data)} style={styles.bookmarkContainer}>
-                    //                     <Icon active name='star' />
-                    //                     <Text style={styles.bookmarkText}>Bookmark</Text>
-                    //                 </Button>
-                    //                 <Button danger full onPress={() => this.deleteFileIfAlreadyDownloaded(data.ResourceID)} style={styles.bookmarkContainer}>
-                    //                     <Icon active name='trash' />
-                    //                     <Text style={styles.bookmarkText}>Delete</Text>
-                    //                 </Button>
-                    //             </View>
-                    //         }
-                    //     />
-                    // </View>
                     <Swipeout key={index} right={[{
                         text: 'Bookmarks',
                         backgroundColor: 'green',
@@ -308,8 +251,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
-        // rowMap[`${secId}${rowId}`].props.closeRow();
-        // secId: string | number, rowId: string | number, rowMap: { [x: string]: { props: { closeRow: () => void; }; }; }
         let newData = [...this.state.downloadedFiles];
         const index = newData.findIndex(resource => resource.resourceId === resoureID);
         if (index > -1) {

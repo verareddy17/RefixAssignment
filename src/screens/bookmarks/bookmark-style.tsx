@@ -19,11 +19,13 @@ const styles = StyleSheet.create({
     },
     swipeContainer: {
         flex: 1,
-        flexDirection: 'row',
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     resourceImage: {
-        height: 40,
-        width: 40,
+        height: 45,
+        width: 45,
     },
     listContainer: {
         flex: 1,

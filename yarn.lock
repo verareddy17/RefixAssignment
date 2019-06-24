@@ -5021,9 +5021,9 @@ react-native-video@^4.4.1:
     shaka-player "^2.4.4"
 
 react-native-zip-archive@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-zip-archive/-/react-native-zip-archive-4.0.1.tgz#8a47a2c40bf982c907fae1190686f3ce00b52021"
-  integrity sha512-if0fyRmZMEgXXl8RkgUkly4lwXjHgNt8y0vG1nzKEvylztvvKkVh8eZd1pa2WThknihuJG0GXh4z0jYv5954kQ==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-zip-archive/-/react-native-zip-archive-4.1.0.tgz#0d5df77b88a46cb0bb96a57c2e0d996255c2e10f"
+  integrity sha512-KPtKVadV+fQoJ6IeoL9gYcuGPlqIcxD5Xq3rkXOU9ctH/x570prsF38KjE4AMR5AAmoNq68ZbIz1NqBOnK6mTw==
 
 react-native@0.57.8:
   version "0.57.8"

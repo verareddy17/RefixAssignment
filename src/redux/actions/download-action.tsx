@@ -45,8 +45,8 @@ export default function downloadFile(UserID: number, BUId: number, AppUserResour
         }, JSON.stringify(params)).progress(async (received, total) => {
             let progress = (received / total);
             await dispatch(downloadResourceProgress(progress));
-        }).then(async () => {
-            console.log('downloadCompleted');
+        }).then(async (res) => {
+            console.log('downloadCompleted', res);
             await dispatch(downloadResourceSuccess(0));
         });
     };
