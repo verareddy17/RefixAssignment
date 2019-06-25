@@ -19,7 +19,10 @@ import { DownloadResourceFileProgress } from '../../redux/actions/download-actio
 import downloadFile from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
-
+import imageCacheHoc from 'react-native-image-cache-hoc'
+const CacheableImage = imageCacheHoc(Image, {
+    validProtocols: ['http', 'https'],
+});
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -131,8 +134,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             body={
                                 <View style={styles.folderContainer}>
                                     <View style={styles.folderImageContainer}>
-                                        <Image source={{ uri: data.ResourceFolderImage }}
-                                            style={styles.image} />
+                                        <CacheableImage style={styles.image} source={{ uri: data.ResourceFolderImage }}/>
                                         <Badge style={styles.badge}>
                                             <Text style={styles.badgeText}>{data.ResourcesCount}</Text>
                                         </Badge>
@@ -169,6 +171,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             <View style={styles.folderImageContainer}>
                                 <Image source={{ uri: data.ResourceImage }}
                                     style={styles.image} />
+                               <CacheableImage style={styles.image} source={{ uri: data.ResourceImage }}/>
                             </View>
                             <View style={styles.resourceContainer}>
                                 <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
