@@ -12,6 +12,7 @@ import LocalDbManager from '../../manager/localdb-manager';
 import { Constant } from '../../constant';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
+import Crashes from 'appcenter-crashes';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -90,6 +91,8 @@ class HomeScreen extends Component<Props, State> {
         await this.props.requestDeviceTokenApi(this.state.UserID, this.state.BUId);
         console.log('update device token response: ', this.props.deviceTokenResponse.settings);
         await this.showConfirmationMessage(this.props.deviceTokenResponse.settings.ConfirmationMessage || '', this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate || '');
+        Crashes.generateTestCrash();
+        // throw new Error('This is a test javascript crash!');
     }
 
     public async showConfirmationMessage(message: string, date: string) {

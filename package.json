@@ -8,6 +8,9 @@
     "tsc": "tsc"
   },
   "dependencies": {
+    "appcenter": "2.0.0",
+    "appcenter-analytics": "2.0.0",
+    "appcenter-crashes": "2.0.0",
     "native-base": "^2.10.0",
     "react": "16.6.3",
     "react-native": "0.57.8",
@@ -45,6 +48,11 @@
     "typescript": "^3.2.4"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "setupFiles": [
+      "<rootDir>/node_modules/appcenter/test/AppCenterMock.js",
+      "<rootDir>/node_modules/appcenter-analytics/test/AppCenterAnalyticsMock.js",
+      "<rootDir>/node_modules/appcenter-crashes/test/AppCenterCrashesMock.js"
+   ]
   }
 }

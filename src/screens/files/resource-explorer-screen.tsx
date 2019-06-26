@@ -169,8 +169,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                       autoClose={true} style={styles.swipeContainer}>
                         <View style={[styles.folderContainer, { height: 70 }, { justifyContent: 'center' }, {backgroundColor:'white'}]}>
                             <View style={styles.folderImageContainer}>
-                                <Image source={{ uri: data.ResourceImage }}
-                                    style={styles.image} />
                                <CacheableImage style={styles.image} source={{ uri: data.ResourceImage }}/>
                             </View>
                             <View style={styles.resourceContainer}>

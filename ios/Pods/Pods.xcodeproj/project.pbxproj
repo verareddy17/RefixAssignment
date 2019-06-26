@@ -1,0 +1,962 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		397BBDFEBE9CC818487FA8ABB7623A33 /* AppCenter */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D0944D0DEFF9CDF0CBE6D4A41B195020 /* Build configuration list for PBXAggregateTarget "AppCenter" */;
+			buildPhases = (
+			);
+			dependencies = (
+			);
+			name = AppCenter;
+		};
+		ED8B76EC90CA1D894B6D38663D04C292 /* AppCenterReactNativeShared */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = B1AADDABC0FF92BF51AC88E6BD57DB25 /* Build configuration list for PBXAggregateTarget "AppCenterReactNativeShared" */;
+			buildPhases = (
+			);
+			dependencies = (
+				0051E4214884EF5346A2A55966EC832B /* PBXTargetDependency */,
+			);
+			name = AppCenterReactNativeShared;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		5F992559C445E7E4BBF3B74C98789D17 /* Pods-MagnifiMobileTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9A62659E6196BD34C1CF1E8B8A75FF /* Pods-MagnifiMobileTests-dummy.m */; };
+		64192BC2A9B0A2641571231CB6C8BDF2 /* Pods-MagnifiMobile-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DF1683551D29B2B4EE21915E06FCDEFB /* Pods-MagnifiMobile-dummy.m */; };
+		AABFE131EFE0CCFB64005EA47AF5BB95 /* Pods-MagnifiMobile-tvOS-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93BEAF299E20948C19A3F9FB24E965 /* Pods-MagnifiMobile-tvOS-dummy.m */; };
+		E6EA892CB302714DC375F2A444564B53 /* Pods-MagnifiMobile-tvOSTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4655226F79FAD6078967CF066BC112 /* Pods-MagnifiMobile-tvOSTests-dummy.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2EEB6EF9F4C5297617D5D6A6C9D43F8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB1422663ED487495336FAAD5001ABB4;
+			remoteInfo = "Pods-MagnifiMobile";
+		};
+		6654308302FD055C04372E8FC961A6A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 397BBDFEBE9CC818487FA8ABB7623A33;
+			remoteInfo = AppCenter;
+		};
+		987D4AC8447047A33C6D80440925307C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8A90F5EB825501D8FA8E95A79E3DAB9B;
+			remoteInfo = "Pods-MagnifiMobile-tvOS";
+		};
+		C74652E6B7EED028E233E9BA3CD431DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ED8B76EC90CA1D894B6D38663D04C292;
+			remoteInfo = AppCenterReactNativeShared;
+		};
+		D96B09CB6F7CDF72F3099DD83AD5AB87 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 397BBDFEBE9CC818487FA8ABB7623A33;
+			remoteInfo = AppCenter;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0127F64C1E2640BFE16FDF1A845F4A13 /* Pods-MagnifiMobile-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MagnifiMobile-acknowledgements.plist"; sourceTree = "<group>"; };
+		0713D996FC5134392238CB220F36F0F2 /* Pods-MagnifiMobile-tvOSTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MagnifiMobile-tvOSTests-acknowledgements.plist"; sourceTree = "<group>"; };
+		101086D48961A1F5D174F74008C809D8 /* AppCenterReactNativeShared.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterReactNativeShared.framework; path = AppCenterReactNativeShared/AppCenterReactNativeShared.framework; sourceTree = "<group>"; };
+		1B4438230885BC43D0FD0BAD7C093CA2 /* libPods-MagnifiMobile-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-MagnifiMobile-tvOS.a"; path = "libPods-MagnifiMobile-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		259A51087349695F5B93EE5070F4CE70 /* AppCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenter.framework; path = "AppCenter-SDK-Apple/iOS/AppCenter.framework"; sourceTree = "<group>"; };
+		328342C899644D5A0190758734B5B6C8 /* Pods-MagnifiMobile-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		3E3DEACD8812EC870A88E93FF6F1706C /* Pods-MagnifiMobile-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		4A75CCC0D13AC6E2E44638C025087B6A /* Pods-MagnifiMobile-tvOS-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MagnifiMobile-tvOS-acknowledgements.plist"; sourceTree = "<group>"; };
+		57447041E60F2B2A34B159A833C2254C /* AppCenterAnalytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterAnalytics.framework; path = "AppCenter-SDK-Apple/iOS/AppCenterAnalytics.framework"; sourceTree = "<group>"; };
+		59CE2BED226D8BACCDFB3EEC78580EC1 /* AppCenter.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AppCenter.xcconfig; sourceTree = "<group>"; };
+		89768DD7E457B3BE1436FCE5D2224503 /* Pods-MagnifiMobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobileTests.debug.xcconfig"; sourceTree = "<group>"; };
+		89AE34903477F83D2C209AD90695C6EA /* Pods-MagnifiMobile-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		8A28718652CE37E17013F5B6461784BB /* Pods-MagnifiMobile-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MagnifiMobile-acknowledgements.markdown"; sourceTree = "<group>"; };
+		975710B2F1280185CE4BEE7E932DF95D /* Pods-MagnifiMobile-tvOS-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MagnifiMobile-tvOS-acknowledgements.markdown"; sourceTree = "<group>"; };
+		97E2E44F424226CBA4B7EC69502BB3E6 /* libPods-MagnifiMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-MagnifiMobile.a"; path = "libPods-MagnifiMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B594B891DB22FDB95B8219F50BC489C /* libPods-MagnifiMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-MagnifiMobileTests.a"; path = "libPods-MagnifiMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9FA4716A874117F0608079C1816B3FF4 /* Pods-MagnifiMobile-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		ACF30602E397B1E8861EB28CD80855EC /* libPods-MagnifiMobile-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-MagnifiMobile-tvOSTests.a"; path = "libPods-MagnifiMobile-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B949CDF652086A792464DA9B3CE2C9FA /* AppCenterReactNativeShared.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AppCenterReactNativeShared.xcconfig; sourceTree = "<group>"; };
+		C81C68345AB0B2B93A6B5884BCE28273 /* Pods-MagnifiMobile-tvOSTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MagnifiMobile-tvOSTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		CA9A62659E6196BD34C1CF1E8B8A75FF /* Pods-MagnifiMobileTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MagnifiMobileTests-dummy.m"; sourceTree = "<group>"; };
+		CFD6E8B266C29F6EB3EF3151F98DF664 /* Pods-MagnifiMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobileTests.release.xcconfig"; sourceTree = "<group>"; };
+		DE93BEAF299E20948C19A3F9FB24E965 /* Pods-MagnifiMobile-tvOS-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MagnifiMobile-tvOS-dummy.m"; sourceTree = "<group>"; };
+		DF1683551D29B2B4EE21915E06FCDEFB /* Pods-MagnifiMobile-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MagnifiMobile-dummy.m"; sourceTree = "<group>"; };
+		DFA97F5FA35ECB6669C4AA4A00D499EA /* Pods-MagnifiMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile.release.xcconfig"; sourceTree = "<group>"; };
+		EB5EFDA53577F68E9575D3FAE1F56847 /* Pods-MagnifiMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MagnifiMobile.debug.xcconfig"; sourceTree = "<group>"; };
+		EE22FBE6C35768ECC41D6FBC8FDC5592 /* Pods-MagnifiMobileTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MagnifiMobileTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		EF4655226F79FAD6078967CF066BC112 /* Pods-MagnifiMobile-tvOSTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MagnifiMobile-tvOSTests-dummy.m"; sourceTree = "<group>"; };
+		F4CE7345C6137AF49A54827B4AEA2E17 /* AppCenterCrashes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterCrashes.framework; path = "AppCenter-SDK-Apple/iOS/AppCenterCrashes.framework"; sourceTree = "<group>"; };
+		F74485D3A5404EF016BF2848174D8684 /* Pods-MagnifiMobileTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MagnifiMobileTests-acknowledgements.plist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		117DDD1660FB7CD219E2751895FDD964 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		195C2A4076CBE89456F121A3D2C84D25 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4191AA59A06A54D4771E52D95998B321 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC74B4938FA7BE71A0E767169CED65E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13046E40C03E94B3D25DAF4C8A71DF76 /* Pods-MagnifiMobile */ = {
+			isa = PBXGroup;
+			children = (
+				8A28718652CE37E17013F5B6461784BB /* Pods-MagnifiMobile-acknowledgements.markdown */,
+				0127F64C1E2640BFE16FDF1A845F4A13 /* Pods-MagnifiMobile-acknowledgements.plist */,
+				DF1683551D29B2B4EE21915E06FCDEFB /* Pods-MagnifiMobile-dummy.m */,
+				EB5EFDA53577F68E9575D3FAE1F56847 /* Pods-MagnifiMobile.debug.xcconfig */,
+				DFA97F5FA35ECB6669C4AA4A00D499EA /* Pods-MagnifiMobile.release.xcconfig */,
+			);
+			name = "Pods-MagnifiMobile";
+			path = "Target Support Files/Pods-MagnifiMobile";
+			sourceTree = "<group>";
+		};
+		1E40D94BB364328FBE96A84A9A48CC14 /* AppCenterReactNativeShared */ = {
+			isa = PBXGroup;
+			children = (
+				ED7F0E7602AAB87E8282D7EE77A128F2 /* Frameworks */,
+				C2F79BBE68CAC64203149AF75B3502BF /* Support Files */,
+			);
+			name = AppCenterReactNativeShared;
+			path = AppCenterReactNativeShared;
+			sourceTree = "<group>";
+		};
+		23977631E0E947775B0FF421D89FC310 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				259A51087349695F5B93EE5070F4CE70 /* AppCenter.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2D46366A65DDC0794CEBC0FE82BB8A8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				57447041E60F2B2A34B159A833C2254C /* AppCenterAnalytics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3C2867C33787552832CC55A598292135 /* Pods-MagnifiMobile-tvOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				C81C68345AB0B2B93A6B5884BCE28273 /* Pods-MagnifiMobile-tvOSTests-acknowledgements.markdown */,
+				0713D996FC5134392238CB220F36F0F2 /* Pods-MagnifiMobile-tvOSTests-acknowledgements.plist */,
+				EF4655226F79FAD6078967CF066BC112 /* Pods-MagnifiMobile-tvOSTests-dummy.m */,
+				3E3DEACD8812EC870A88E93FF6F1706C /* Pods-MagnifiMobile-tvOSTests.debug.xcconfig */,
+				328342C899644D5A0190758734B5B6C8 /* Pods-MagnifiMobile-tvOSTests.release.xcconfig */,
+			);
+			name = "Pods-MagnifiMobile-tvOSTests";
+			path = "Target Support Files/Pods-MagnifiMobile-tvOSTests";
+			sourceTree = "<group>";
+		};
+		5D0D3521F21C1BB5DCE82B8CAEF9692B /* AppCenter */ = {
+			isa = PBXGroup;
+			children = (
+				6EDB0407D90518B826ED8A5E5A0B7C09 /* Analytics */,
+				94182EE150168D8F091F83224D20C0A4 /* Core */,
+				9B7151692B2AC286B115FA8800335CA1 /* Crashes */,
+				D7E2631FD0126E1F8A2EF339F5A433A9 /* Support Files */,
+			);
+			name = AppCenter;
+			path = AppCenter;
+			sourceTree = "<group>";
+		};
+		6EDB0407D90518B826ED8A5E5A0B7C09 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				2D46366A65DDC0794CEBC0FE82BB8A8A /* Frameworks */,
+			);
+			name = Analytics;
+			sourceTree = "<group>";
+		};
+		7684BD5B1058362CC6AC97ABB09CDCBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97E2E44F424226CBA4B7EC69502BB3E6 /* libPods-MagnifiMobile.a */,
+				1B4438230885BC43D0FD0BAD7C093CA2 /* libPods-MagnifiMobile-tvOS.a */,
+				ACF30602E397B1E8861EB28CD80855EC /* libPods-MagnifiMobile-tvOSTests.a */,
+				9B594B891DB22FDB95B8219F50BC489C /* libPods-MagnifiMobileTests.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		94182EE150168D8F091F83224D20C0A4 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				23977631E0E947775B0FF421D89FC310 /* Frameworks */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		9B7151692B2AC286B115FA8800335CA1 /* Crashes */ = {
+			isa = PBXGroup;
+			children = (
+				BB344F108DF82A6C8E5EC1D35D0DE13C /* Frameworks */,
+			);
+			name = Crashes;
+			sourceTree = "<group>";
+		};
+		BB344F108DF82A6C8E5EC1D35D0DE13C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F4CE7345C6137AF49A54827B4AEA2E17 /* AppCenterCrashes.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C2F79BBE68CAC64203149AF75B3502BF /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				B949CDF652086A792464DA9B3CE2C9FA /* AppCenterReactNativeShared.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/AppCenterReactNativeShared";
+			sourceTree = "<group>";
+		};
+		CAB05587FED9637216BFEA829AA8AD21 /* Pods-MagnifiMobile-tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				975710B2F1280185CE4BEE7E932DF95D /* Pods-MagnifiMobile-tvOS-acknowledgements.markdown */,
+				4A75CCC0D13AC6E2E44638C025087B6A /* Pods-MagnifiMobile-tvOS-acknowledgements.plist */,
+				DE93BEAF299E20948C19A3F9FB24E965 /* Pods-MagnifiMobile-tvOS-dummy.m */,
+				89AE34903477F83D2C209AD90695C6EA /* Pods-MagnifiMobile-tvOS.debug.xcconfig */,
+				9FA4716A874117F0608079C1816B3FF4 /* Pods-MagnifiMobile-tvOS.release.xcconfig */,
+			);
+			name = "Pods-MagnifiMobile-tvOS";
+			path = "Target Support Files/Pods-MagnifiMobile-tvOS";
+			sourceTree = "<group>";
+		};
+		CF1408CF629C7361332E53B88F7BD30C = {
+			isa = PBXGroup;
+			children = (
+				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
+				D89477F20FB1DE18A04690586D7808C4 /* Frameworks */,
+				EE373CD21EE89767163B4F9D8A04C324 /* Pods */,
+				7684BD5B1058362CC6AC97ABB09CDCBA /* Products */,
+				FF2B482E524093595ED4629D0952D52A /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		D7E2631FD0126E1F8A2EF339F5A433A9 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				59CE2BED226D8BACCDFB3EEC78580EC1 /* AppCenter.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/AppCenter";
+			sourceTree = "<group>";
+		};
+		D89477F20FB1DE18A04690586D7808C4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		ED7F0E7602AAB87E8282D7EE77A128F2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				101086D48961A1F5D174F74008C809D8 /* AppCenterReactNativeShared.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EE373CD21EE89767163B4F9D8A04C324 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5D0D3521F21C1BB5DCE82B8CAEF9692B /* AppCenter */,
+				1E40D94BB364328FBE96A84A9A48CC14 /* AppCenterReactNativeShared */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		F862795CF62299119268C87852FDCC32 /* Pods-MagnifiMobileTests */ = {
+			isa = PBXGroup;
+			children = (
+				EE22FBE6C35768ECC41D6FBC8FDC5592 /* Pods-MagnifiMobileTests-acknowledgements.markdown */,
+				F74485D3A5404EF016BF2848174D8684 /* Pods-MagnifiMobileTests-acknowledgements.plist */,
+				CA9A62659E6196BD34C1CF1E8B8A75FF /* Pods-MagnifiMobileTests-dummy.m */,
+				89768DD7E457B3BE1436FCE5D2224503 /* Pods-MagnifiMobileTests.debug.xcconfig */,
+				CFD6E8B266C29F6EB3EF3151F98DF664 /* Pods-MagnifiMobileTests.release.xcconfig */,
+			);
+			name = "Pods-MagnifiMobileTests";
+			path = "Target Support Files/Pods-MagnifiMobileTests";
+			sourceTree = "<group>";
+		};
+		FF2B482E524093595ED4629D0952D52A /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				13046E40C03E94B3D25DAF4C8A71DF76 /* Pods-MagnifiMobile */,
+				CAB05587FED9637216BFEA829AA8AD21 /* Pods-MagnifiMobile-tvOS */,
+				3C2867C33787552832CC55A598292135 /* Pods-MagnifiMobile-tvOSTests */,
+				F862795CF62299119268C87852FDCC32 /* Pods-MagnifiMobileTests */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		122088F676291FBE2D6565D52161AFC5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57D2CC7B6A26D203ADB08BFC44F78560 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91CB382D847E2BAA82B4D3B35437F548 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E8D7F76A56F9C3EFDD1C7A8E426060D9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8A90F5EB825501D8FA8E95A79E3DAB9B /* Pods-MagnifiMobile-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0EB928C8B0C0D83381958050E60A993B /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile-tvOS" */;
+			buildPhases = (
+				91CB382D847E2BAA82B4D3B35437F548 /* Headers */,
+				86C26D86FD32EA280CFAF0DF5FB83037 /* Sources */,
+				195C2A4076CBE89456F121A3D2C84D25 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-MagnifiMobile-tvOS";
+			productName = "Pods-MagnifiMobile-tvOS";
+			productReference = 1B4438230885BC43D0FD0BAD7C093CA2 /* libPods-MagnifiMobile-tvOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		B49AD9CE0422950A158A7A1B9FFA348E /* Pods-MagnifiMobile-tvOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0A6D46B5F71887BC2E52AE382E298E3 /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile-tvOSTests" */;
+			buildPhases = (
+				122088F676291FBE2D6565D52161AFC5 /* Headers */,
+				1A9363C7F14B14F59788D53AABE584E8 /* Sources */,
+				DC74B4938FA7BE71A0E767169CED65E7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B2D3417924B9D2722EC7E845352DA4C7 /* PBXTargetDependency */,
+			);
+			name = "Pods-MagnifiMobile-tvOSTests";
+			productName = "Pods-MagnifiMobile-tvOSTests";
+			productReference = ACF30602E397B1E8861EB28CD80855EC /* libPods-MagnifiMobile-tvOSTests.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		BB1422663ED487495336FAAD5001ABB4 /* Pods-MagnifiMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A19BFBE5D41205E507ABCBCD55B23894 /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile" */;
+			buildPhases = (
+				E8D7F76A56F9C3EFDD1C7A8E426060D9 /* Headers */,
+				408BE7B82B2610EF438787842663865B /* Sources */,
+				4191AA59A06A54D4771E52D95998B321 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EC0CA896C5329318FE0A0CE98AD321A3 /* PBXTargetDependency */,
+				517806354F3B9944D40B325798C3798F /* PBXTargetDependency */,
+			);
+			name = "Pods-MagnifiMobile";
+			productName = "Pods-MagnifiMobile";
+			productReference = 97E2E44F424226CBA4B7EC69502BB3E6 /* libPods-MagnifiMobile.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		EE63279630F72CB58712D367BC8A0D60 /* Pods-MagnifiMobileTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FD0AC07C0AB1EDBA7C34D408D7F20EBE /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobileTests" */;
+			buildPhases = (
+				57D2CC7B6A26D203ADB08BFC44F78560 /* Headers */,
+				3C1B69CC0636C29A1B4E0B0E28215600 /* Sources */,
+				117DDD1660FB7CD219E2751895FDD964 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EA8680FE7AF358E876FE9F8F1EDA9815 /* PBXTargetDependency */,
+			);
+			name = "Pods-MagnifiMobileTests";
+			productName = "Pods-MagnifiMobileTests";
+			productReference = 9B594B891DB22FDB95B8219F50BC489C /* libPods-MagnifiMobileTests.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1020;
+				LastUpgradeCheck = 1020;
+			};
+			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			productRefGroup = 7684BD5B1058362CC6AC97ABB09CDCBA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				397BBDFEBE9CC818487FA8ABB7623A33 /* AppCenter */,
+				ED8B76EC90CA1D894B6D38663D04C292 /* AppCenterReactNativeShared */,
+				BB1422663ED487495336FAAD5001ABB4 /* Pods-MagnifiMobile */,
+				8A90F5EB825501D8FA8E95A79E3DAB9B /* Pods-MagnifiMobile-tvOS */,
+				B49AD9CE0422950A158A7A1B9FFA348E /* Pods-MagnifiMobile-tvOSTests */,
+				EE63279630F72CB58712D367BC8A0D60 /* Pods-MagnifiMobileTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A9363C7F14B14F59788D53AABE584E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E6EA892CB302714DC375F2A444564B53 /* Pods-MagnifiMobile-tvOSTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C1B69CC0636C29A1B4E0B0E28215600 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F992559C445E7E4BBF3B74C98789D17 /* Pods-MagnifiMobileTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		408BE7B82B2610EF438787842663865B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64192BC2A9B0A2641571231CB6C8BDF2 /* Pods-MagnifiMobile-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86C26D86FD32EA280CFAF0DF5FB83037 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AABFE131EFE0CCFB64005EA47AF5BB95 /* Pods-MagnifiMobile-tvOS-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0051E4214884EF5346A2A55966EC832B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AppCenter;
+			target = 397BBDFEBE9CC818487FA8ABB7623A33 /* AppCenter */;
+			targetProxy = D96B09CB6F7CDF72F3099DD83AD5AB87 /* PBXContainerItemProxy */;
+		};
+		517806354F3B9944D40B325798C3798F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AppCenterReactNativeShared;
+			target = ED8B76EC90CA1D894B6D38663D04C292 /* AppCenterReactNativeShared */;
+			targetProxy = C74652E6B7EED028E233E9BA3CD431DE /* PBXContainerItemProxy */;
+		};
+		B2D3417924B9D2722EC7E845352DA4C7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-MagnifiMobile-tvOS";
+			target = 8A90F5EB825501D8FA8E95A79E3DAB9B /* Pods-MagnifiMobile-tvOS */;
+			targetProxy = 987D4AC8447047A33C6D80440925307C /* PBXContainerItemProxy */;
+		};
+		EA8680FE7AF358E876FE9F8F1EDA9815 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-MagnifiMobile";
+			target = BB1422663ED487495336FAAD5001ABB4 /* Pods-MagnifiMobile */;
+			targetProxy = 2EEB6EF9F4C5297617D5D6A6C9D43F8F /* PBXContainerItemProxy */;
+		};
+		EC0CA896C5329318FE0A0CE98AD321A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AppCenter;
+			target = 397BBDFEBE9CC818487FA8ABB7623A33 /* AppCenter */;
+			targetProxy = 6654308302FD055C04372E8FC961A6A0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DF3757DB6DADFE21C7F0FCCD9A1528B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFA97F5FA35ECB6669C4AA4A00D499EA /* Pods-MagnifiMobile.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		42BCABBFF207842E9FDA639576DA5127 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 89768DD7E457B3BE1436FCE5D2224503 /* Pods-MagnifiMobileTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		44DA8D30A185CF39FF38CACD51676CDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B949CDF652086A792464DA9B3CE2C9FA /* AppCenterReactNativeShared.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		68F07807C8D62F2D76C744A41F3D874D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Release;
+		};
+		6F4D25CB9F599D775DBC451590213731 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 59CE2BED226D8BACCDFB3EEC78580EC1 /* AppCenter.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		84BF61768211DEFE00FAA0E87364B588 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CFD6E8B266C29F6EB3EF3151F98DF664 /* Pods-MagnifiMobileTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8A791558A6CAD52F6A29BE7CDFC70C4B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 59CE2BED226D8BACCDFB3EEC78580EC1 /* AppCenter.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B19FDFE9502192B77BCCAC4597254774 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EB5EFDA53577F68E9575D3FAE1F56847 /* Pods-MagnifiMobile.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BE32A7F662ED99A08AE764B187DC18A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3E3DEACD8812EC870A88E93FF6F1706C /* Pods-MagnifiMobile-tvOSTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		C4939254D9B12C5F8E84CFE6C51D11AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B949CDF652086A792464DA9B3CE2C9FA /* AppCenterReactNativeShared.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E1ED6DABFEFD9C54EE38EDA3D2F7092C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		EDEEEE212C2CC416BBFA6A37D1A35E48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9FA4716A874117F0608079C1816B3FF4 /* Pods-MagnifiMobile-tvOS.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F752033FF515F2FBAF5A98A0452F68E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 328342C899644D5A0190758734B5B6C8 /* Pods-MagnifiMobile-tvOSTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F831AE3A156DC2AF5D786AA7313DE1AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 89AE34903477F83D2C209AD90695C6EA /* Pods-MagnifiMobile-tvOS.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0EB928C8B0C0D83381958050E60A993B /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F831AE3A156DC2AF5D786AA7313DE1AA /* Debug */,
+				EDEEEE212C2CC416BBFA6A37D1A35E48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1ED6DABFEFD9C54EE38EDA3D2F7092C /* Debug */,
+				68F07807C8D62F2D76C744A41F3D874D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A19BFBE5D41205E507ABCBCD55B23894 /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B19FDFE9502192B77BCCAC4597254774 /* Debug */,
+				1DF3757DB6DADFE21C7F0FCCD9A1528B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B1AADDABC0FF92BF51AC88E6BD57DB25 /* Build configuration list for PBXAggregateTarget "AppCenterReactNativeShared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4939254D9B12C5F8E84CFE6C51D11AE /* Debug */,
+				44DA8D30A185CF39FF38CACD51676CDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0944D0DEFF9CDF0CBE6D4A41B195020 /* Build configuration list for PBXAggregateTarget "AppCenter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F4D25CB9F599D775DBC451590213731 /* Debug */,
+				8A791558A6CAD52F6A29BE7CDFC70C4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0A6D46B5F71887BC2E52AE382E298E3 /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobile-tvOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE32A7F662ED99A08AE764B187DC18A0 /* Debug */,
+				F752033FF515F2FBAF5A98A0452F68E8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FD0AC07C0AB1EDBA7C34D408D7F20EBE /* Build configuration list for PBXNativeTarget "Pods-MagnifiMobileTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42BCABBFF207842E9FDA639576DA5127 /* Debug */,
+				84BF61768211DEFE00FAA0E87364B588 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+}
