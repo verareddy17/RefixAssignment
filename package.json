@@ -18,6 +18,7 @@
     "react-native-doc-viewer": "^2.7.8",
     "react-native-gesture-handler": "^1.0.15",
     "react-native-image-cache-hoc": "^2.0.0",
+    "react-native-orientation": "^3.1.3",
     "react-native-swipeout": "^2.3.6",
     "react-native-version-number": "^0.3.5",
     "react-native-video": "^4.4.1",
@@ -33,6 +34,7 @@
     "@types/react": "^16.7.20",
     "@types/react-native": "^0.57.29",
     "@types/react-native-doc-viewer": "^2.7.0",
+    "@types/react-native-orientation": "^5.0.1",
     "@types/react-native-video": "^3.1.4",
     "@types/react-navigation": "^3.0.1",
     "@types/react-redux": "^7.0.0",
@@ -53,6 +55,6 @@
       "<rootDir>/node_modules/appcenter/test/AppCenterMock.js",
       "<rootDir>/node_modules/appcenter-analytics/test/AppCenterAnalyticsMock.js",
       "<rootDir>/node_modules/appcenter-crashes/test/AppCenterCrashesMock.js"
-   ]
+    ]
   }
 }

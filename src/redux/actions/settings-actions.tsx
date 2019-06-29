@@ -1,10 +1,11 @@
 import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE } from './action-types';
-import ResponseJson from '../../models/response-model';
+import Data from '../../models/response-model';
 import ApiManager from '../../manager/api-manager';
 import { Dispatch } from 'redux';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
-import { CustomizeSettings, IpadCustomizeSetting } from '../../models/custom-settings';
+import { CustomizeSettings, Setting } from '../../models/custom-settings';
+import ResponseJson from '../../models/response-model';
 
 export const loadUserRequest = () => {
     return {
@@ -30,12 +31,25 @@ export class SettingsResponse {
     public error: string = '';
 }
 
-export default function deviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch) => Promise<void> {
+// export default function deviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch) => Promise<void> {
+//     return async (dispatch: Dispatch) => {
+//         dispatch(loadUserRequest());
+//         await ApiManager.post<ResponseJson<IpadCustomizeSetting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'UserID': UserID, 'BUId': BUId }, (data, err) => {
+//             if (data) {
+//                 dispatch(loadUserSuccess(data.ResponseJSON.IpadCustomizeSetting));
+//             } else {
+//                 dispatch(loadUserFailed(err !== null ? err as string : ''));
+//             }
+//         });
+//     };
+// }
+
+export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadUserRequest());
-        await ApiManager.post<ResponseJson<IpadCustomizeSetting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'UserID': UserID, 'BUId': BUId }, (data, err) => {
+        await ApiManager.post<Data<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, (data, err) => {
             if (data) {
-                dispatch(loadUserSuccess(data.ResponseJSON.IpadCustomizeSetting));
+                dispatch(loadUserSuccess(data.Data.Settings));
             } else {
                 dispatch(loadUserFailed(err !== null ? err as string : ''));
             }

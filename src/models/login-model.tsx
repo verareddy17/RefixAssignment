@@ -1,8 +1,6 @@
 export class ActivationAppResponse {
-    public UserID?: number;
-    public Username?: string;
-    public BUId?: number;
+    public UserFullName?: string;
+    public BUName?: string;
     public Disclaimer?: string;
-    public ClientName?: string;
-    public ClientAdminEmail?: string;
+    public Token?: string;
 }

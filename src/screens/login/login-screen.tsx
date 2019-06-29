@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage, Platform } from 'react-native';
 import { Text, Item, Input, Icon, Header, Label, Spinner } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
 import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
-import onchangeText from '../../redux/actions/input-action';
+import onchangeText, {ResetInputText} from '../../redux/actions/input-action';
 import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
@@ -25,7 +25,10 @@ interface Props {
     deviceTokenResponse: SettingsResponse;
     getActivationPin(pin: string): ActionPayload<string>;
     requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
-    requestDeviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDeviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+// tslint:disable-next-line: no-any
+    resetInputText(): any;
+
 }
 
 class LoginScreen extends Component<Props> {
@@ -94,17 +97,23 @@ class LoginScreen extends Component<Props> {
         }
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
-            await this.storeData<number>(Constant.buid, this.props.userState.user.BUId!);
-            await this.storeData<number>(Constant.userID, this.props.userState.user.UserID!);
-            await this.storeData<string>(Constant.username, this.props.userState.user.Username || '');
-            await this.storeData<string>(Constant.clientName, this.props.userState.user.ClientName || '');
-            await this.props.requestDeviceTokenApi(this.props.userState.user.UserID || 0, this.props.userState.user.BUId || 0);
+            await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
+            await this.storeData<string>(Constant.username, this.props.userState.user.BUName || '');
+            const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
+            await this.props.requestDeviceTokenApi('631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331', 1, deviceOs, this.props.userState.user.Token!);
             console.log('settings response: ', this.props.deviceTokenResponse.settings);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
                 await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
                 await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
+                await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
+                await this.storeData<string>(Constant.fontColor, this.props.deviceTokenResponse.settings.FontColor!);
+                await this.storeData<string>(Constant.logoImage, this.props.deviceTokenResponse.settings.LogoImage!);
+                await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
+                await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
+                await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
                     if (err === null) {
+                        this.props.resetInputText();
                         this.props.navigation.navigate('Home', { 'isFromLogin': true });
                     }
                 });
@@ -125,6 +134,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     getActivationPin: bindActionCreators(onchangeText, dispatch),
     requestLoginApi: bindActionCreators(loginApi, dispatch),
     requestDeviceTokenApi: bindActionCreators(deviceTokenApi, dispatch),
+    resetInputText: bindActionCreators(ResetInputText, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

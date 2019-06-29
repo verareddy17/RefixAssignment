@@ -5,6 +5,7 @@ import { Dispatch } from 'redux';
 import { ActivationAppResponse } from '../../models/login-model';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
+import Data from '../../models/response-model';
 
 export const loadUserRequest = () => {
     return {
@@ -31,10 +32,9 @@ export class LoginResponse {
 export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadUserRequest());
-        await ApiManager.post<ResponseJson<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { 'iPadPin': pin }, (data, err) => {
-            if (data) {
-                console.log('loginData', data.ResponseJSON);
-                dispatch(loadUserSuccess(data.ResponseJSON));
+        await ApiManager.post<Data<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { 'iPadPin': pin }, '', (response, err) => {
+            if (response) {
+                dispatch(loadUserSuccess(response.Data));
             } else {
                 dispatch(loadUserFailed(err !== null ? err as string : ''));
             }

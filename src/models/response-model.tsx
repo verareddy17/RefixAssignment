@@ -1,11 +1,10 @@
 export interface ApiResponse<T> {
-   data: T;
-   errors: Error[];
+   Data: T;
+   Errors: string[];
+   Success: boolean;
+   HasError: boolean;
 }
 
-export default interface ResponseJson<T> {
-    ResponseJSON: T;
-    ResponseCode: number;
-    ResponseMessage: string;
+export default interface Data<T> {
+    Data: T;
 }
-

@@ -75,27 +75,10 @@ export default class BookmarkScreen extends Component<Props, State> {
                             <Right>
                                 <Icon style={{ color: Constant.blueColor }} name='star' />
                             </Right>
-                            {/* <View style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                            }}>
-                                <View style={{ flex: 0.2, height: 55, marginLeft: 5, justifyContent: 'center', alignItems: 'center' }}>
-                                    <CacheableImage style={styles.resourceImage} source={{ uri: data.resourceImage }} />
-                                </View>
-                                <View style={{ flex: 0.7, height: 55, marginLeft: 5, justifyContent: 'center', alignItems: 'flex-start' }}>
-                                    <Text> {data.resourceName} </Text>
-                                </View>
-                                <View style={{ flex: 0.1, height: 55, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Icon style={{ color: Constant.blueColor }} name='star' />
-                                </View>
-                            </View> */}
                         </ListItem>
                     }
                     renderRightHiddenRow={(data, secId, rowId, rowMap) =>
                         <View style={styles.swipeContainer}>
-                            {/* <Button style={styles.swipeButton} onPress={() => this.onDeleteButtonPressed(data, secId, rowId, rowMap)}>
-                                <Text> Delete </Text>
-                            </Button> */}
                             <TouchableOpacity onPress={() => this.onDeleteButtonPressed(data, secId, rowId, rowMap)}>
                                 <Text style={{ color: 'white' }}>Delete</Text>
                             </TouchableOpacity>

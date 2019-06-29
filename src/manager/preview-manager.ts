@@ -1,5 +1,5 @@
 import { FileType } from '../constant';
-import { unzip, unzipAssets } from 'react-native-zip-archive';
+import { unzip } from 'react-native-zip-archive';
 import OpenFile from 'react-native-doc-viewer';
 import { Toast } from 'native-base';
 
@@ -14,7 +14,6 @@ export default class PreviewManager {
 
     public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string) => void) {
         if (fileType === FileType.zip) {
-            console.log('started unziping')
             let resourceName = await PreviewManager.extractFileName(fileName);
             const sourcePath = `${dir}/${resourceId}.${fileType}`;
             const targetPath = `${dir}/${resourceId}/${resourceName}`;
@@ -29,6 +28,7 @@ export default class PreviewManager {
             let resourceName = await PreviewManager.extractFileName(fileName);
             callback(`${dir}`, launcherFile, resourceName, fileType);
         } else {
+            console.log('downladed file', `${dir}/${fileName}`);
             OpenFile.openDoc([{
                 url: `${dir}/${fileName}`,
                 fileName: fileName,
