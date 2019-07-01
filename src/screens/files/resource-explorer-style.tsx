@@ -19,6 +19,20 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
     },
+    fileImage: {
+        width: 50,
+        height: 50,
+        marginLeft: 10,
+        marginTop: 5,
+        marginBottom: 5,
+    },
+    folderImage: {
+        marginLeft: 10,
+        marginTop: 5,
+        marginBottom: 5,
+        height: 50,
+        width: 50,
+    },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
         height: 20,

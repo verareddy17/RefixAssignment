@@ -68,6 +68,13 @@ const styles = StyleSheet.create({
             },
         }),
     },
+    searchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        height: 75,
+    },
+
 });
 
 export default styles;

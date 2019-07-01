@@ -19,8 +19,8 @@ import { DownloadResourceFileProgress } from '../../redux/actions/download-actio
 import downloadFile from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
-import imageCacheHoc from 'react-native-image-cache-hoc'
-const CacheableImage = imageCacheHoc(Image, {
+import imageCacheHoc from 'react-native-image-cache-hoc';
+export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
 
@@ -70,8 +70,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 this.setState({ downloadedFiles: data } as State);
             }
         });
-        await this.getBUId();
-        await this.getUserId();
     }
 
     public setColorIfFileIsBookmarked(resourceID: number) {
@@ -83,33 +81,13 @@ class ResourceExplorerScreen extends Component<Props, State> {
         return Constant.blackColor;
     }
 
-    public async getUserId() {
-        await LocalDbManager.get<number>(Constant.userID, async (err, userId) => {
-            if (err === null) {
-                await this.setState({
-                    UserID: userId,
-                });
-            }
-        });
-    }
-
-    public async getBUId() {
-        await LocalDbManager.get<number>(Constant.buid, async (err, buid) => {
-            if (err === null) {
-                await this.setState({
-                    BUId: buid,
-                });
-            }
-        });
-    }
-
     public async onBookmarkButtonPressed(data: ResourceModel) {
         let bookmarkFiles = this.state.bookmarkedFiles || [];
-        let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceID);
+        let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceId);
         if (index > -1) {
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
-            bookmarkFiles.push({ resourceId: data.ResourceID, resourceName: data.ResourceName, resourceImage: data.ResourceImage }); // adding bookmark
+            bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.ResourceType }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
             if (error !== null) {
@@ -122,26 +100,67 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
     }
 
+    public renderFolderImage(rowData: SubResourceModel) {
+        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
+            return (
+                <Image source={require('../../assets/images/folder.png')} style={styles.folderImage} />
+            );
+        } else {
+            return (
+                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.folderImage} />
+            );
+        }
+    }
+
+    public renderFilesImages(rowData: SubResourceModel) {
+        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
+            if (rowData.ResourceType === FileType.video) {
+                return (
+                    <Image source={require('../../assets/images/mp4.png')} style={styles.fileImage} />
+                );
+            } else if (rowData.ResourceType === FileType.pdf || rowData.ResourceType === FileType.zip) {
+                return (
+                    <Image source={require('../../assets/images/pdf.png')} style={styles.fileImage} />
+                );
+            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
+                return (
+                    <Image source={require('../../assets/images/png.png')} style={styles.fileImage} />
+                );
+            } else {
+                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                    return (
+                        <Image source={require('../../assets/images/ppt.png')} style={styles.fileImage} />
+                    );
+                }
+            }
+        } else {
+            return (
+                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.fileImage} />
+            );
+        }
+    }
+
     public resourceList() {
         let item = this.props.navigation.getParam('item');
+        console.log('items', item);
         return item.Children.map((data: SubResourceModel, index: number) => {
-            if (data.ResourceType === 'folder') {
+            if (data.ResourceType === 'Folder') {
                 return (
                     <View key={index}>
                         <SwipeRow
                             disableLeftSwipe={true}
                             disableRightSwipe={true}
                             body={
-                                <View style={styles.folderContainer}>
-                                    <View style={styles.folderImageContainer}>
-                                        <CacheableImage style={styles.image} source={{ uri: data.ResourceFolderImage }}/>
+                                <View style={[styles.folderContainer, { height: 50 }]}>
+                                    <View style={[styles.folderImageContainer]}>
+                                        {this.renderFolderImage(data)}
                                         <Badge style={styles.badge}>
-                                            <Text style={styles.badgeText}>{data.ResourcesCount}</Text>
+                                            <Text style={styles.badgeText}>{5}</Text>
                                         </Badge>
                                     </View>
                                     <View style={styles.resourceContainer}>
                                         <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data)}>
-                                            <Text>{data.ResourceName}</Text>
+                                            <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -155,32 +174,34 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         text: 'Bookmarks',
                         backgroundColor: 'green',
                         onPress: () => {
-                           this.onBookmarkButtonPressed(data);
+                            this.onBookmarkButtonPressed(data);
                         },
-                      },
-                      {
+                    },
+                    {
                         text: 'Delete',
                         backgroundColor: 'red',
                         onPress: () => {
-                            this.deleteFileIfAlreadyDownloaded(data.ResourceID);
+                            this.deleteFileIfAlreadyDownloaded(data.ResourceId);
                         },
-                      },
+                    },
                     ]}
-                      autoClose={true} style={styles.swipeContainer}>
-                        <View style={[styles.folderContainer, { height: 70 }, { justifyContent: 'center' }, {backgroundColor:'white'}]}>
+                        autoClose={true} style={styles.swipeContainer}>
+                        <View style={[styles.folderContainer, { height: 70 }, { justifyContent: 'center' }, { backgroundColor: 'white' }]}>
                             <View style={styles.folderImageContainer}>
-                               <CacheableImage style={styles.image} source={{ uri: data.ResourceImage }}/>
+                                {this.renderFilesImages(data)}
                             </View>
                             <View style={styles.resourceContainer}>
-                                <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceID, data.ResourceName, data.FileType, data.ResourceImage, data.LauncherFile)}>
-                                    <Text>{data.ResourceName}</Text>
+                                <TouchableOpacity style={styles.resourceText} onPress={() =>
+                                    console.log('this.resourceDetails(data, data.ResourceId, data.ResourceName, data.ResourceType, data.ResourceImage, data.LauncherFile)')
+                                }>
+                                    <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.bookmarkIconContainer}>
-                                <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceID) }} name='star' />
+                                <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceId) }} name='star' />
                             </View>
                         </View>
-                        <View style= {{width: '100%', height: 1, backgroundColor: 'darkGray'}}/>
+                        <View style={{ width: '100%', height: 1, backgroundColor: 'darkGray' }} />
                     </Swipeout>
                 );
             }
@@ -214,9 +235,10 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
-        if (data.ResourceType === 'folder') {
+        if (data.ResourceType === 'Folder') {
             this.props.navigation.push('File', { 'item': data });
         }
+        console.log('filedata', resourceId, resourceName, resourceType, resourceImage, launcherFile);
         this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
     }
 
@@ -240,7 +262,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
-        const filename = resourceType === FileType.zip ? `${resourceId}.${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
+        const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
+        console.log('filename', filename);
         await this.props.requestDownloadFile(this.state.UserID!, this.state.BUId!, resourceId, filename);
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>('downloadedFiles', this.state.downloadedFiles, async (err) => {
@@ -270,7 +293,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (!(resourceId && resourceName)) {
-            Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
+            // Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
             return;
         }
         try {
@@ -284,7 +307,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
+                console.log('downloaded file', resourceId, resourceName, resourceType, resourceImage, launcherFile);
                 let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
+                console.log('downloadedPath', path);
                 await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType) => {
                     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
                 });

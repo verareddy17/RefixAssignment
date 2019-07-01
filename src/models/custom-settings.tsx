@@ -10,5 +10,5 @@ export class CustomizeSettings {
 }
 
 export interface Setting<T> {
-    Settings: T;
+     Settings: T;
 }

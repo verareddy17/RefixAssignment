@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
-import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import Config from 'react-native-config';
 import LocalDbManager from '../../manager/localdb-manager';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import Crashes from 'appcenter-crashes';
@@ -23,7 +23,7 @@ interface Props {
     deviceTokenResponse: SettingsResponse;
     getresources(token: string): object;
     getresourcesfromdb(): object;
-    updateresource(): object;
+    updateresource(token: string): object;
     requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDeviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 
@@ -40,6 +40,7 @@ interface State {
     backgroundPortraitImage: string;
     backgroundLandscapeImage: string;
     orientation: string;
+    barierToken: string;
 }
 
 let result: SubResourceModel[] = [];
@@ -58,17 +59,18 @@ class HomeScreen extends Component<Props, State> {
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
             orientation: '',
+            barierToken: '',
         };
     }
 
     public _orientationDidChange = (orientation: string) => {
-        if (orientation === 'LANDSCAPE') {
+        if (orientation === Constant.landscape) {
             this.setState({
-                orientation: 'LANDSCAPE',
+                orientation: Constant.landscape,
             });
         } else {
             this.setState({
-                orientation: 'PORTRAIT',
+                orientation: Constant.portrait,
             });
         }
     }
@@ -80,7 +82,14 @@ class HomeScreen extends Component<Props, State> {
         await LocalDbManager.get('userToken', (err, data) => {
             this.setState({ token: data } as State);
         });
-        // await this.getAllResources();
+        await LocalDbManager.get<string>(Constant.token, async (err, token) => {
+            if (token !== null && token !== '') {
+                await this.setState({
+                    barierToken: token!,
+                });
+            }
+        });
+        await this.getAllResources();
         await LocalDbManager.get<string>(Constant.confirmationMessage, (err, message) => {
             if (message !== null && message !== '') {
                 this.setState({
@@ -109,20 +118,18 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async getAllResources() {
-        this.props.getresources(this.state.token);
+        this.props.getresources(this.state.barierToken);
     }
 
     public async updateResouces() {
-        await this.props.updateresource();
-        // await this.props.requestDeviceTokenApi(this.state.UserID, this.state.BUId);
-        console.log('update device token response: ', this.props.deviceTokenResponse.settings);
-        await this.showConfirmationMessage(this.props.deviceTokenResponse.settings.ConfirmationMessage || '', this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate || '');
-        Crashes.generateTestCrash();
-        // throw new Error('This is a test javascript crash!');
+        const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
+        await this.props.requestDeviceTokenApi('631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331', 1, deviceOs, this.state.barierToken);
+        console.log('update settings', this.props.deviceTokenResponse.settings);
+        await this.props.updateresource(this.state.barierToken);
     }
 
     public componentWillUnmount() {
-        console.log('componentWillUnmount')
+        console.log('componentWillUnmount');
         Orientation.removeOrientationListener(this._orientationDidChange);
     }
 
@@ -155,12 +162,11 @@ class HomeScreen extends Component<Props, State> {
             this.setState({
                 isSearch: true,
             });
-            console.log('entered text', textData);
             console.log('resources', this.props.resourceState.resources);
 
             await this.getValues(this.props.resourceState.resources);
             console.log('all files', result);
-            let filteredArray = await result.filter((item: { ResourceName: any; }) => {
+            let filteredArray = await result.filter((item: { ResourceName: string; }) => {
                 let name = item.ResourceName.toUpperCase();
                 console.log('names', name);
                 return name.indexOf(textData.toUpperCase()) > -1;
@@ -179,21 +185,18 @@ class HomeScreen extends Component<Props, State> {
 
     }
 
-    public async LoopIn(children: { Children: any[] | undefined; }, resultArray: any[]) {
-
+    public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
         if (children.Children === undefined) {
-            console.log('resultArray undefi', result);
             resultArray.push(children);
             return;
         }
-
         for (let i = 0; i < children.Children.length; i++) {
             this.LoopIn(children.Children[i], resultArray);
         }
         console.log('resultArray', result);
     }
 
-    public async getValues(json: any) {
+    public async getValues(json: ResourceModel[]) {
         for (let j = 0; j < json.length; j++) {
             this.LoopIn(json[j], result);
         }
@@ -205,15 +208,10 @@ class HomeScreen extends Component<Props, State> {
                 style={{
                     height: 1,
                     width: '100%',
-                    backgroundColor: '#000',
+                    backgroundColor: '#FFFFFF',
                 }}
             />
         );
-    }
-
-    // handling onPress action
-    public getListViewItem = (item) => {
-        Alert.alert(item);
     }
 
     public renderResourceList() {
@@ -224,9 +222,8 @@ class HomeScreen extends Component<Props, State> {
                     <FlatList
                         data={this.state.filterArray}
                         renderItem={({ item }) =>
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', height: 75 }}>
-                                <Image source={{ uri: item.ResourceImage }}
-                                    style={styles.resourceImage} />
+                            <View style={styles.searchContainer}>
+                                {this.renderFilesImages(item)}
                                 <TouchableOpacity onPress={() =>
                                     console.log('get detailes on item files', item)}>
                                     <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
@@ -238,24 +235,23 @@ class HomeScreen extends Component<Props, State> {
                 </View>
             );
         } else {
-
             return (
                 <View style={styles.resourceListContainer}>
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
-                            renderRow={(rowData) =>
+                            renderRow={(rowData: ResourceModel) =>
                                 <View>
                                     <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                         <View style={styles.resourceImageConatiner}>
-                                            <Image source={{ uri: rowData.ResourceFolderImage }}
-                                                style={styles.resourceImage} />
+                                            {this.renderFolderImage(rowData)}
                                             <Badge style={styles.badge}>
-                                                <Text style={styles.text}>{rowData.ResourcesCount}</Text>
+                                                {this.renderBadgeNumber(rowData)}
                                             </Badge>
                                         </View>
-                                        <Text>{rowData.ResourceName}</Text>
+                                        <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                     </TouchableOpacity>
+                                    <View style={{ height: 1, width: '100%', backgroundColor: 'white' }} />
                                 </View>
                             }
                         />
@@ -264,9 +260,54 @@ class HomeScreen extends Component<Props, State> {
             );
 
         }
-
     }
 
+
+    public renderBadgeNumber(data: ResourceModel) {
+        return (
+            <Text style={styles.text}>{5}</Text>
+        );
+    }
+
+    public renderFilesImages(rowData: SubResourceModel) {
+        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
+            if (rowData.ResourceType === FileType.video) {
+                return (
+                    <Image source={require('../../assets/images/mp4.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                );
+            } else if (rowData.ResourceType === FileType.pdf) {
+                return (
+                    <Image source={require('../../assets/images/pdf.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                );
+            } else if (rowData.ResourceType === FileType.png) {
+                return (
+                    <Image source={require('../../assets/images/png.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                );
+            } else {
+                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                    return (
+                        <Image source={require('../../assets/images/ppt.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                    );
+                }
+            }
+        } else {
+            return (
+                <Image source={{ uri: rowData.ResourceImage }} style={[styles.resourceImage, { marginLeft: 10 }]} />
+            );
+        }
+    }
+
+    public renderFolderImage(rowData: ResourceModel) {
+        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
+            return (
+                <Image source={require('../../assets/images/folder.png')} style={styles.resourceImage} />
+            );
+        } else {
+            return (
+                <Image source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
+            );
+        }
+    }
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -298,8 +339,8 @@ class HomeScreen extends Component<Props, State> {
                             </Item>
                             <Button transparent><Text>Go</Text></Button>
                         </Header>
-                        <ImageBackground source={{ uri: this.state.orientation === 'PORTRAIT' ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
-                            {/* {this.renderResourceList()} */}
+                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                            {this.renderResourceList()}
                         </ImageBackground>
                     </Content>
                 </Container>

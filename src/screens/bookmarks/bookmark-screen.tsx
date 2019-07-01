@@ -6,7 +6,7 @@ import Config from 'react-native-config';
 import { ListView, Alert, Image, TouchableOpacity, Dimensions } from 'react-native';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 import imageCacheHoc from 'react-native-image-cache-hoc'
 const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -64,10 +64,11 @@ export default class BookmarkScreen extends Component<Props, State> {
                 <List
                     rightOpenValue={-100}
                     dataSource={ds.cloneWithRows(this.state.bookmarks)}
-                    renderRow={data =>
+                    renderRow={(data: Bookmarks) =>
                         <ListItem thumbnail style={{ height: 55 }} >
                             <Left style={{ marginLeft: 10 }}>
-                                <CacheableImage style={styles.resourceImage} source={{ uri: data.resourceImage }} />
+                                {this.renderFilesImages(data)}
+                                {/* <CacheableImage style={styles.resourceImage} source={{ uri: data.resourceImage }} /> */}
                             </Left>
                             <Body style={{ marginLeft: 10 }} >
                                 <Text> {data.resourceName} </Text>
@@ -91,6 +92,35 @@ export default class BookmarkScreen extends Component<Props, State> {
                 <View style={styles.noBookmarksContainer}>
                     <Text>No Bookmarks Available</Text>
                 </View>
+            );
+        }
+    }
+
+    public renderFilesImages(rowData: Bookmarks) {
+        console.log('bookmarks', rowData);
+        if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
+            if (rowData.resourceType === FileType.video) {
+                return (
+                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                );
+            } else if (rowData.resourceType === FileType.pdf || rowData.resourceType === FileType.zip) {
+                return (
+                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                );
+            } else if (rowData.resourceType === FileType.png || rowData.resourceType === FileType.jpg) {
+                return (
+                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                );
+            } else {
+                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                    return (
+                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                    );
+                }
+            }
+        } else {
+            return (
+                <CacheableImage source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
             );
         }
     }

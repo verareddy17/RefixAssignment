@@ -1,5 +1,5 @@
 import { LOAD_RESOURCE_START, LOAD_RESOURCE_SUCCESS, LOAD_RESOURCE_FAIL } from './action-types';
-import { ApiResponse } from '../../models/response-model';
+import { ApiResponse, ResponseJson } from '../../models/response-model';
 import { ResourceModel } from '../../models/resource-model';
 import ApiManager from '../../manager/api-manager';
 import LocalDbManager from '../../manager/localdb-manager';
@@ -29,12 +29,12 @@ export const loadResourceFail = (err: string) => {
 };
 
 export class ResourceResponse {
-    public resources = new ResourceModel();
+    public resources: Array<ResourceModel> = [];
     public isLoading: boolean = false;
     public error: string = '';
 }
 
-const endPoint: string = `${Config.LOCAL_BASE_URL}/${Constant.resourceUrl}`;
+const endPoint: string = `${Config.BASE_URL}/${Constant.resourceUrl}`;
 
 export const fetchResources = (token: string) => {
     return async (dispatch: Dispatch) => {
@@ -50,12 +50,14 @@ export const fetchResources = (token: string) => {
                 });
             } else {
                 dispatch(loadResourceStart());
-                await ApiManager.post<ApiResponse<ResourceModel[]>>(endPoint, { 'token': token }, async (data, err) => {
+                await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
-                        await LocalDbManager.insert('resources', data.data, (err) => {
+                        console.log('resourcesResponse', data.Success);
+                        await LocalDbManager.insert('resources', data.Data, (err) => {
                             console.log('Successfully inserted');
                         });
                         await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
+                            console.log('fetch data from local data base', data);
                             if (data) {
                                 dispatch(loadResourceSuccess(data));
                             } else {
@@ -71,9 +73,9 @@ export const fetchResources = (token: string) => {
     };
 };
 
-export const updateResources = () => {
+export const updateResources = (token: string) => {
     return async (dispatch: Dispatch) => {
-        await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, async (data, err, isnetwork) => {
+        await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err, isnetwork) => {
             if (isnetwork) {
                 Toast.show({
                     text: 'Please check internet connection',
@@ -87,16 +89,20 @@ export const updateResources = () => {
                 await LocalDbManager.delete('resources', (err) => {
                     console.log('successfully removed');
                 });
-                await LocalDbManager.insert('resources', data.data, (err) => {
+                await LocalDbManager.insert('resources', data.Data, (err) => {
                     console.log('Successfully insertedd');
                 });
-                await LocalDbManager.get<ApiResponse<ResourceModel[]>>('resources', (err, data) => {
-                    if (data) {
-                        dispatch(loadResourceSuccess(data));
-                    } else {
-                        dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
-                    }
-                });
+                if (data.Success) {
+                    await LocalDbManager.get<ResourceModel[]> ('resources', (err, data) => {
+                        if (data) {
+                            dispatch(loadResourceSuccess(data));
+                        } else {
+                            dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                        }
+                    });
+                } else {
+                    dispatch(loadResourceFail(data.Errors[0]));
+                }
             } else {
                 dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
             }

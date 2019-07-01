@@ -5,6 +5,6 @@ export interface ApiResponse<T> {
    HasError: boolean;
 }
 
-export default interface Data<T> {
+export interface Data<T> {
     Data: T;
 }

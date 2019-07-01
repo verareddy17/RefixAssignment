@@ -1,6 +1,6 @@
 export class Constant {
     public static activateAppURL = 'login';
-    public static resourceUrl = 'resources';
+    public static resourceUrl = 'GetAppResources';
     public static validationPin = 'Please enter valid pin';
     public static downloadFile = 'GetiPadResourceinStream';
     public static deviceTokenUrl = 'SaveDeviceToken';
@@ -19,9 +19,18 @@ export class Constant {
     public static logoImage = 'LogoImage';
     public static versionNumber = 'VersionNumber';
     public static token = 'Token';
+    public static landscape = 'LANDSCAPE';
+    public static portrait = 'PORTRAIT';
 }
 
 export enum FileType {
-    zip = 'zip',
-    video = 'mp4',
+    zip = '.zip',
+    video = '.mp4',
+    jpg = '.JPG',
+    pptx = '.pptx',
+    xlsx = '.xlsx',
+    docx = '.docx',
+    pdf = '.pdf',
+    png = '.png',
+    ppt = '.ppt',
 }
