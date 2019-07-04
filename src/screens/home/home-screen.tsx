@@ -15,7 +15,10 @@ import deviceTokenApi from '../../redux/actions/settings-actions';
 import Crashes from 'appcenter-crashes';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import Orientation from 'react-native-orientation';
-
+import imageCacheHoc from 'react-native-image-cache-hoc';
+export const CacheableImage = imageCacheHoc(Image, {
+    validProtocols: ['http', 'https'],
+});
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -65,16 +68,17 @@ class HomeScreen extends Component<Props, State> {
 
     public _orientationDidChange = (orientation: string) => {
         if (orientation === Constant.landscape) {
+            console.log('landscape');
             this.setState({
                 orientation: Constant.landscape,
             });
         } else {
+            console.log('portrait');
             this.setState({
                 orientation: Constant.portrait,
             });
         }
     }
-
 
     public async componentDidMount() {
         Orientation.unlockAllOrientations();
@@ -115,6 +119,12 @@ class HomeScreen extends Component<Props, State> {
         if (isFromLogin === true) {
             LocalDbManager.showConfirmationAlert(this.state.confirmationMessage);
         }
+        await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
+            if (resource !== undefined) {
+                result = [];
+                await this.getValues(resource);
+            }
+        });
     }
 
     public async getAllResources() {
@@ -123,7 +133,7 @@ class HomeScreen extends Component<Props, State> {
 
     public async updateResouces() {
         const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
-        await this.props.requestDeviceTokenApi('631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331', 1, deviceOs, this.state.barierToken);
+        await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.state.barierToken);
         console.log('update settings', this.props.deviceTokenResponse.settings);
         await this.props.updateresource(this.state.barierToken);
     }
@@ -162,16 +172,11 @@ class HomeScreen extends Component<Props, State> {
             this.setState({
                 isSearch: true,
             });
-            console.log('resources', this.props.resourceState.resources);
-
-            await this.getValues(this.props.resourceState.resources);
             console.log('all files', result);
             let filteredArray = await result.filter((item: { ResourceName: string; }) => {
                 let name = item.ResourceName.toUpperCase();
-                console.log('names', name);
                 return name.indexOf(textData.toUpperCase()) > -1;
             });
-            console.log('searching', filteredArray);
             await this.setState({
                 filterArray: filteredArray,
             });
@@ -180,7 +185,6 @@ class HomeScreen extends Component<Props, State> {
                 isSearch: false,
                 filterArray: [],
             });
-            result = [];
         }
 
     }
@@ -215,6 +219,7 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public renderResourceList() {
+        console.log('some value', this.state.orientation);
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.state.isSearch) {
             return (
@@ -237,7 +242,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                    {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
+                    {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR}/></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                             renderRow={(rowData: ResourceModel) =>
@@ -246,7 +251,7 @@ class HomeScreen extends Component<Props, State> {
                                         <View style={styles.resourceImageConatiner}>
                                             {this.renderFolderImage(rowData)}
                                             <Badge style={styles.badge}>
-                                                {this.renderBadgeNumber(rowData)}
+                                                {this.getBadgeNumber(rowData)}
                                             </Badge>
                                         </View>
                                         <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
@@ -262,37 +267,40 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-
-    public renderBadgeNumber(data: ResourceModel) {
-        return (
-            <Text style={styles.text}>{5}</Text>
-        );
+    public getBadgeNumber(data: ResourceModel) {
+        if (data !== undefined) {
+            if (data.Children !== undefined) {
+                return (
+                    <Text style={styles.text}>{data.Children.length}</Text>
+                );
+            }
+        }
     }
 
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.ResourceType === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf) {
+            } else if (rowData.ResourceType === FileType.pdf || rowData.ResourceType === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png) {
+            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
                 );
             } else {
                 if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
                     );
                 }
             }
         } else {
             return (
-                <Image source={{ uri: rowData.ResourceImage }} style={[styles.resourceImage, { marginLeft: 10 }]} />
+                <CacheableImage source={{ uri: rowData.ResourceImage }} style={[styles.resourceImage, { marginLeft: 10 }]} />
             );
         }
     }
@@ -304,12 +312,13 @@ class HomeScreen extends Component<Props, State> {
             );
         } else {
             return (
-                <Image source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
+                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
             );
         }
     }
     public render() {
         let { height, width } = Dimensions.get('window');
+        console.log('boundries',height, width);
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
@@ -337,7 +346,6 @@ class HomeScreen extends Component<Props, State> {
                                     onChangeText={text => this.searchFilterFunction(text)}
                                 />
                             </Item>
-                            <Button transparent><Text>Go</Text></Button>
                         </Header>
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             {this.renderResourceList()}

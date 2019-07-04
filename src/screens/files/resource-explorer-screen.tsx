@@ -44,8 +44,6 @@ interface State {
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 
 class ResourceExplorerScreen extends Component<Props, State> {
-    public swipeClose!: SwipeRow;
-    public _panResponder!: PanResponderInstance;
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -140,6 +138,16 @@ class ResourceExplorerScreen extends Component<Props, State> {
         }
     }
 
+    public getBadgeNumber(data: SubResourceModel) {
+        if (data !== undefined) {
+            if (data.Children !== undefined) {
+                return (
+                    <Text style={styles.badgeText}>{data.Children.length}</Text>
+                );
+            }
+        }
+    }
+
     public resourceList() {
         let item = this.props.navigation.getParam('item');
         console.log('items', item);
@@ -155,7 +163,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                     <View style={[styles.folderImageContainer]}>
                                         {this.renderFolderImage(data)}
                                         <Badge style={styles.badge}>
-                                            <Text style={styles.badgeText}>{5}</Text>
+                                            {this.getBadgeNumber(data)}
                                         </Badge>
                                     </View>
                                     <View style={styles.resourceContainer}>
@@ -191,9 +199,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 {this.renderFilesImages(data)}
                             </View>
                             <View style={styles.resourceContainer}>
-                                <TouchableOpacity style={styles.resourceText} onPress={() =>
-                                    console.log('this.resourceDetails(data, data.ResourceId, data.ResourceName, data.ResourceType, data.ResourceImage, data.LauncherFile)')
-                                }>
+                                <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.ResourceType, data.ResourceImage, data.LauncherFile)}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -264,15 +270,20 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
         console.log('filename', filename);
-        await this.props.requestDownloadFile(this.state.UserID!, this.state.BUId!, resourceId, filename);
+        //await this.props.requestDownloadFile(this.state.UserID!, this.state.BUId!, resourceId, filename);
+        await this.props.requestDownloadFile(2653, 274, 3040, 'LARS_Sales Presentation.pptx');
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>('downloadedFiles', this.state.downloadedFiles, async (err) => {
             console.log('Successfully inserted');
         });
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
+        console.log('downloaded path', path);
+        await PreviewManager.openPreview(path, 'LARS_Sales Presentation.pptx', resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
         });
+        // await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
+        //     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
+        // });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
         let newData = [...this.state.downloadedFiles];
@@ -293,7 +304,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (!(resourceId && resourceName)) {
-            // Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
+            Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
             return;
         }
         try {

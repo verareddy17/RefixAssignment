@@ -21,6 +21,8 @@ export class Constant {
     public static token = 'Token';
     public static landscape = 'LANDSCAPE';
     public static portrait = 'PORTRAIT';
+    public static deviceToken = '631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331';
+    public static resources = 'resources';
 }
 
 export enum FileType {

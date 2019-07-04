@@ -32,7 +32,7 @@ export default class PreviewManager {
             OpenFile.openDoc([{
                 url: `${dir}/${fileName}`,
                 fileName: fileName,
-                fileType: fileType,
+                fileType: 'pdf',
                 cache: false,
             }], (error, url) => {
                 if (error) {

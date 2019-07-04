@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
-import onchangeText, {ResetInputText} from '../../redux/actions/input-action';
+import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
 import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
@@ -26,15 +26,24 @@ interface Props {
     getActivationPin(pin: string): ActionPayload<string>;
     requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDeviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
-// tslint:disable-next-line: no-any
+    // tslint:disable-next-line: no-any
     resetInputText(): any;
-
 }
 
-class LoginScreen extends Component<Props> {
+interface State {
+    text: string;
+}
+
+class LoginScreen extends Component<Props, State> {
     public static navigationOptions = {
         header: null,
     };
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            text: '',
+        };
+    }
 
     public render() {
         return (
@@ -69,7 +78,9 @@ class LoginScreen extends Component<Props> {
                                     : <View />
                                 }
                                 <View style={styles.buttonContainer}>
-                                    <TouchableOpacity style={styles.button} onPress={this._signInAsync}>
+                                    <TouchableOpacity style={styles.button} onPress={() => {
+                                        this.signInAsync();
+                                    }}>
                                         <View>
                                             <Icon name='arrow-round-forward' style={styles.buttonIcon} />
                                         </View>
@@ -90,11 +101,12 @@ class LoginScreen extends Component<Props> {
             }
         });
     }
-    public _signInAsync = async () => {
+    public async signInAsync() {
         if (this.props.inputText.length === 0) {
-            Alert.alert(Config.APP_NAME, Constant.validationPin);
+            Alert.alert(Config.APP_NAME, '0');
             return;
         }
+        console.log('pin', this.props.inputText);
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);

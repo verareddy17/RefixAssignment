@@ -30,8 +30,8 @@ export class LoginResponse {
 }
 export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
-        dispatch(loadUserRequest());
-        await ApiManager.post<ApiResponse<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { 'iPadPin': pin }, '', (response, err) => {
+        await dispatch(loadUserRequest());
+        await ApiManager.post<ApiResponse<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { iPadPin: pin }, '', (response, err) => {
             if (response) {
                 if (response.Success) {
                     dispatch(loadUserSuccess(response.Data));

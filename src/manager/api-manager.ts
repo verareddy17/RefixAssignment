@@ -1,5 +1,6 @@
-import { NetInfo } from 'react-native';
+import { NetInfo, Alert } from 'react-native';
 import Config from 'react-native-config';
+import axios from 'axios';
 
 export default class ApiManager {
 
@@ -10,12 +11,12 @@ export default class ApiManager {
     };
 
 
-    public static async get<T>(url: string, bearer_token: string , callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
+    public static async get<T>(url: string, bearer_token: string, callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
         await ApiManager.checkNetworkConnection().then(async (networkType) => {
             if (networkType === 'wifi' || networkType === 'cellular') {
                 const response = await fetch(url, {
                     method: ApiManager.httpMethod.get,
-                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' , 'Authorization': 'Bearer ' + bearer_token},
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + bearer_token },
                 });
                 if (response !== null) {
                     const res = await response.json();
@@ -31,26 +32,36 @@ export default class ApiManager {
 
     }
 
-    public static async post<T>(url: string, params: object, bearer_token: string , callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
+    public static async post<T>(url: string, params: object, bearer_token: string, callBack: (response?: T, error?: string, isNetworkFail?: boolean) => void) {
         await ApiManager.checkNetworkConnection().then(async (networkType) => {
             if (networkType === 'wifi' || networkType === 'cellular') {
-                const response = await fetch(url, {
-                    method: ApiManager.httpMethod.post,
-                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + bearer_token },
-                    body: JSON.stringify(params),
-                });
+                console.log('lpost login pin ', params);
+                // const response = await fetch(url, {
+                //     method: ApiManager.httpMethod.post,
+                //     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + bearer_token },
+                //     body: JSON.stringify(params),
+                // });
+                let config = {
+                    headers: { 'Authorization': 'Bearer ' + bearer_token },
+                };
+                console.log('try');
+                const response = await axios.post(url, params, config);
+                console.log('response', response);
                 if (response !== null) {
-                    callBack(await response.json());
+                    let jsonData = await response.data;
+                    callBack(jsonData);
                     return;
                 }
                 callBack(response, 'Unkonwn error occured');
+
             } else {
                 callBack(undefined, undefined, true);
             }
+
         });
     }
 
-    public static checkNetworkConnection() {
+    public static async checkNetworkConnection() {
         return NetInfo.getConnectionInfo().then(connectionInfo => {
             if (connectionInfo.type.match(/unknown/i)) {
                 return new Promise(resolve => {

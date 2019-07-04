@@ -63,8 +63,8 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: Config.SECONDARY_COLOR,
-        width: 50,
-        height: 50,
+        width: 60,
+        height: 60,
         borderRadius: 100,
         justifyContent: 'center',
         alignItems: 'center',

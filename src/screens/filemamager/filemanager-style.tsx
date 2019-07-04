@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
@@ -13,6 +13,20 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         color: '#fff',
+    },
+    searchBarHeader: {
+        backgroundColor: '#999',
+        ...Platform.select({
+            ios: {
+                height: 40,
+                paddingTop: 0,
+            },
+        }),
+    },
+    resourceImage: {
+        width: 50,
+        height: 50,
+        marginLeft: 10,
     },
 });
 
