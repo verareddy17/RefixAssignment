@@ -15,12 +15,14 @@ export default function loginReducer(state = initialState, action: Action<Activa
                 ...state,
                 user: action.payload,
                 isLoading: false,
+                error: '',
             };
         case LOAD_USER_FAILURE:
             return {
                 ...state,
-                error: 'Unkonwn error occured',
+                error: action.payload,
                 isLoading: false,
+                user: null,
             };
         default:
             return state;

@@ -76,6 +76,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 75,
     },
+    renderSeparator: {
+        height: 1,
+        width: '100%',
+        backgroundColor: 'white',
+    },
 
 });
 

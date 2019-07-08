@@ -16,6 +16,7 @@ import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import { string } from 'prop-types';
+import { ResponseModel, Data } from '../../models/response-model';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -103,7 +104,7 @@ class LoginScreen extends Component<Props, State> {
     }
     public async signInAsync() {
         if (this.props.inputText.length === 0) {
-            Alert.alert(Config.APP_NAME, '0');
+            Alert.alert(Config.APP_NAME, Constant.validationPin);
             return;
         }
         console.log('pin', this.props.inputText);
@@ -112,7 +113,7 @@ class LoginScreen extends Component<Props, State> {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
             await this.storeData<string>(Constant.username, this.props.userState.user.BUName || '');
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
-            await this.props.requestDeviceTokenApi('631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331', 1, deviceOs, this.props.userState.user.Token!);
+            await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
             console.log('settings response: ', this.props.deviceTokenResponse.settings);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
                 await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
@@ -131,7 +132,12 @@ class LoginScreen extends Component<Props, State> {
                 });
             }
         } else {
-            Alert.alert(Config.APP_NAME, Constant.validationPin);
+            if ( this.props.userState.error !== '') {
+                Alert.alert(Config.APP_NAME, this.props.userState.error);
+
+            } else {
+                Alert.alert(Config.APP_NAME, Constant.validationPin);
+            }
         }
     }
 }

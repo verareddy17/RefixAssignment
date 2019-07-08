@@ -28,7 +28,7 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
-    requestDownloadFile(UserID: number, BUId: number, AppUserResourceID: number, filename: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -39,6 +39,7 @@ interface State {
     BUId?: number;
     marginLeft: number;
     isRowClosed: boolean;
+    bearer_token: string;
 }
 
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -52,6 +53,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             downloadedFiles: [],
             marginLeft: 1,
             isRowClosed: false,
+            bearer_token: '',
         };
     }
 
@@ -63,9 +65,16 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 });
             }
         });
-        await LocalDbManager.get<Array<DownloadedFilesModel>>('downloadedFiles', (err, data) => {
+        await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
             if (data) {
                 this.setState({ downloadedFiles: data } as State);
+            }
+        });
+        await LocalDbManager.get<string>(Constant.token, async (err, token) => {
+            if (token !== null && token !== '') {
+                await this.setState({
+                    bearer_token: token!,
+                });
             }
         });
     }
@@ -159,7 +168,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             disableLeftSwipe={true}
                             disableRightSwipe={true}
                             body={
-                                <View style={[styles.folderContainer, { height: 50 }]}>
+                                <View style={styles.folderContainer}>
                                     <View style={[styles.folderImageContainer]}>
                                         {this.renderFolderImage(data)}
                                         <Badge style={styles.badge}>
@@ -194,7 +203,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     },
                     ]}
                         autoClose={true} style={styles.swipeContainer}>
-                        <View style={[styles.folderContainer, { height: 70 }, { justifyContent: 'center' }, { backgroundColor: 'white' }]}>
+                        <View style={styles.fileContainer}>
                             <View style={styles.folderImageContainer}>
                                 {this.renderFilesImages(data)}
                             </View>
@@ -207,7 +216,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceId) }} name='star' />
                             </View>
                         </View>
-                        <View style={{ width: '100%', height: 1, backgroundColor: 'darkGray' }} />
+                        <View style={styles.fileSeparator} />
                     </Swipeout>
                 );
             }
@@ -269,21 +278,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
-        console.log('filename', filename);
-        //await this.props.requestDownloadFile(this.state.UserID!, this.state.BUId!, resourceId, filename);
-        await this.props.requestDownloadFile(2653, 274, 3040, 'LARS_Sales Presentation.pptx');
+        await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename);
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
-        await LocalDbManager.insert<Array<DownloadedFilesModel>>('downloadedFiles', this.state.downloadedFiles, async (err) => {
+        await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
             console.log('Successfully inserted');
         });
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        console.log('downloaded path', path);
-        await PreviewManager.openPreview(path, 'LARS_Sales Presentation.pptx', resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
+        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
         });
-        // await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
-        //     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
-        // });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
         let newData = [...this.state.downloadedFiles];
@@ -293,7 +296,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             await this.setState({
                 downloadedFiles: newData,
             });
-            await LocalDbManager.insert<DownloadedFilesModel[]>('downloadedFiles', this.state.downloadedFiles, (error) => {
+            await LocalDbManager.insert<DownloadedFilesModel[]>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
                 if (error !== null) {
                     Toast.show({ text: error!.message, type: 'warning', position: 'top' });
                 }
@@ -308,7 +311,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             return;
         }
         try {
-            await LocalDbManager.get<Array<DownloadedFilesModel>>('downloadedFiles', async (err, downloadedFiles) => {
+            await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, async (err, downloadedFiles) => {
                 if (!downloadedFiles) {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
@@ -318,7 +321,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
-                console.log('downloaded file', resourceId, resourceName, resourceType, resourceImage, launcherFile);
                 let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
                 console.log('downloadedPath', path);
                 await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType) => {

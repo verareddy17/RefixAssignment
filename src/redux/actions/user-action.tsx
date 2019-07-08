@@ -31,16 +31,22 @@ export class LoginResponse {
 export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         await dispatch(loadUserRequest());
-        await ApiManager.post<ApiResponse<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { iPadPin: pin }, '', (response, err) => {
-            if (response) {
-                if (response.Success) {
-                    dispatch(loadUserSuccess(response.Data));
+        await ApiManager.post<ApiResponse<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { iPadPin: pin }, '', async (response, err, isNetworkFail) => {
+            console.log('internetfail', isNetworkFail);
+            if (!isNetworkFail) {
+                if (response) {
+                    if (response.Success) {
+                        dispatch(loadUserSuccess(response.Data));
+                    } else {
+                        dispatch(loadUserFailed(response.Errors[0]));
+                    }
                 } else {
-                    dispatch(loadUserFailed(response.Errors[0]));
+                    await dispatch(loadUserFailed(err !== null ? err as string : ''));
                 }
             } else {
-                dispatch(loadUserFailed(err !== null ? err as string : ''));
+                await dispatch(loadUserFailed('Please check internet connection'));
             }
+
         });
     };
 }

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input } from 'native-base';
-import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input, Spinner } from 'native-base';
+import { NavigationScreenProp, SafeAreaView, NavigationEvents} from 'react-navigation';
 import styles from './filemanager-style';
 import Config from 'react-native-config';
 import Swipeout from 'react-native-swipeout';
 import { TouchableOpacity, FlatList, Image } from 'react-native';
-import { FileType } from '../../constant';
+import { FileType, Constant } from '../../constant';
 import { SubResourceModel, ResourceModel } from '../../models/resource-model';
 import LocalDbManager from '../../manager/localdb-manager';
+import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -16,6 +17,8 @@ interface Props {
 
 interface State {
     resources: SubResourceModel[];
+    downloadedFiles: Array<DownloadedFilesModel>;
+    isLoading: boolean;
 }
 let result: SubResourceModel[] = [];
 export default class FileManagerScreen extends Component<Props, State> {
@@ -23,45 +26,30 @@ export default class FileManagerScreen extends Component<Props, State> {
         super(props);
         this.state = {
             resources: [],
+            downloadedFiles: [],
+            isLoading: false,
         };
     }
 
-    public componentWillMount() {
-        // ,
-        let array = [{ id: 1, name: 'test1' }, { id: 3, name: 'test3' }, { id: 4, name: 'test4' }, { id: 2, name: 'test2' }, { id: 5, name: 'test2' }];
-
-        let anotherOne = [{ id: 2, name: 'test2' }, { id: 4, name: 'test4' }];
-
-        let downloadedFiles = array.filter((item) => {
-            return anotherOne.some(item2 => item2.id === item.id);
-        });
-        console.log('downloadedFiles', downloadedFiles);
-
-        let anotherArray = array.filter(item1 => {
-            return anotherOne.filter(item => {
-                return item.id === item1.id;
-            }).length > 0;
-        });
-    }
-
     public async componentDidMount() {
-        await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
-            console.log('fetch data from local data base', data);
+        this.setState({
+            isLoading: true,
+            downloadedFiles: [],
+        });
+        await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
             if (data) {
-                this.getValues(data);
-            } else {
-
+                this.setState({ downloadedFiles: data, isLoading: false });
             }
         });
     }
 
     public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
         if (children.Children === undefined) {
-            resultArray.push(children);
+            await resultArray.push(children);
             return;
         }
         for (let i = 0; i < children.Children.length; i++) {
-            this.LoopIn(children.Children[i], resultArray);
+            await this.LoopIn(children.Children[i], resultArray);
         }
         console.log('resultArray', result);
         this.setState({
@@ -71,10 +59,9 @@ export default class FileManagerScreen extends Component<Props, State> {
 
     public async getValues(json: ResourceModel[]) {
         for (let j = 0; j < json.length; j++) {
-            this.LoopIn(json[j], result);
+            await this.LoopIn(json[j], result);
         }
     }
-
 
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
@@ -86,7 +73,7 @@ export default class FileManagerScreen extends Component<Props, State> {
                 return (
                     <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
+            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg || rowData.ResourceType === FileType.zip) {
                 return (
                     <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
                 );
@@ -128,6 +115,7 @@ export default class FileManagerScreen extends Component<Props, State> {
                                 />
                             </Item>
                         </Header>
+                        {this.state.isLoading ? <View style={styles.indicatorContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> : <View />}
                         {this.renderComponent()}
                     </Content>
                 </Container>
@@ -149,7 +137,6 @@ export default class FileManagerScreen extends Component<Props, State> {
 
 
     public renderComponent() {
-        console.log('downloades');
         return (
             <View style={{
                 flex: 1,
@@ -169,7 +156,7 @@ export default class FileManagerScreen extends Component<Props, State> {
                             paddingRight: 0,
                             paddingLeft: 0,
                         }}>
-                            <View style={{ height: 70, justifyContent: 'flex-start', backgroundColor: 'white', flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={styles.downloadFileContainer}>
                                 {this.renderFilesImages(item)}
                                 <Text style={{ marginLeft: 10 }}>
                                     {item.ResourceName}

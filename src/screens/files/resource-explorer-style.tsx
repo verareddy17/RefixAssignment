@@ -11,9 +11,17 @@ const styles = StyleSheet.create({
     folderContainer: {
         flex: 1,
         flexDirection: 'row',
+        height: 50,
     },
     folderImageContainer: {
         position: 'relative',
+    },
+    fileContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        height: 70,
+        justifyContent: 'center',
+        backgroundColor: 'white',
     },
     image: {
         width: 65,
@@ -98,6 +106,11 @@ const styles = StyleSheet.create({
     progressBarText: {
         color: '#fff',
         textAlign: 'center',
+    },
+    fileSeparator: {
+        width: '100%',
+        height: 1,
+        backgroundColor: 'darkGray',
     },
 });
 

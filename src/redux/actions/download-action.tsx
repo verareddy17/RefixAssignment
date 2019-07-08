@@ -30,19 +30,18 @@ export class DownloadResourceFileProgress {
     public isLoading: boolean = false;
 }
 
-export default function downloadFile(UserID: number, BUId: number, AppUserResourceID: number, filename: string): (dispatch: Dispatch) => Promise<void> {
+export default function downloadFile(bearer_token: string, AppUserResourceID: number, filename: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         let params = {
-            'AppUserResourceID': AppUserResourceID,
-            'UserID': UserID,
-            'BUId': BUId,
+            'AppResourceId': AppUserResourceID,
         };
         console.log('exected downloaded path', `${dirs}/${filename}`);
         dispatch(downloadResourceStart());
         await RNFetchBlob.config({
             path: `${dirs}/${filename}`,
-        }).fetch('POST', 'http://bu.goavega.learn-wize.com/Api/GetiPadResourceinStream', {
+        }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + bearer_token,
         }, JSON.stringify(params)).progress(async (received, total) => {
             let progress = (received / total);
             await dispatch(downloadResourceProgress(progress));

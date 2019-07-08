@@ -128,7 +128,7 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async getAllResources() {
-        this.props.getresources(this.state.barierToken);
+        await this.props.getresources(this.state.barierToken);
     }
 
     public async updateResouces() {
@@ -139,7 +139,6 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        console.log('componentWillUnmount');
         Orientation.removeOrientationListener(this._orientationDidChange);
     }
 
@@ -191,18 +190,18 @@ class HomeScreen extends Component<Props, State> {
 
     public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
         if (children.Children === undefined) {
-            resultArray.push(children);
+            await resultArray.push(children);
             return;
         }
         for (let i = 0; i < children.Children.length; i++) {
-            this.LoopIn(children.Children[i], resultArray);
+            await this.LoopIn(children.Children[i], resultArray);
         }
         console.log('resultArray', result);
     }
 
     public async getValues(json: ResourceModel[]) {
         for (let j = 0; j < json.length; j++) {
-            this.LoopIn(json[j], result);
+            await this.LoopIn(json[j], result);
         }
     }
 
@@ -219,7 +218,6 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public renderResourceList() {
-        console.log('some value', this.state.orientation);
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.state.isSearch) {
             return (
@@ -242,7 +240,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                    {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR}/></View> :
+                    {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                             renderRow={(rowData: ResourceModel) =>
@@ -256,7 +254,7 @@ class HomeScreen extends Component<Props, State> {
                                         </View>
                                         <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                     </TouchableOpacity>
-                                    <View style={{ height: 1, width: '100%', backgroundColor: 'white' }} />
+                                    <View style={styles.renderSeparator} />
                                 </View>
                             }
                         />
@@ -318,7 +316,6 @@ class HomeScreen extends Component<Props, State> {
     }
     public render() {
         let { height, width } = Dimensions.get('window');
-        console.log('boundries',height, width);
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
@@ -347,6 +344,7 @@ class HomeScreen extends Component<Props, State> {
                                 />
                             </Item>
                         </Header>
+                        {this.props.deviceTokenResponse.isLoading ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             {this.renderResourceList()}
                         </ImageBackground>

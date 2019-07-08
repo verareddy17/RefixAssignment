@@ -46,15 +46,19 @@ export class SettingsResponse {
 export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadUserRequest());
-        await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, (data, err) => {
-            if (data) {
-                if (data.Success) {
-                    dispatch(loadUserSuccess(data.Data.Settings));
+        await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, (data, err, isNetworkFail) => {
+            if (!isNetworkFail) {
+                if (data) {
+                    if (data.Success) {
+                        dispatch(loadUserSuccess(data.Data.Settings));
+                    } else {
+                        dispatch(loadUserFailed(data.Errors[0]));
+                    }
                 } else {
-                    dispatch(loadUserFailed(data.Errors[0]));
+                    dispatch(loadUserFailed(err !== null ? err as string : ''));
                 }
             } else {
-                dispatch(loadUserFailed(err !== null ? err as string : ''));
+                dispatch(loadUserFailed('Please check internet connection'));
             }
         });
     };

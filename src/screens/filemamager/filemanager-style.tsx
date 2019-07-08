@@ -28,6 +28,18 @@ const styles = StyleSheet.create({
         height: 50,
         marginLeft: 10,
     },
+    downloadFileContainer: {
+        height: 70,
+        justifyContent: 'flex-start',
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    indicatorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });
 
 export default styles;

@@ -68,7 +68,6 @@ export default class BookmarkScreen extends Component<Props, State> {
                         <ListItem thumbnail style={{ height: 55 }} >
                             <Left style={{ marginLeft: 10 }}>
                                 {this.renderFilesImages(data)}
-                                {/* <CacheableImage style={styles.resourceImage} source={{ uri: data.resourceImage }} /> */}
                             </Left>
                             <Body style={{ marginLeft: 10 }} >
                                 <Text> {data.resourceName} </Text>
@@ -97,7 +96,6 @@ export default class BookmarkScreen extends Component<Props, State> {
     }
 
     public renderFilesImages(rowData: Bookmarks) {
-        console.log('bookmarks', rowData);
         if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
             if (rowData.resourceType === FileType.video) {
                 return (
@@ -112,7 +110,7 @@ export default class BookmarkScreen extends Component<Props, State> {
                     <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt) {
                     return (
                         <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
                     );

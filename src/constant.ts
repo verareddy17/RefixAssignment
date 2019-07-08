@@ -2,7 +2,7 @@ export class Constant {
     public static activateAppURL = 'login';
     public static resourceUrl = 'GetAppResources';
     public static validationPin = 'Please enter valid pin';
-    public static downloadFile = 'GetiPadResourceinStream';
+    public static downloadFile = 'GetResourceByIdAsStream';
     public static deviceTokenUrl = 'SaveDeviceToken';
     public static confirmationMessage = 'ConfirmationMessage';
     public static confirmationModifiedDate = 'ConfirmationMessageModifiedDate';
@@ -23,6 +23,7 @@ export class Constant {
     public static portrait = 'PORTRAIT';
     public static deviceToken = '631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331';
     public static resources = 'resources';
+    public static downloadedFiles = 'downloadedFiles';
 }
 
 export enum FileType {

@@ -29,10 +29,12 @@ export default class PreviewManager {
             callback(`${dir}`, launcherFile, resourceName, fileType);
         } else {
             console.log('downladed file', `${dir}/${fileName}`);
+            let type = fileType.split('.').join('');
+            console.log('type', type);
             OpenFile.openDoc([{
                 url: `${dir}/${fileName}`,
                 fileName: fileName,
-                fileType: 'pdf',
+                fileType: type,
                 cache: false,
             }], (error, url) => {
                 if (error) {
