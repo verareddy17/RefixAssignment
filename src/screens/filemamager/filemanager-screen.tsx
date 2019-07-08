@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input, Spinner } from 'native-base';
-import { NavigationScreenProp, SafeAreaView, NavigationEvents} from 'react-navigation';
+import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import styles from './filemanager-style';
 import Config from 'react-native-config';
 import Swipeout from 'react-native-swipeout';
@@ -20,7 +20,7 @@ interface State {
     downloadedFiles: Array<DownloadedFilesModel>;
     isLoading: boolean;
 }
-let result: SubResourceModel[] = [];
+// let result: SubResourceModel[] = [];
 export default class FileManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
@@ -31,36 +31,28 @@ export default class FileManagerScreen extends Component<Props, State> {
         };
     }
 
-    public async componentDidMount() {
+    public async componentWillMount() {
+        console.log('componentDidMount');
         this.setState({
             isLoading: true,
             downloadedFiles: [],
+            resources: [],
         });
         await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
             if (data) {
+                console.log('downloaded files', data);
                 this.setState({ downloadedFiles: data, isLoading: false });
             }
         });
-    }
-
-    public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
-        if (children.Children === undefined) {
-            await resultArray.push(children);
-            return;
-        }
-        for (let i = 0; i < children.Children.length; i++) {
-            await this.LoopIn(children.Children[i], resultArray);
-        }
-        console.log('resultArray', result);
-        this.setState({
-            resources: result,
+        await LocalDbManager.get<Array<SubResourceModel>>(Constant.allFiles, (err, data) => {
+            if (data) {
+                console.log('all files', data);
+                this.setState({
+                    isLoading: false,
+                    resources: data,
+                });
+            }
         });
-    }
-
-    public async getValues(json: ResourceModel[]) {
-        for (let j = 0; j < json.length; j++) {
-            await this.LoopIn(json[j], result);
-        }
     }
 
     public renderFilesImages(rowData: SubResourceModel) {
@@ -94,6 +86,10 @@ export default class FileManagerScreen extends Component<Props, State> {
     public render() {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+                <NavigationEvents
+                    onWillFocus={() => this.componentWillMount()}
+                    onDidFocus={() => this.render()}
+                />
                 <Container>
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>

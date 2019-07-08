@@ -307,7 +307,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (!(resourceId && resourceName)) {
-            Toast.show({ text: 'File data not available', type: 'warning', position: 'top' });
             return;
         }
         try {

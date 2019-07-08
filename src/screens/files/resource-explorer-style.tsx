@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     fileSeparator: {
         width: '100%',
         height: 1,
-        backgroundColor: 'darkGray',
+        backgroundColor: '#A9A9A9',
     },
 });
 

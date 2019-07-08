@@ -51,7 +51,7 @@ const AppDrawerNavigator = createDrawerNavigator(
         FileManager: {
             screen: FileManagerScreen,
             navigationOptions: {
-                drawerLabel: 'Downloads',
+                drawerLabel: 'File Manager',
                 drawerIcon: () => (
                     <Icon name='folder' />
                 ),

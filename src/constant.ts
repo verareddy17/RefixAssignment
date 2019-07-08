@@ -24,6 +24,7 @@ export class Constant {
     public static deviceToken = '631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331';
     public static resources = 'resources';
     public static downloadedFiles = 'downloadedFiles';
+    public static allFiles = 'allFiles';
 }
 
 export enum FileType {

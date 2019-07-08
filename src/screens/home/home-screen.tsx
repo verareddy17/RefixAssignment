@@ -123,6 +123,9 @@ class HomeScreen extends Component<Props, State> {
             if (resource !== undefined) {
                 result = [];
                 await this.getValues(resource);
+                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, (err) => {
+                    console.log('files are saved successfully');
+                });
             }
         });
     }
