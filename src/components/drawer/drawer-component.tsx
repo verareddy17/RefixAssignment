@@ -1,25 +1,29 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { View, Text, Container, Content, Header, Icon } from 'native-base';
+import { View, Text, Container, Content, Header, Icon, Right, Left, Body } from 'native-base';
 import { SafeAreaView, DrawerItemsProps, DrawerItems } from 'react-navigation';
 import styles from './drawer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
 import { Image } from 'react-native';
-
+import store from '../../redux/store';
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
+    console.log('props', props);
     return (
-        <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+        < SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
             <Container>
                 <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                    <TouchableOpacity onPress={() => closeDrawer(props)}>
+                        <Icon name='close' style={{ color: '#fff', marginLeft: '95%', marginTop: 10 }}></Icon>
+                    </TouchableOpacity>
                     <Image style={styles.logoImage} source={require(`../../assets/images/hubspot_logo.png`)} />
                     <Text style={styles.businessUnitTitle}>{Config.APP_NAME}</Text>
                 </Header>
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={styles.userNameTitle}>{Config.APP_NAME}</Text>
+                        <Text style={styles.userNameTitle}>{store.getState().loginData.user.BUID}</Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />
@@ -31,10 +35,14 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                     </TouchableOpacity>
                 </Content>
             </Container >
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 
+function closeDrawer(props: DrawerItemsProps) {
+    console.log('props', props);
+    props.navigation.closeDrawer();
+}
 const _signout = async (props: DrawerItemsProps) => {
     await LocalDbManager.delete('userToken', async (err) => {
         if (err == null) {

@@ -78,6 +78,10 @@ class LoginScreen extends Component<Props, State> {
                                     <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
                                     : <View />
                                 }
+                                {this.props.deviceTokenResponse.isLoading ?
+                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                                    : <View />
+                                }
                                 <View style={styles.buttonContainer}>
                                     <TouchableOpacity style={styles.button} onPress={() => {
                                         this.signInAsync();
@@ -111,7 +115,7 @@ class LoginScreen extends Component<Props, State> {
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
-            await this.storeData<string>(Constant.username, this.props.userState.user.BUName || '');
+            await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
             console.log('settings response: ', this.props.deviceTokenResponse.settings);

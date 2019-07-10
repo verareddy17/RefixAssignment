@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';
-import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
+import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
@@ -16,6 +16,7 @@ import Crashes from 'appcenter-crashes';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import Orientation from 'react-native-orientation';
 import imageCacheHoc from 'react-native-image-cache-hoc';
+import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -44,6 +45,7 @@ interface State {
     backgroundLandscapeImage: string;
     orientation: string;
     barierToken: string;
+    downloadedFiles: Array<DownloadedFilesModel>;
 }
 
 let result: SubResourceModel[] = [];
@@ -63,6 +65,7 @@ class HomeScreen extends Component<Props, State> {
             backgroundLandscapeImage: '',
             orientation: '',
             barierToken: '',
+            downloadedFiles: [],
         };
     }
 
@@ -80,7 +83,29 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
+    public async componentWillMount() {
+        console.log('componentWillMount');
+        this.setState({
+            downloadedFiles: [],
+        });
+        await LocalDbManager.get<string>(Constant.username, (error, data) => {
+            console.log('username...', data);
+            if (data) {
+                console.log('username', data);
+            }
+        });
+        await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (error, data) => {
+            console.log('downloaded files', data);
+            if (data) {
+                this.setState({
+                    downloadedFiles: data,
+                });
+            }
+        });
+    }
+
     public async componentDidMount() {
+        console.log('componentDidMount');
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
         await LocalDbManager.get('userToken', (err, data) => {
@@ -271,10 +296,37 @@ class HomeScreen extends Component<Props, State> {
     public getBadgeNumber(data: ResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
-                return (
-                    <Text style={styles.text}>{data.Children.length}</Text>
-                );
+                let files = data.Children.filter((item) => {
+                    return item.ResourceType !== 'Folder';
+                });
+                if (files.length > 0) {
+                    let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
+                    return (
+                        <Text style={styles.text}>{data.Children.length - newDownloadedFiles.length}</Text>
+                    );
+                } else {
+                    return (
+                        <Text style={styles.text}>{data.Children.length}</Text>
+                    );
+                }
             }
+        }
+    }
+
+    public async updateFolderCount(subResources: SubResourceModel[]) {
+        let files = await subResources.filter((item) => {
+            return item.ResourceType !== 'Folder';
+        });
+        console.log('files', files);
+        if (files.length > 0) {
+            let newDownloadedFiles = await this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
+            return (
+                <Text style={styles.text}>{subResources.length}</Text>
+            );
+        } else {
+            return (
+                <Text style={styles.text}>{subResources.length}</Text>
+            );
         }
     }
 
@@ -319,8 +371,16 @@ class HomeScreen extends Component<Props, State> {
     }
     public render() {
         let { height, width } = Dimensions.get('window');
+        console.log('render');
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+                <NavigationEvents
+                    onWillFocus={() => this.componentWillMount()}
+                    onDidFocus={() => this.render()}
+                    onWillBlur={() => console.log('willBlur')}
+                    onDidBlur={() => console.log('didBlur')}
+                />
+                {/* this.props.navigation.openDrawer */}
                 <Container>
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>

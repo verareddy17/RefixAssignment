@@ -10,6 +10,7 @@ import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
 import Config from 'react-native-config';
 import PreviewManagerScreen from '../screens/display/preview-manager-screen';
+import DrawerMenu from '../components/drawer/custom-drawer';
 const HomeStackNavigator = createStackNavigator(
     {
         Home: {

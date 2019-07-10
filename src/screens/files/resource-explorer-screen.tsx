@@ -28,7 +28,7 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
-    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -40,6 +40,7 @@ interface State {
     marginLeft: number;
     isRowClosed: boolean;
     bearer_token: string;
+    isBadgeNumber: boolean;
 }
 
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -54,6 +55,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             marginLeft: 1,
             isRowClosed: false,
             bearer_token: '',
+            isBadgeNumber: false,
         };
     }
 
@@ -150,9 +152,32 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public getBadgeNumber(data: SubResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
-                return (
-                    <Text style={styles.badgeText}>{data.Children.length}</Text>
-                );
+                let files = data.Children.filter((item) => {
+                    return item.ResourceType !== 'Folder';
+                });
+                if (files.length > 0) {
+                    let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
+                    let badgeNumber = data.Children.length - newDownloadedFiles.length;
+                    if (badgeNumber === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge} >
+                                <Text style={styles.badgeText}>{badgeNumber}</Text>
+                            </Badge>
+                        );
+                    }
+
+                } else {
+                    if (data.Children.length === 0) {
+                        return;
+                    }
+                    return (
+                        <Badge style={styles.badge} >
+                            <Text style={styles.badgeText}>{data.Children.length}</Text>
+                        </Badge>
+                    );
+                }
             }
         }
     }
@@ -171,9 +196,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <View style={styles.folderContainer}>
                                     <View style={[styles.folderImageContainer]}>
                                         {this.renderFolderImage(data)}
-                                        <Badge style={styles.badge}>
-                                            {this.getBadgeNumber(data)}
-                                        </Badge>
+                                        {this.getBadgeNumber(data)}
                                     </View>
                                     <View style={styles.resourceContainer}>
                                         <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data)}>
@@ -253,7 +276,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (data.ResourceType === 'Folder') {
             this.props.navigation.push('File', { 'item': data });
         }
-        console.log('filedata', resourceId, resourceName, resourceType, resourceImage, launcherFile);
         this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
     }
 
@@ -278,14 +300,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
-        await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename);
+        await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename, resourceType);
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
             console.log('Successfully inserted');
         });
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
-            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
+        console.log('download resource id', resourceId);
+        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
@@ -322,8 +345,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 }
                 let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
                 console.log('downloadedPath', path);
-                await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType) => {
-                    await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
+                await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+                    await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
                 });
             });
         } catch (error) {

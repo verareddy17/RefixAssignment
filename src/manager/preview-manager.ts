@@ -12,21 +12,22 @@ export default class PreviewManager {
         return resourceName;
     }
 
-    public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string) => void) {
+    public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string, resourceId: number) => void) {
         if (fileType === FileType.zip) {
             let resourceName = await PreviewManager.extractFileName(fileName);
             const sourcePath = `${dir}/${resourceId}.${fileType}`;
             const targetPath = `${dir}/${resourceId}/${resourceName}`;
             console.log('source path', sourcePath);
             await unzip(sourcePath, targetPath).then(() => {
-                callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType);
+                callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType, resourceId);
             })
                 .catch((error) => {
                     console.log('failed to unzip the file ', error);
                 });
         } else if (fileType === FileType.video) {
             let resourceName = await PreviewManager.extractFileName(fileName);
-            callback(`${dir}`, launcherFile, resourceName, fileType);
+            console.log('openpreview', resourceId);
+            callback(`${dir}`, launcherFile, resourceName, fileType, resourceId);
         } else {
             console.log('downladed file', `${dir}/${fileName}`);
             let type = fileType.split('.').join('');

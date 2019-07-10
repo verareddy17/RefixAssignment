@@ -2,7 +2,7 @@ import { DOWNLOAD_START, DOWNLOAD_PROGRESS, DOWNLOAD_SUCCESS } from './action-ty
 import { Dispatch } from 'redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import Config from 'react-native-config';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 
 export const downloadResourceStart = () => {
@@ -30,15 +30,18 @@ export class DownloadResourceFileProgress {
     public isLoading: boolean = false;
 }
 
-export default function downloadFile(bearer_token: string, AppUserResourceID: number, filename: string): (dispatch: Dispatch) => Promise<void> {
+export default function downloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         let params = {
             'AppResourceId': AppUserResourceID,
         };
-        console.log('exected downloaded path', `${dirs}/${filename}`);
+        console.log('targeted path', `${dirs}/${filename}`);
+        console.log('filetype', filetype);
+        let path = filetype === FileType.video ? `${dirs}/${AppUserResourceID}${filetype}` : `${dirs}/${filename}`;
+        console.log('path', path);
         dispatch(downloadResourceStart());
         await RNFetchBlob.config({
-            path: `${dirs}/${filename}`,
+            path: path,
         }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + bearer_token,

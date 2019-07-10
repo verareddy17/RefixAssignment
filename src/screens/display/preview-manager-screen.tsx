@@ -49,11 +49,12 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         }
     }
 
-    public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string) {
+    public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string, resourceId: number) {
+        console.log('filetype', `${dirPath}/${resourceId}${fileType}`);
         if (fileType === FileType.video) {
             return (
                 <Video
-                    source={{ uri: `${dirPath}/${fileName}.${fileType}` }}
+                    source={{ uri: `${dirPath}/${resourceId}${fileType}` }}
                     resizeMode='cover'
                     style={StyleSheet.absoluteFill}
                 />
@@ -83,6 +84,8 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const launcherFile = this.props.navigation.getParam('launcherFile') as string;
         const fileName = this.props.navigation.getParam('fileName') as string;
         const fileType = this.props.navigation.getParam('fileType') as string;
+        const resourceId = this.props.navigation.getParam('resourceId') as number;
+        console.log('resourceid', resourceId);
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
@@ -103,7 +106,7 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                                 <Spinner style={styles.spinnerConatiner} size={'large'} color='#fff' />
                                 : <View />
                             }
-                            {this.renderVideoOrHtmlFile(fileType, dirPath, launcherFile, fileName)}
+                            {this.renderVideoOrHtmlFile(fileType, dirPath, launcherFile, fileName, resourceId)}
                         </View>
                     </Content>
                 </Container>

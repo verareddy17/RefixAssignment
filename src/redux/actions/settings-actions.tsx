@@ -1,4 +1,4 @@
-import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE } from './action-types';
+import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE, LOAD_SETTINGS_START, LOAD_SETTINGS_SUCCESS, LOAD_SETTINGS_FAIL } from './action-types';
 import { Data, ApiResponse } from '../../models/response-model';
 import ApiManager from '../../manager/api-manager';
 import { Dispatch } from 'redux';
@@ -50,6 +50,7 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
             if (!isNetworkFail) {
                 if (data) {
                     if (data.Success) {
+                        console.log('settings', data);
                         dispatch(loadUserSuccess(data.Data.Settings));
                     } else {
                         dispatch(loadUserFailed(data.Errors[0]));
