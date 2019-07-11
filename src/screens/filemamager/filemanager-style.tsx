@@ -40,6 +40,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    progressBarConainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        justifyContent: 'center',
+    },
+    progressBarText: {
+        color: '#fff',
+        textAlign: 'center',
+    },
+    progressBarWidth: {
+        width: '100%',
+    },
 });
 
 export default styles;

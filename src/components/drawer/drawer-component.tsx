@@ -9,7 +9,6 @@ import { Constant } from '../../constant';
 import { Image } from 'react-native';
 import store from '../../redux/store';
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
-    console.log('props', props);
     return (
         < SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
             <Container>
@@ -23,7 +22,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={styles.userNameTitle}>{store.getState().loginData.user.BUID}</Text>
+                        <Text style={styles.userNameTitle}>{}</Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />

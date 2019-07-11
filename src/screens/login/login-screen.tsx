@@ -119,7 +119,10 @@ class LoginScreen extends Component<Props, State> {
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
             console.log('settings response: ', this.props.deviceTokenResponse.settings);
+            console.log('error of device token', this.props.deviceTokenResponse.error)
+            console.log('data of device token', this.props.deviceTokenResponse.settings)
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
+                console.log('inside');
                 await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
                 await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
                 await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
@@ -129,11 +132,15 @@ class LoginScreen extends Component<Props, State> {
                 await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
                 await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
+                    console.log('inside..');
                     if (err === null) {
+                        console.log('home')
                         this.props.resetInputText();
                         this.props.navigation.navigate('Home', { 'isFromLogin': true });
                     }
                 });
+            } else {
+                Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
             if ( this.props.userState.error !== '') {

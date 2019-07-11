@@ -22,6 +22,7 @@ export default function settingReducer(state = initialState, action: Action<Cust
                 ...state,
                 error: action.payload,
                 isLoading: false,
+                settings: null,
             };
         default:
             return state;
