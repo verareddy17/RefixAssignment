@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     listItem: {
         paddingTop: 12,
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
     resourceImage: {
         width: 50,
         height: 50,
+        marginLeft: 10,
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -68,6 +70,18 @@ const styles = StyleSheet.create({
             },
         }),
     },
+    searchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        height: 75,
+    },
+    renderSeparator: {
+        height: 1,
+        width: '100%',
+        backgroundColor: '#ffffff',
+    },
+
 });
 
 export default styles;

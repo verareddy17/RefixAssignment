@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, List, ListItem } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, List, ListItem, Row } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import styles from './bookmark-style';
 import Config from 'react-native-config';
-import { ListView, Alert, Image } from 'react-native';
+import { ListView, Alert, Image, TouchableOpacity, Dimensions } from 'react-native';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Constant } from '../../constant';
-import { RectButton } from 'react-native-gesture-handler';
+import { Constant, FileType } from '../../constant';
+import imageCacheHoc from 'react-native-image-cache-hoc'
+const CacheableImage = imageCacheHoc(Image, {
+    validProtocols: ['http', 'https'],
+});
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -59,25 +62,26 @@ export default class BookmarkScreen extends Component<Props, State> {
         if (this.state.bookmarks.length > 0) {
             return (
                 <List
-                    rightOpenValue={-50}
+                    rightOpenValue={-100}
                     dataSource={ds.cloneWithRows(this.state.bookmarks)}
-                    renderRow={data =>
-                        <ListItem icon>
-                            <Left>
-                                <Image source={{ uri: data.resourceImage }} style={styles.resourceImage} />
+                    renderRow={(data: Bookmarks) =>
+                        <ListItem thumbnail style={{ height: 55 }} >
+                            <Left style={{ marginLeft: 10 }}>
+                                {this.renderFilesImages(data)}
                             </Left>
-                            <Body>
+                            <Body style={{ marginLeft: 10 }} >
                                 <Text> {data.resourceName} </Text>
                             </Body>
                             <Right>
                                 <Icon style={{ color: Constant.blueColor }} name='star' />
                             </Right>
-                        </ListItem>}
+                        </ListItem>
+                    }
                     renderRightHiddenRow={(data, secId, rowId, rowMap) =>
                         <View style={styles.swipeContainer}>
-                            <Button full warning style={styles.swipeButton} onPress={() => this.onDeleteButtonPressed(data, secId, rowId, rowMap)}>
-                                <Icon active name='trash' />
-                            </Button>
+                            <TouchableOpacity onPress={() => this.onDeleteButtonPressed(data, secId, rowId, rowMap)}>
+                                <Text style={{ color: 'white' }}>Delete</Text>
+                            </TouchableOpacity>
                         </View>
                     }
                 />
@@ -87,6 +91,34 @@ export default class BookmarkScreen extends Component<Props, State> {
                 <View style={styles.noBookmarksContainer}>
                     <Text>No Bookmarks Available</Text>
                 </View>
+            );
+        }
+    }
+
+    public renderFilesImages(rowData: Bookmarks) {
+        if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
+            if (rowData.resourceType === FileType.video) {
+                return (
+                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                );
+            } else if (rowData.resourceType === FileType.pdf || rowData.resourceType === FileType.zip) {
+                return (
+                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                );
+            } else if (rowData.resourceType === FileType.png || rowData.resourceType === FileType.jpg) {
+                return (
+                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                );
+            } else {
+                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt) {
+                    return (
+                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                    );
+                }
+            }
+        } else {
+            return (
+                <CacheableImage source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
             );
         }
     }

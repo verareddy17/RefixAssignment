@@ -3,4 +3,5 @@ export class DownloadedFilesModel {
     public resourceName: string = '';
     public resourceType: string = '';
     public resourceImage: string = '';
+    public launcherFile: string = '';
 }

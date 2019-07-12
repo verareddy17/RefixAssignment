@@ -6,14 +6,41 @@
  */
 
 #import "AppDelegate.h"
+#import "Orientation.h"
+
+#import <AppCenterReactNativeCrashes/AppCenterReactNativeCrashes.h>
+#import <AppCenterReactNativeAnalytics/AppCenterReactNativeAnalytics.h>
+#import <AppCenterReactNative/AppCenterReactNative.h>
+#import <AppCenterReactNativeShared/AppCenterReactNativeShared.h>
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+@import AppCenter;
+@import AppCenterAnalytics;
+@import AppCenterCrashes;
 
 @implementation AppDelegate
 
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  return [Orientation getOrientation];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+//  [MSAppCenter setLogLevel: MSLogLevelVerbose];
+//  id appSecret = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppSecret"];
+//  if ([appSecret isKindOfClass:[NSString class]]) {
+//    [AppCenterReactNativeShared setAppSecret:appSecret];
+//    [MSAppCenter start:@"a948e6da-465c-45ea-9523-6a1fbbf8da2a" withServices:@[[MSAnalytics class], [MSCrashes class]]];
+//  }
+//  
+//  id startAutomatically = [[NSUserDefaults standardUserDefaults] objectForKey:@"StartAutomatically"];
+//  if ([startAutomatically isKindOfClass:[NSNumber class]]) {
+//    [AppCenterReactNativeShared setStartAutomatically:[startAutomatically boolValue]];
+//  }
+  [AppCenterReactNativeCrashes registerWithAutomaticProcessing];  // Initialize AppCenter crashes
+  [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];  // Initialize AppCenter analytics
+  [AppCenterReactNative register];  // Initialize AppCenter
   NSURL *jsCodeLocation;
 
   #ifdef DEBUG

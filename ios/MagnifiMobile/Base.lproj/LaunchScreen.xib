@@ -15,16 +15,16 @@
             <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Launch image portrait" translatesAutoresizingMaskIntoConstraints="NO" id="1Zy-ii-QNS">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Launch image portrait" translatesAutoresizingMaskIntoConstraints="NO" id="Zdg-7h-xEI">
                     <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
                 </imageView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="1Zy-ii-QNS" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="46f-fJ-ul7"/>
-                <constraint firstAttribute="bottom" secondItem="1Zy-ii-QNS" secondAttribute="bottom" id="LZp-2N-v24"/>
-                <constraint firstAttribute="trailing" secondItem="1Zy-ii-QNS" secondAttribute="trailing" id="cQ0-hn-BOk"/>
-                <constraint firstItem="1Zy-ii-QNS" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="jqp-5c-whe"/>
+                <constraint firstAttribute="bottom" secondItem="Zdg-7h-xEI" secondAttribute="bottom" id="6Gz-s5-qUV"/>
+                <constraint firstItem="Zdg-7h-xEI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="JxF-DW-12a"/>
+                <constraint firstItem="Zdg-7h-xEI" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="WHN-5Q-JY0"/>
+                <constraint firstAttribute="trailing" secondItem="Zdg-7h-xEI" secondAttribute="trailing" id="gNR-GA-Bzp"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

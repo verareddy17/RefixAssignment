@@ -1,0 +1,36 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'MagnifiMobile' do
+  pod 'AppCenter/Crashes', '~> 2.0.1'
+  pod 'AppCenter/Analytics', '~> 2.0.1'
+  pod 'AppCenterReactNativeShared', '~> 2.0.0'
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for MagnifiMobile
+
+  
+
+  platform :ios, '9.0'
+  pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
+
+  target 'MagnifiMobileTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end
+
+target 'MagnifiMobile-tvOS' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for MagnifiMobile-tvOS
+
+  target 'MagnifiMobile-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end

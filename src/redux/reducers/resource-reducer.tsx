@@ -24,12 +24,14 @@ const resourceReducer = (state = initialState, action: Action<ResourceModel>) =>
                 ...state,
                 resources: action.payload,
                 isLoading: false,
+                error: '',
             };
         case LOAD_RESOURCE_FAIL:
             return {
                 ...state,
                 isLoading: false,
                 error: action.payload,
+                resource: null,
             };
         default:
             return state;

@@ -3,20 +3,23 @@ import { Icon } from 'native-base';
 import { createStackNavigator, createDrawerNavigator, createAppContainer, createSwitchNavigator } from 'react-navigation';
 import LoginScreen from '../screens/login/login-screen';
 import HomeScreen from '../screens/home/home-screen';
-import FileScreen from '../screens/files/file-screen';
+import ResourceExplorerScreen from '../screens/files/resource-explorer-screen';
 import BookmarkScreen from '../screens/bookmarks/bookmark-screen';
-import FileManagerScreen from '../screens/filemamager/filemanager-screen';
+import FileManagerScreen from '../screens/filemanager/filemanager-screen';
 import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
 import Config from 'react-native-config';
-
+import PreviewManagerScreen from '../screens/preview/preview-manager-screen';
 const HomeStackNavigator = createStackNavigator(
     {
         Home: {
             screen: HomeScreen,
         },
         File: {
-            screen: FileScreen,
+            screen: ResourceExplorerScreen,
+        },
+        Preview: {
+            screen: PreviewManagerScreen,
         },
     },
     {
@@ -48,7 +51,7 @@ const AppDrawerNavigator = createDrawerNavigator(
         FileManager: {
             screen: FileManagerScreen,
             navigationOptions: {
-                drawerLabel: 'File Manager',
+                drawerLabel: 'Downloads',
                 drawerIcon: () => (
                     <Icon name='folder' />
                 ),
@@ -77,4 +80,3 @@ const BaseNavigation = createAppContainer(createSwitchNavigator(
 ));
 
 export default BaseNavigation;
-

@@ -15,11 +15,12 @@ export default function settingReducer(state = initialState, action: Action<Cust
                 ...state,
                 settings: action.payload,
                 isLoading: false,
+                error: '',
             };
         case LOAD_USER_FAILURE:
             return {
                 ...state,
-                error: 'Unkonwn error occured',
+                error: action.payload,
                 isLoading: false,
             };
         default:

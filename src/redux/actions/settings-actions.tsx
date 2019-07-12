@@ -1,10 +1,10 @@
 import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE } from './action-types';
-import ResponseJson from '../../models/response-model';
+import { Data, ApiResponse } from '../../models/response-model';
 import ApiManager from '../../manager/api-manager';
 import { Dispatch } from 'redux';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
-import { CustomizeSettings, IpadCustomizeSetting } from '../../models/custom-settings';
+import { CustomizeSettings, Setting } from '../../models/custom-settings';
 
 export const loadUserRequest = () => {
     return {
@@ -30,14 +30,22 @@ export class SettingsResponse {
     public error: string = '';
 }
 
-export default function deviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch) => Promise<void> {
+export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadUserRequest());
-        await ApiManager.post<ResponseJson<IpadCustomizeSetting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'UserID': UserID, 'BUId': BUId }, (data, err) => {
-            if (data) {
-                dispatch(loadUserSuccess(data.ResponseJSON.IpadCustomizeSetting));
+        await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, (data, err, isNetworkFail) => {
+            if (!isNetworkFail) {
+                if (data) {
+                    if (data.Success) {
+                        dispatch(loadUserSuccess(data.Data.Settings));
+                    } else {
+                        dispatch(loadUserFailed(data.Errors[0]));
+                    }
+                } else {
+                    dispatch(loadUserFailed(err !== null ? err as string : ''));
+                }
             } else {
-                dispatch(loadUserFailed(err !== null ? err as string : ''));
+                dispatch(loadUserFailed('Please check internet connection'));
             }
         });
     };
