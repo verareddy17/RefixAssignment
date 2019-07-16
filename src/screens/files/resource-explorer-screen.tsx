@@ -93,9 +93,12 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async onBookmarkButtonPressed(data: ResourceModel) {
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceId);
+        let isRemoved = false;
         if (index > -1) {
+            isRemoved = true;
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
+            isRemoved = false;
             bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.ResourceType }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
@@ -105,6 +108,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 this.setState({
                     bookmarkedFiles: bookmarkFiles,
                 });
+                Toast.show({ text: isRemoved ? Constant.bookmarkDeleted : Constant.addedbookmarkTitle, type: 'success', position: 'bottom' });
             }
         });
     }
@@ -303,7 +307,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename, resourceType);
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
-            console.log('Successfully inserted');
+            Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
         });
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
         console.log('download resource id', resourceId);
@@ -322,6 +326,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
             await LocalDbManager.insert<DownloadedFilesModel[]>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
                 if (error !== null) {
                     Toast.show({ text: error!.message, type: 'warning', position: 'top' });
+                } else {
+                    Toast.show({ text: Constant.deleted, type: 'success', position: 'bottom' });
                 }
             });
         }

@@ -84,18 +84,10 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentWillMount() {
-        console.log('componentWillMount');
         this.setState({
             downloadedFiles: [],
         });
-        await LocalDbManager.get<string>(Constant.username, (error, data) => {
-            console.log('username...', data);
-            if (data) {
-                console.log('username', data);
-            }
-        });
         await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (error, data) => {
-            console.log('downloaded files', data);
             if (data) {
                 this.setState({
                     downloadedFiles: data,
@@ -105,7 +97,6 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        console.log('componentDidMount');
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
         await LocalDbManager.get('userToken', (err, data) => {
@@ -163,6 +154,10 @@ class HomeScreen extends Component<Props, State> {
         const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
         await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.state.barierToken);
         console.log('update settings', this.props.deviceTokenResponse.settings);
+        this.setState({
+            backgroundLandscapeImage: this.props.deviceTokenResponse.settings.LandscapeImage || '',
+            backgroundPortraitImage: this.props.deviceTokenResponse.settings.PortraitImage || '',
+        });
         await this.props.updateresource(this.state.barierToken);
     }
 
@@ -239,7 +234,7 @@ class HomeScreen extends Component<Props, State> {
                 style={{
                     height: 1,
                     width: '100%',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: '#ffffff',
                 }}
             />
         );
@@ -373,7 +368,6 @@ class HomeScreen extends Component<Props, State> {
     }
     public render() {
         let { height, width } = Dimensions.get('window');
-        console.log('render');
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <NavigationEvents
