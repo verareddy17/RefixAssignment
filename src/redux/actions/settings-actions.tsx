@@ -37,7 +37,6 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
             if (!isNetworkFail) {
                 if (data) {
                     if (data.Success) {
-                        console.log('settings', data);
                         dispatch(loadUserSuccess(data.Data.Settings));
                     } else {
                         dispatch(loadUserFailed(data.Errors[0]));

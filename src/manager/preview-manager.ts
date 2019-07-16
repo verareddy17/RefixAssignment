@@ -26,8 +26,6 @@ export default class PreviewManager {
                 });
         } else if (fileType === FileType.video) {
             let resourceName = await PreviewManager.extractFileName(fileName);
-            console.log('openpreview', resourceId);
-            console.log('dir', dir);
             callback(`${dir}`, launcherFile, resourceName, fileType, resourceId);
         } else {
             console.log('downladed file', `${dir}/${fileName}`);

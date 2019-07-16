@@ -40,7 +40,6 @@ interface State {
     marginLeft: number;
     isRowClosed: boolean;
     bearer_token: string;
-    isBadgeNumber: boolean;
 }
 
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -55,7 +54,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
             marginLeft: 1,
             isRowClosed: false,
             bearer_token: '',
-            isBadgeNumber: false,
         };
     }
 

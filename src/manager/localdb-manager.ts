@@ -1,8 +1,5 @@
 import { AsyncStorage, Alert } from 'react-native';
 import Config from 'react-native-config';
-import { string } from 'prop-types';
-import { SubResourceModel } from '../models/resource-model';
-import { DownloadedFilesModel } from '../models/downloadedfile-model';
 
 export default class LocalDbManager {
 

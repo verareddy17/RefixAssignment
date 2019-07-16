@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 70,
         justifyContent: 'center',
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
     },
     image: {
         width: 65,

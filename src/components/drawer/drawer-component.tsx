@@ -7,7 +7,7 @@ import LocalDbManager from '../../manager/localdb-manager';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
 import { Image } from 'react-native';
-import store from '../../redux/store';
+
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
     return (
         < SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
@@ -39,7 +39,6 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
 };
 
 function closeDrawer(props: DrawerItemsProps) {
-    console.log('props', props);
     props.navigation.closeDrawer();
 }
 const _signout = async (props: DrawerItemsProps) => {
