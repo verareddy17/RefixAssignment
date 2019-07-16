@@ -372,4 +372,3 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(ResourceExplorerScreen);
-

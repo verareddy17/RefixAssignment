@@ -268,6 +268,8 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
+                                        {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer,{position: 'absolute', width:"100%", height:'100%'}]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
+
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
@@ -407,7 +409,6 @@ class HomeScreen extends Component<Props, State> {
                                 />
                             </Item>
                         </Header>
-                        {this.props.deviceTokenResponse.isLoading ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             {this.renderResourceList()}
                         </ImageBackground>

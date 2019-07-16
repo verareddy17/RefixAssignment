@@ -2,10 +2,10 @@ import React from 'react';
 import { Icon } from 'native-base';
 import { createStackNavigator, createDrawerNavigator, createAppContainer, createSwitchNavigator } from 'react-navigation';
 import LoginScreen from '../screens/login/login-screen';
-import HomeScreen from '../../src/screens/Home/home-screen';
+import HomeScreen from '../screens/Home/home-screen';
 import ResourceExplorerScreen from '../screens/files/resource-explorer-screen';
 import BookmarkScreen from '../screens/bookmarks/bookmark-screen';
-import FileManagerScreen from '../screens/filemamager/filemanager-screen';
+import FileManagerScreen from '../screens/filemanager/filemanager-screen';
 import AuthLoadingScreen from '../screens/authloading/authloading-screen';
 import CustomDrawerComponent from '../components/drawer/drawer-component';
 import Config from 'react-native-config';
@@ -52,7 +52,7 @@ const AppDrawerNavigator = createDrawerNavigator(
         FileManager: {
             screen: FileManagerScreen,
             navigationOptions: {
-                drawerLabel: 'File Manager',
+                drawerLabel: 'Downloads',
                 drawerIcon: () => (
                     <Icon name='folder' />
                 ),

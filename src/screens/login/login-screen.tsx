@@ -134,7 +134,6 @@ class LoginScreen extends Component<Props, State> {
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
                     console.log('inside..');
                     if (err === null) {
-                        console.log('home')
                         this.props.resetInputText();
                         this.props.navigation.navigate('Home', { 'isFromLogin': true });
                     }

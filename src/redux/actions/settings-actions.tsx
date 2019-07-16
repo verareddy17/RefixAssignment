@@ -30,19 +30,6 @@ export class SettingsResponse {
     public error: string = '';
 }
 
-// export default function deviceTokenApi(UserID: number, BUId: number): (dispatch: Dispatch) => Promise<void> {
-//     return async (dispatch: Dispatch) => {
-//         dispatch(loadUserRequest());
-//         await ApiManager.post<ResponseJson<IpadCustomizeSetting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'UserID': UserID, 'BUId': BUId }, (data, err) => {
-//             if (data) {
-//                 dispatch(loadUserSuccess(data.ResponseJSON.IpadCustomizeSetting));
-//             } else {
-//                 dispatch(loadUserFailed(err !== null ? err as string : ''));
-//             }
-//         });
-//     };
-// }
-
 export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadUserRequest());

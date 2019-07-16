@@ -8,10 +8,3 @@ export interface ApiResponse<T> {
 export interface Data<T> {
     Data: T;
 }
-
-
-export interface ResponseModel {
-    isLoading: boolean;
-    Errors?: string[];
-    Data: any;
-}
