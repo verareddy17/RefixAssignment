@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "postinstall": "node src/scripts/android-release-gradle-fix.js"
   },
   "dependencies": {
     "appcenter": "2.0.0",
