@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     downloadFileContainer: {
         height: 70,
         justifyContent: 'flex-start',
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -51,6 +51,34 @@ const styles = StyleSheet.create({
     },
     progressBarWidth: {
         width: '100%',
+    },
+    contentConatiner: {
+        backgroundColor: '#ffffff',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    segmentContainer: {
+        width: '100%',
+    },
+    segmentButton: {
+        borderLeftWidth: 1,
+    },
+    downloadedContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        height: 75,
+    },
+    textTitle: {
+        padding: 10,
+    },
+    filesContainer: {
+        height: 75,
+    },
+    bodyContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

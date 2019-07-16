@@ -55,8 +55,6 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public async componentWillMount() {
-        console.log('componentDidMount');
-        console.log('get state', store.getState().resource.resources);
         this.setState({
             isLoading: true,
             downloadedFiles: [],
@@ -90,28 +88,23 @@ class FileManagerScreen extends Component<Props, State> {
                 });
             }
         });
-        console.log('all files', this.state.resources);
         let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-        console.log('downloaded files', downloadFiles);
         this.setState({ resources: downloadFiles, isLoading: false });
     }
 
     public componentWillUnmount() {
-        console.log('componentwillunmount');
         Orientation.removeOrientationListener(this._orientationDidChange);
     }
 
     public _orientationDidChange = (orientation: string) => {
         if (orientation === Constant.landscape) {
-            console.log('landscape');
             this.setState({ orientation: Constant.landscape });
         } else {
-            console.log('portrait');
             this.setState({ orientation: Constant.portrait });
         }
     }
 
-    public renderFilesImagesForDownloads(rowData: DownloadedFilesModel) {
+    public renderLocalImagesForDownloads(rowData: DownloadedFilesModel) {
         if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
             if (rowData.resourceType === FileType.video) {
                 return (
@@ -139,7 +132,7 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public renderFilesImages(rowData: SubResourceModel) {
+    public renderLocalImagesForNotDownloadedFiles(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.ResourceType === FileType.video) {
                 return (
@@ -171,7 +164,6 @@ class FileManagerScreen extends Component<Props, State> {
         this.setState({ activePage: activePage });
     }
 
-
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -193,16 +185,15 @@ class FileManagerScreen extends Component<Props, State> {
                         <Right />
                     </Header>
                     <Content contentContainerStyle={styles.container}>
-                        <View style={{ backgroundColor: 'white', height: 50, justifyContent: 'center', alignItems: 'center' }}>
-                            <Segment style={{ width: '100%' }}>
-                                <Button style={{ borderLeftWidth: 1 }} active={this.state.activePage === 1}
-                                    onPress={() => this.selectComponent(1)}><Text>Remove</Text></Button>
+                        <View style={styles.contentConatiner}>
+                            <Segment style={styles.segmentContainer}>
+                                <Button style={styles.segmentButton} active={this.state.activePage === 1}
+                                    onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
                                 <Button active={this.state.activePage === 2}
-                                    onPress={() => this.selectComponent(2)}><Text>Add</Text></Button>
+                                    onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                             </Segment>
                         </View>
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
-                            {/* {this.renderComponent()} */}
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
                             </View>
@@ -233,21 +224,16 @@ class FileManagerScreen extends Component<Props, State> {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.state.activePage === 1) {
             return (
-                <View style={{ flex: 1 }}>
+                <View style={styles.container}>
                     <FlatList
                         data={this.state.downloadedFiles}
                         renderItem={({ item }) =>
                             <TouchableOpacity onPress={() => {
                                 this.previewFile(item);
                             }}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    height: 75,
-                                }}>
-                                    {this.renderFilesImagesForDownloads(item)}
-                                    <Text style={{ padding: 10 }}>{item.resourceName}</Text>
+                                <View style={styles.downloadedContainer}>
+                                    {this.renderLocalImagesForDownloads(item)}
+                                    <Text style={styles.textTitle}>{item.resourceName}</Text>
                                 </View>
                             </TouchableOpacity>
                         }
@@ -259,16 +245,16 @@ class FileManagerScreen extends Component<Props, State> {
                 <ListView
                     dataSource={ds.cloneWithRows(this.state.resources)}
                     renderRow={(item: SubResourceModel, secId, rowId) =>
-                        <ListItem style={{ height: 75 }}>
+                        <ListItem style={styles.filesContainer}>
                             <CheckBox
                                 checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
-                                onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
+                                onPress={() => this.onCheckBoxPress(item.ResourceId)}
                             />
                             <Body>
-                                <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {this.renderFilesImages(item)}
-                                        <Text style={{ marginLeft: 10 }}>{item.ResourceName}</Text>
+                                <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId)}>
+                                    <View style={styles.bodyContainer}>
+                                        {this.renderLocalImagesForNotDownloadedFiles(item)}
+                                        <Text style={styles.textTitle}>{item.ResourceName}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </Body>
@@ -312,14 +298,12 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async downloadSelectedFiles() {
         for (let i = 0; i < this.state.selectedFileIds.length; i++) {
-             let file = this.state.resources.find(item => item.ResourceId === this.state.selectedFileIds[i]);
-             console.log('files', file);
+            let file = this.state.resources.find(item => item.ResourceId === this.state.selectedFileIds[i]);
+            console.log('files', file);
         }
     }
-    public onCheckBoxPress(id: number, rowId: any) {
-        console.log('rowId', rowId);
+    public onCheckBoxPress(id: number) {
         let tmp = this.state.selectedFileIds;
-        console.log('temp id', tmp);
         if (tmp.includes(id)) {
             tmp.splice(tmp.indexOf(id), 1);
         } else {
@@ -329,80 +313,6 @@ class FileManagerScreen extends Component<Props, State> {
             selectedFileIds: tmp,
         });
     }
-
-    public renderAllFiles() {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        return (
-            <ListView
-                dataSource={ds.cloneWithRows(this.state.resources)}
-                renderRow={(item: SubResourceModel,secId,rowId) =>
-                    <ListItem>
-                        <CheckBox
-                            checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
-                            onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
-                        />
-                        <Body>
-                            <Text>{item.ResourceName}</Text>
-                        </Body>
-                    </ListItem>
-                }
-            />
-        )
-    }
-
-    public renderSeparator = () => {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: '100%',
-                    backgroundColor: 'black',
-                }}
-            />
-        );
-    }
-
-
-    //     public renderComponent1() {
-    //         return (
-    //             <View style={{
-    //                 flex: 1,
-    //             }}>
-    //                 <FlatList
-    //                     data={this.state.resources}
-    //                     renderItem={({ item }) =>
-    //                         <Swipeout right={[{
-    //                             text: 'Delete',
-    //                             backgroundColor: 'red',
-    //                         },
-    //                         {
-    //                             text: 'Update',
-    //                             backgroundColor: 'green',
-    //                         },
-    //                         ]} autoClose={true} style={{
-    //                             paddingRight: 0,
-    //                             paddingLeft: 0,
-    //                         }}>
-    //                             <View style={styles.downloadFileContainer}>
-    //                                 {this.renderFilesImages(item)}
-    //                                 <Text style={{ marginLeft: 10 }}>
-    //                                     {item.ResourceName}
-    //                                 </Text>
-    //                             </View>
-    //                             <View
-    //                                 style={{
-    //                                     height: 1,
-    //                                     width: '100%',
-    //                                     backgroundColor: 'black',
-    //                                 }}
-    //                             />
-    //                         </Swipeout>
-    //                     }
-    //                 />
-    //             </View>
-    //         );
-    //     }
-
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,

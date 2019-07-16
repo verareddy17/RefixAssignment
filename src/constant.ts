@@ -25,6 +25,8 @@ export class Constant {
     public static resources = 'resources';
     public static downloadedFiles = 'downloadedFiles';
     public static allFiles = 'allFiles';
+    public static addTitle = 'Add   ';
+    public static removeTitle = 'Remove';
 }
 
 export enum FileType {

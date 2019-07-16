@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     renderSeparator: {
         height: 1,
         width: '100%',
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
     },
 
 });

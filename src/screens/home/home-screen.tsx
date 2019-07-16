@@ -379,10 +379,7 @@ class HomeScreen extends Component<Props, State> {
                 <NavigationEvents
                     onWillFocus={() => this.componentWillMount()}
                     onDidFocus={() => this.render()}
-                    onWillBlur={() => console.log('willBlur')}
-                    onDidBlur={() => console.log('didBlur')}
                 />
-                {/* this.props.navigation.openDrawer */}
                 <Container>
                     <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>

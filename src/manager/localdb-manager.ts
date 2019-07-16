@@ -1,6 +1,8 @@
 import { AsyncStorage, Alert } from 'react-native';
 import Config from 'react-native-config';
 import { string } from 'prop-types';
+import { SubResourceModel } from '../models/resource-model';
+import { DownloadedFilesModel } from '../models/downloadedfile-model';
 
 export default class LocalDbManager {
 
@@ -36,14 +38,5 @@ export default class LocalDbManager {
 
     public static async showConfirmationAlert(confirmationMessage: string) {
         Alert.alert(Config.APP_NAME, confirmationMessage);
-    }
-
-    public static async getUserName(key: string) {
-        LocalDbManager.get<string>(key, (error, data) => {
-            if (data) {
-                return data;
-            }
-        });
-        return ''
     }
 }
