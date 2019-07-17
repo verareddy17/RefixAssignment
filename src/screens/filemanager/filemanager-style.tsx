@@ -55,11 +55,12 @@ const styles = StyleSheet.create({
     contentConatiner: {
         backgroundColor: '#ffffff',
         height: 50,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        flexDirection: 'row',
     },
     segmentContainer: {
-        width: '100%',
+        width: '50%',
     },
     segmentButton: {
         borderLeftWidth: 1,

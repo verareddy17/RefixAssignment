@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input, Spinner, CheckBox, ListItem } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input, Spinner, CheckBox, ListItem, Toast } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import styles from './filemanager-style';
 import Config from 'react-native-config';
@@ -23,6 +23,7 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
+    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -35,6 +36,8 @@ interface State {
     orientation: string;
     selectedFiles: Array<SubResourceModel>;
     selectedFileIds: Array<number>;
+    bearer_token: string;
+
 }
 // let result: SubResourceModel[] = [];
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -51,6 +54,7 @@ class FileManagerScreen extends Component<Props, State> {
             orientation: '',
             selectedFiles: [],
             selectedFileIds: [],
+            bearer_token: '',
         };
     }
 
@@ -90,6 +94,13 @@ class FileManagerScreen extends Component<Props, State> {
         });
         let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
         this.setState({ resources: downloadFiles, isLoading: false });
+        await LocalDbManager.get<string>(Constant.token, async (err, token) => {
+            if (token !== null && token !== '') {
+                await this.setState({
+                    bearer_token: token!,
+                });
+            }
+        });
     }
 
     public componentWillUnmount() {
@@ -186,12 +197,16 @@ class FileManagerScreen extends Component<Props, State> {
                     </Header>
                     <Content contentContainerStyle={styles.container}>
                         <View style={styles.contentConatiner}>
+                            <View />
                             <Segment style={styles.segmentContainer}>
                                 <Button style={styles.segmentButton} active={this.state.activePage === 1}
                                     onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
                                 <Button active={this.state.activePage === 2}
                                     onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                             </Segment>
+                            <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
+                                <Icon name='download' style={{ marginRight: 10 }}></Icon>
+                            </TouchableOpacity>
                         </View>
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
@@ -248,10 +263,10 @@ class FileManagerScreen extends Component<Props, State> {
                         <ListItem style={styles.filesContainer}>
                             <CheckBox
                                 checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
-                                onPress={() => this.onCheckBoxPress(item.ResourceId)}
+                                onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
                             />
                             <Body>
-                                <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId)}>
+                                <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                     <View style={styles.bodyContainer}>
                                         {this.renderLocalImagesForNotDownloadedFiles(item)}
                                         <Text style={styles.textTitle}>{item.ResourceName}</Text>
@@ -276,6 +291,24 @@ class FileManagerScreen extends Component<Props, State> {
 
     }
 
+    public async downloadSelectedFiles() {
+        for (let i = 0; i < this.state.selectedFiles.length; i++) {
+            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].ResourceType);
+            const { ResourceName, ResourceId, ResourceType, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
+            await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: ResourceType, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+            console.log('files are pushed', this.state.downloadedFiles);
+            let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
+            this.setState({
+                resources: downloadFiles,
+            });
+            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
+                Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
+            });
+        }
+        this.setState({
+            selectedFiles: [],
+        });
+    }
 
     public progress() {
         const downloadProgress = Math.floor(this.props.downloadState.progress * 100);
@@ -296,22 +329,25 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public async downloadSelectedFiles() {
-        for (let i = 0; i < this.state.selectedFileIds.length; i++) {
-            let file = this.state.resources.find(item => item.ResourceId === this.state.selectedFileIds[i]);
-            console.log('files', file);
-        }
-    }
-    public onCheckBoxPress(id: number) {
+    public onCheckBoxPress(id: number, rowId: any) {
         let tmp = this.state.selectedFileIds;
+        let newData = this.state.selectedFiles;
         if (tmp.includes(id)) {
             tmp.splice(tmp.indexOf(id), 1);
+            let index = newData.findIndex(item => item.ResourceId === id);
+            if (index > -1) {
+                newData.splice(index, 1);
+            }
         } else {
             tmp.push(id);
+            let file = this.state.resources[rowId];
+            newData.push(file);
         }
         this.setState({
             selectedFileIds: tmp,
+            selectedFiles: newData,
         });
+        console.log('selectedFiles', this.state.selectedFiles);
     }
 }
 const mapStateToProps = (state: AppState) => ({

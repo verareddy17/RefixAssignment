@@ -263,8 +263,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                                        {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer,{position: 'absolute', width:"100%", height:'100%'}]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
-
+                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, { position: 'absolute', width: '100%', height: '100%' }]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
@@ -273,9 +272,7 @@ class HomeScreen extends Component<Props, State> {
                                     <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                         <View style={styles.resourceImageConatiner}>
                                             {this.renderFolderImage(rowData)}
-                                            <Badge style={styles.badge}>
-                                                {this.getBadgeNumber(rowData)}
-                                            </Badge>
+                                            {this.getBadgeNumber(rowData)}
                                         </View>
                                         <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                     </TouchableOpacity>
@@ -298,13 +295,27 @@ class HomeScreen extends Component<Props, State> {
                 });
                 if (files.length > 0) {
                     let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
-                    return (
-                        <Text style={styles.text}>{data.Children.length - newDownloadedFiles.length}</Text>
-                    );
+                    let count = data.Children.length - newDownloadedFiles.length;
+                    if (count === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge}>
+                                <Text style={styles.text}>{count}</Text>
+                            </Badge>
+                        );
+                    }
+
                 } else {
-                    return (
-                        <Text style={styles.text}>{data.Children.length}</Text>
-                    );
+                    if (data.Children.length === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge}>
+                                <Text style={styles.text}>{data.Children.length}</Text>
+                            </Badge>
+                        );
+                    }
                 }
             }
         }
