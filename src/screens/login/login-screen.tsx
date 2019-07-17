@@ -15,8 +15,6 @@ import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
-import { string } from 'prop-types';
-import { ResponseModel, Data } from '../../models/response-model';
 
 interface Props {
     // tslint:disable-next-line:no-any
