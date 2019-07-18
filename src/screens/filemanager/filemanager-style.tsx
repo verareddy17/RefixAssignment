@@ -58,9 +58,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
+
     },
     segmentContainer: {
-        width: '50%',
+        width: '60%',
+        ...Platform.select({
+            ios: {
+                backgroundColor: '#ffffff',
+            },
+        }),
     },
     segmentButton: {
         borderLeftWidth: 1,

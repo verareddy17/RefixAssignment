@@ -37,6 +37,7 @@ interface State {
     selectedFiles: Array<SubResourceModel>;
     selectedFileIds: Array<number>;
     bearer_token: string;
+    isSelectAll: boolean;
 
 }
 // let result: SubResourceModel[] = [];
@@ -55,6 +56,7 @@ class FileManagerScreen extends Component<Props, State> {
             selectedFiles: [],
             selectedFileIds: [],
             bearer_token: '',
+            isSelectAll: false,
         };
     }
 
@@ -197,16 +199,22 @@ class FileManagerScreen extends Component<Props, State> {
                     </Header>
                     <Content contentContainerStyle={styles.container}>
                         <View style={styles.contentConatiner}>
-                            <View />
+                            {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
+                                <CheckBox checked={this.state.isSelectAll}
+                                    onPress={() => { this.onPressedSelectAll()}}
+                                />
+                                <Text style={{ color: '#00bbd1', marginLeft: 12 }}>Select All</Text>
+                            </View> : <View />}
+
                             <Segment style={styles.segmentContainer}>
                                 <Button style={styles.segmentButton} active={this.state.activePage === 1}
                                     onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
                                 <Button active={this.state.activePage === 2}
                                     onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                             </Segment>
-                            <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
+                            {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
                                 <Icon name='download' style={{ marginRight: 10 }}></Icon>
-                            </TouchableOpacity>
+                            </TouchableOpacity> : <View />}
                         </View>
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
@@ -217,6 +225,24 @@ class FileManagerScreen extends Component<Props, State> {
                 </Container>
             </SafeAreaView>
         );
+    }
+
+    public async onPressedSelectAll() {
+        this.setState({ isSelectAll: !this.state.isSelectAll });
+        let allIds = await this.state.resources.map(item => {
+            return item.ResourceId;
+        });
+        if (this.state.isSelectAll) {
+            this.setState({
+                selectedFileIds: allIds,
+                selectedFiles: this.state.resources,
+            });
+        } else {
+            this.setState({
+                selectedFileIds: [],
+                selectedFiles: [],
+            });
+        }
     }
 
     public async deleteFile(data: DownloadedFilesModel) {
@@ -292,6 +318,10 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public async downloadSelectedFiles() {
+        if (this.state.selectedFiles.length === 0) {
+            Alert.alert(Config.APP_NAME, Constant.noFiles);
+            return;
+        }
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
             await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].ResourceType);
             const { ResourceName, ResourceId, ResourceType, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
@@ -307,6 +337,8 @@ class FileManagerScreen extends Component<Props, State> {
         }
         this.setState({
             selectedFiles: [],
+            selectedFileIds: [],
+            isSelectAll: false,
         });
     }
 

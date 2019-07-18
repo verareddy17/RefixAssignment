@@ -253,7 +253,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
-                    <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                    {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.pop()}>
                                 <Icon name='arrow-back' style={styles.iconColor} />
@@ -263,7 +263,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             <Title style={styles.headerTitle}>{item.ResourceName}</Title>
                         </Body>
                         <Right />
-                    </Header>
+                    </Header>}
                     <Content contentContainerStyle={styles.container}>
                         <View style={styles.container}>
                             {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}

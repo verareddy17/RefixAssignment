@@ -27,9 +27,10 @@ export class Constant {
     public static allFiles = 'allFiles';
     public static addTitle = 'Add   ';
     public static removeTitle = 'Remove';
-    public static addedbookmarkTitle = 'successfully added to bookmark';
+    public static addedbookmarkTitle = 'successfully added to bookmarks';
     public static deleted = 'successfully deleted the downloaded file';
     public static bookmarkDeleted = 'succesfully removed from bookmarks';
+    public static noFiles = 'Please select at least one file';
 }
 
 export enum FileType {
