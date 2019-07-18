@@ -321,23 +321,6 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public async updateFolderCount(subResources: SubResourceModel[]) {
-        let files = await subResources.filter((item) => {
-            return item.ResourceType !== 'Folder';
-        });
-        console.log('files', files);
-        if (files.length > 0) {
-            let newDownloadedFiles = await this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
-            return (
-                <Text style={styles.text}>{subResources.length}</Text>
-            );
-        } else {
-            return (
-                <Text style={styles.text}>{subResources.length}</Text>
-            );
-        }
-    }
-
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.ResourceType === FileType.video) {
@@ -405,7 +388,7 @@ class HomeScreen extends Component<Props, State> {
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
-                                <Input placeholder='Search'
+                                <Input placeholder='Search here'
                                     autoCorrect={false}
                                     onChangeText={text => this.searchFilterFunction(text)}
                                 />

@@ -177,6 +177,29 @@ class FileManagerScreen extends Component<Props, State> {
         this.setState({ activePage: activePage });
     }
 
+    public renderHeader() {
+        return (
+            <View style={styles.contentConatiner}>
+                {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
+                    <CheckBox checked={this.state.isSelectAll}
+                        onPress={() => { this.onPressedSelectAll()}}
+                    />
+                    <Text style={styles.selectAll}>Select All</Text>
+                </View> : <View />}
+
+                <Segment style={styles.segmentContainer}>
+                    <Button style={styles.segmentButton} active={this.state.activePage === 1}
+                        onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
+                    <Button active={this.state.activePage === 2}
+                        onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
+                </Segment>
+                {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
+                    <Icon name='download' style={{ marginRight: 10 }}></Icon>
+                </TouchableOpacity> : <View />}
+            </View>
+        );
+    }
+
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -186,7 +209,7 @@ class FileManagerScreen extends Component<Props, State> {
                     onDidFocus={() => this.render()}
                 />
                 <Container>
-                    <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                    {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.openDrawer()}>
                                 <Icon name='menu' style={styles.iconColor}></Icon>
@@ -196,26 +219,9 @@ class FileManagerScreen extends Component<Props, State> {
                             <Title style={styles.headerTitle}>Downloads Manager</Title>
                         </Body>
                         <Right />
-                    </Header>
+                    </Header>}
                     <Content contentContainerStyle={styles.container}>
-                        <View style={styles.contentConatiner}>
-                            {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
-                                <CheckBox checked={this.state.isSelectAll}
-                                    onPress={() => { this.onPressedSelectAll()}}
-                                />
-                                <Text style={{ color: '#00bbd1', marginLeft: 12 }}>Select All</Text>
-                            </View> : <View />}
-
-                            <Segment style={styles.segmentContainer}>
-                                <Button style={styles.segmentButton} active={this.state.activePage === 1}
-                                    onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
-                                <Button active={this.state.activePage === 2}
-                                    onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
-                            </Segment>
-                            {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
-                                <Icon name='download' style={{ marginRight: 10 }}></Icon>
-                            </TouchableOpacity> : <View />}
-                        </View>
+                        {this.props.downloadState.isLoading ? <View/> : this.renderHeader()}
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
@@ -308,10 +314,7 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        console.log('preview arguments', path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile);
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
-            console.log('push arguments', rootPath, launcherFile, fileName, fileType, resourceId);
-            console.log('props', this.props.navigation);
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
 
@@ -347,14 +350,14 @@ class FileManagerScreen extends Component<Props, State> {
         if (Platform.OS === 'ios') {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress})`}</Text>
+                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                     <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                 </View>
             );
         } else {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress})`}</Text>
+                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                     <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                 </View>
             );
@@ -379,7 +382,6 @@ class FileManagerScreen extends Component<Props, State> {
             selectedFileIds: tmp,
             selectedFiles: newData,
         });
-        console.log('selectedFiles', this.state.selectedFiles);
     }
 }
 const mapStateToProps = (state: AppState) => ({

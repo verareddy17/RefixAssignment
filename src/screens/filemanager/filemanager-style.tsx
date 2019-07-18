@@ -87,6 +87,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    selectAll: {
+        color: '#00bbd1',
+         marginLeft: 12,
+    },
 });
 
 export default styles;
