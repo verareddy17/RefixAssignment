@@ -20,6 +20,7 @@ import downloadFile from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
 import imageCacheHoc from 'react-native-image-cache-hoc';
+import images from '../../assets/index';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -114,7 +115,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public renderFolderImage(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             return (
-                <Image source={require('../../assets/images/folder.png')} style={styles.folderImage} />
+                <Image source={images.folder} style={styles.folderImage} />
             );
         } else {
             return (
@@ -127,20 +128,20 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.fileImage} />
+                    <Image source={images.mp4} style={styles.fileImage} />
                 );
             } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.fileImage} />
+                    <Image source={images.pdf} style={styles.fileImage} />
                 );
             } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.fileImage} />
+                    <Image source={images.png} style={styles.fileImage} />
                 );
             } else {
                 if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.fileImage} />
+                        <Image source={images.ppt} style={styles.fileImage} />
                     );
                 }
             }

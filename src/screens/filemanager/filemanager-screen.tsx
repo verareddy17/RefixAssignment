@@ -18,7 +18,12 @@ import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
+import images from '../../assets/index';
+import imageCacheHoc from 'react-native-image-cache-hoc';
 
+export const CacheableImage = imageCacheHoc(Image, {
+    validProtocols: ['http', 'https'],
+});
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -108,26 +113,26 @@ class FileManagerScreen extends Component<Props, State> {
         if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
             if (rowData.resourceType === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                    <Image source={images.mp4} style={styles.resourceImage} />
                 );
             } else if (rowData.resourceType === FileType.pdf) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                    <Image source={images.pdf} style={styles.resourceImage} />
                 );
             } else if (rowData.resourceType === FileType.png || rowData.resourceType === FileType.jpg || rowData.resourceType === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                    <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
                 if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                        <Image source={images.ppt} style={styles.resourceImage} />
                     );
                 }
             }
         } else {
             return (
-                <Image source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
+                <CacheableImage source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
             );
         }
     }
@@ -136,20 +141,20 @@ class FileManagerScreen extends Component<Props, State> {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                    <Image source={images.mp4} style={styles.resourceImage} />
                 );
             } else if (rowData.FileExtension === FileType.pdf) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                    <Image source={images.pdf} style={styles.resourceImage} />
                 );
             } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                    <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
                 if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                        <Image source={images.ppt} style={styles.resourceImage} />
                     );
                 }
             }

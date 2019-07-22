@@ -47,13 +47,13 @@ class LoginScreen extends Component<Props, State> {
     public render() {
         return (
             <View style={styles.rootContainer}>
-                <ImageBackground source={require(images.logo)} style={styles.bgImageStyle}>
+                <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
                     <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.container}>
                             <View style={styles.logoWrapper}>
                                 <Image
-                                    source={require(`../../assets/images/hubspot_logo.png`)}
+                                    source={images.hubspotLogo}
                                     style={styles.logoImage}
                                 />
                             </View>
@@ -135,7 +135,7 @@ class LoginScreen extends Component<Props, State> {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if ( this.props.userState.error !== '') {
+            if (this.props.userState.error !== '') {
                 Alert.alert(Config.APP_NAME, this.props.userState.error);
 
             } else {

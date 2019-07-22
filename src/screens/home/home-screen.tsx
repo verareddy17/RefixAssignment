@@ -17,6 +17,7 @@ import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import Orientation from 'react-native-orientation';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
+import images from '../../assets/index';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -213,7 +214,6 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
-        console.log('childer', children.Children);
         if (children.Children === undefined || children.Children === null) {
             await resultArray.push(children);
             return;
@@ -312,41 +312,24 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public async updateFolderCount(subResources: SubResourceModel[]) {
-        let files = await subResources.filter((item) => {
-            return item.ResourceType !== 0;
-        });
-        console.log('files', files);
-        if (files.length > 0) {
-            let newDownloadedFiles = await this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
-            return (
-                <Text style={styles.text}>{subResources.length}</Text>
-            );
-        } else {
-            return (
-                <Text style={styles.text}>{subResources.length}</Text>
-            );
-        }
-    }
-
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                    <Image source={images.mp4} style={styles.resourceImage} />
                 );
             } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                    <Image source={images.pdf} style={styles.resourceImage} />
                 );
             } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                    <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
                 if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                        <Image source={images.ppt} style={styles.resourceImage} />
                     );
                 }
             }
@@ -360,7 +343,7 @@ class HomeScreen extends Component<Props, State> {
     public renderFolderImage(rowData: ResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             return (
-                <Image source={require('../../assets/images/folder.png')} style={styles.resourceImage} />
+                <Image source={images.folder} style={styles.resourceImage} />
             );
         } else {
             return (
