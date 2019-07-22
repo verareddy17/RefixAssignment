@@ -134,20 +134,20 @@ class FileManagerScreen extends Component<Props, State> {
 
     public renderLocalImagesForNotDownloadedFiles(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.ResourceType === FileType.video) {
+            if (rowData.FileExtension === FileType.video) {
                 return (
                     <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf) {
+            } else if (rowData.FileExtension === FileType.pdf) {
                 return (
                     <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg || rowData.ResourceType === FileType.zip) {
+            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg || rowData.FileExtension === FileType.zip) {
                 return (
                     <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
                         <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
                     );
@@ -206,7 +206,6 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async deleteFile(data: DownloadedFilesModel) {
         let downloadFile = [...this.state.downloadedFiles];
-        console.log('delete', downloadFile);
         const index = downloadFile.findIndex(resource => resource.resourceId === data.resourceId);
         if (index > -1) {
             downloadFile.splice(index, 1); // unbookmarking
@@ -267,10 +266,7 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        console.log('preview arguments', path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile);
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
-            console.log('push arguments', rootPath, launcherFile, fileName, fileType, resourceId);
-            console.log('props', this.props.navigation);
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
 
@@ -296,12 +292,6 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public async downloadSelectedFiles() {
-        for (let i = 0; i < this.state.selectedFileIds.length; i++) {
-            let file = this.state.resources.find(item => item.ResourceId === this.state.selectedFileIds[i]);
-            console.log('files', file);
-        }
-    }
     public onCheckBoxPress(id: number) {
         let tmp = this.state.selectedFileIds;
         if (tmp.includes(id)) {

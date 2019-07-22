@@ -139,6 +139,7 @@ class HomeScreen extends Component<Props, State> {
             if (resource !== undefined) {
                 result = [];
                 await this.getValues(resource);
+                console.log('result', result);
                 await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, (err) => {
                     console.log('files are saved successfully');
                 });
@@ -212,7 +213,8 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
-        if (children.Children === undefined) {
+        console.log('childer', children.Children);
+        if (children.Children === undefined || children.Children === null) {
             await resultArray.push(children);
             return;
         }
@@ -263,7 +265,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                                        {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer,{position: 'absolute', width:"100%", height:'100%'}]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
+                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, { position: 'absolute', width: "100%", height: '100%' }]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
 
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
@@ -294,7 +296,7 @@ class HomeScreen extends Component<Props, State> {
         if (data !== undefined) {
             if (data.Children !== undefined) {
                 let files = data.Children.filter((item) => {
-                    return item.ResourceType !== 'Folder';
+                    return item.ResourceType !== 0;
                 });
                 if (files.length > 0) {
                     let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
@@ -312,7 +314,7 @@ class HomeScreen extends Component<Props, State> {
 
     public async updateFolderCount(subResources: SubResourceModel[]) {
         let files = await subResources.filter((item) => {
-            return item.ResourceType !== 'Folder';
+            return item.ResourceType !== 0;
         });
         console.log('files', files);
         if (files.length > 0) {
@@ -329,20 +331,20 @@ class HomeScreen extends Component<Props, State> {
 
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.ResourceType === FileType.video) {
+            if (rowData.FileExtension === FileType.video) {
                 return (
                     <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf || rowData.ResourceType === FileType.zip) {
+            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
                 return (
                     <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
+            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
                 return (
                     <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
                         <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
                     );
@@ -366,6 +368,7 @@ class HomeScreen extends Component<Props, State> {
             );
         }
     }
+
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
