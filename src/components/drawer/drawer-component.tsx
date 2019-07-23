@@ -7,6 +7,7 @@ import LocalDbManager from '../../manager/localdb-manager';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
 import { Image } from 'react-native';
+import images from '../../assets';
 
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
     return (
@@ -14,9 +15,9 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
             <Container>
                 <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                     <TouchableOpacity onPress={() => closeDrawer(props)}>
-                        <Icon name='close' style={{ color: '#fff', marginLeft: '95%', marginTop: 10 }}></Icon>
+                        <Icon name='close' style={styles.logoIcon}></Icon>
                     </TouchableOpacity>
-                    <Image style={styles.logoImage} source={require(`../../assets/images/hubspot_logo.png`)} />
+                    <Image style={styles.logoImage} source={images.hubspotLogo} />
                     <Text style={styles.businessUnitTitle}>{Config.APP_NAME}</Text>
                 </Header>
                 <Content>
@@ -44,7 +45,6 @@ function closeDrawer(props: DrawerItemsProps) {
 const _signout = async (props: DrawerItemsProps) => {
     await LocalDbManager.delete('userToken', async (err) => {
         if (err == null) {
-            console.log('removed from db..');
             await LocalDbManager.delete(Constant.bookmarks, (err) => {
                 if (err === null) {
                     console.log('removed bookmarks from database.');

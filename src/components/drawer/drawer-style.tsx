@@ -51,6 +51,11 @@ const styles = StyleSheet.create({
     profileIcon: {
         marginLeft: 40,
     },
+    logoIcon: {
+        color: '#fff',
+        marginLeft: '95%',
+        marginTop: 10,
+    },
 });
 
 export default styles;

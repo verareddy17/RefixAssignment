@@ -20,7 +20,6 @@ import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
-
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });

@@ -28,7 +28,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const zipFile = `${RNFetchBlob.fs.dirs.DocumentDir}/${folder}/`;
         try {
             let files = await RNFetchBlob.fs.ls(zipFile);
-            console.log('files in main folder', files);
             let htmlFile = files.filter((file) => {
                 return file === 'index.html';
             });
@@ -50,7 +49,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
     }
 
     public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string, resourceId: number) {
-        console.log('filetype', `${dirPath}/${resourceId}${fileType}`);
         if (fileType === FileType.video) {
             return (
                 <Video
