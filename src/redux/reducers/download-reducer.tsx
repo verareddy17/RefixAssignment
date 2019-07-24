@@ -14,12 +14,21 @@ export default function downloadReducer(state = initialState, action: Action<num
                 ...state,
                 progress: action.payload,
                 isLoading: true,
+                error: '',
             };
         case DOWNLOAD_SUCCESS:
             return {
                 ...state,
                 progress: action.payload,
                 isLoading: false,
+                error: '',
+            };
+        case DOWNLOAD_FAILURE:
+            return {
+                ...state,
+                progress: 0,
+                isLoading: false,
+                error: 'Download canceled by user',
             };
         default:
             return state;

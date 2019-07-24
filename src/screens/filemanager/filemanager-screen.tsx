@@ -18,7 +18,11 @@ import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
-
+import images from '../../assets/index';
+import imageCacheHoc from 'react-native-image-cache-hoc';
+export const CacheableImage = imageCacheHoc(Image, {
+    validProtocols: ['http', 'https'],
+});
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -121,48 +125,48 @@ class FileManagerScreen extends Component<Props, State> {
         if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
             if (rowData.resourceType === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                    <Image source={images.mp4} style={styles.resourceImage} />
                 );
             } else if (rowData.resourceType === FileType.pdf) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                    <Image source={images.pdf} style={styles.resourceImage} />
                 );
             } else if (rowData.resourceType === FileType.png || rowData.resourceType === FileType.jpg || rowData.resourceType === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                    <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
                 if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                        <Image source={images.ppt} style={styles.resourceImage} />
                     );
                 }
             }
         } else {
             return (
-                <Image source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
+                <CacheableImage source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
             );
         }
     }
 
     public renderLocalImagesForNotDownloadedFiles(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.ResourceType === FileType.video) {
+            if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.resourceImage} />
+                    <Image source={images.mp4} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf) {
+            } else if (rowData.FileExtension === FileType.pdf) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.resourceImage} />
+                    <Image source={images.pdf} style={styles.resourceImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg || rowData.ResourceType === FileType.zip) {
+            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.resourceImage} />
+                    <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.resourceImage} />
+                        <Image source={images.ppt} style={styles.resourceImage} />
                     );
                 }
             }
@@ -221,7 +225,7 @@ class FileManagerScreen extends Component<Props, State> {
                         <Right />
                     </Header>}
                     <Content contentContainerStyle={styles.container}>
-                        {this.props.downloadState.isLoading ? <View/> : this.renderHeader()}
+                        {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
@@ -253,7 +257,6 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async deleteFile(data: DownloadedFilesModel) {
         let downloadFile = [...this.state.downloadedFiles];
-        console.log('delete', downloadFile);
         const index = downloadFile.findIndex(resource => resource.resourceId === data.resourceId);
         if (index > -1) {
             downloadFile.splice(index, 1); // unbookmarking

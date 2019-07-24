@@ -16,11 +16,13 @@ import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
-import downloadFile from '../../redux/actions/download-action';
+import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
+import images from '../../assets/index';
+
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -30,6 +32,7 @@ interface Props {
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadCancel(): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -138,7 +141,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public renderFolderImage(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             return (
-                <Image source={require('../../assets/images/folder.png')} style={styles.folderImage} />
+                <Image source={images.folder} style={styles.folderImage} />
             );
         } else {
             return (
@@ -149,22 +152,22 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.ResourceType === FileType.video) {
+            if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.fileImage} />
+                    <Image source={images.mp4} style={styles.fileImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf || rowData.ResourceType === FileType.zip) {
+            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.fileImage} />
+                    <Image source={images.pdf} style={styles.fileImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
+            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.fileImage} />
+                    <Image source={images.png} style={styles.fileImage} />
                 );
             } else {
-                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.fileImage} />
+                        <Image source={images.ppt} style={styles.fileImage} />
                     );
                 }
             }
@@ -179,7 +182,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (data !== undefined) {
             if (data.Children !== undefined) {
                 let files = data.Children.filter((item) => {
-                    return item.ResourceType !== 'Folder';
+                    return item.ResourceType !== 0;
                 });
                 if (files.length > 0) {
                     let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
@@ -212,7 +215,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         let item = this.props.navigation.getParam('item');
         console.log('items', item);
         return item.Children.map((data: SubResourceModel, index: number) => {
-            if (data.ResourceType === 'Folder') {
+            if (data.ResourceType === 0) {
                 return (
                     <View key={index}>
                         <SwipeRow
@@ -252,7 +255,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     },
                     ]}
                         autoClose={true} style={styles.swipeContainer}>
-                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.ResourceType, data.ResourceImage, data.LauncherFile)}>
+                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
                                     {this.renderFilesImages(data)}
@@ -280,7 +283,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
                 <Container>
                     {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left style={{flexDirection: 'row'}}>
+                        <Left style={{ flexDirection: 'row' }}>
                             <Button transparent onPress={() => this.props.navigation.openDrawer()}>
                                 <Icon name='menu' style={styles.iconColor} />
                             </Button>
@@ -306,10 +309,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
-        if (data.ResourceType === 'Folder') {
+        if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
         }
         this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
+    }
+
+    public async cancelDownload() {
+        await this.props.requestDownloadCancel();
+        Alert.alert(Config.APP_NAME, Constant.cancelDownload);
     }
 
     public progress() {
@@ -317,15 +325,26 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (Platform.OS === 'ios') {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                    <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                    <View style={{ height: 150, width: '90%', backgroundColor: 'white', justifyContent: 'space-around' }}>
+                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
+                        <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                        <Button style={{ marginLeft: '40%' }} onPress={() => this.cancelDownload()}>
+                            <Text>Cancel</Text>
+                        </Button>
+                    </View>
+
                 </View>
             );
         } else {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                    <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                    <View style={{ height: 150, width: '90%', backgroundColor: 'white', justifyContent: 'space-around' }}>
+                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
+                        <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                        <Button style={{ marginLeft: '40%' }} onPress={() => this.cancelDownload()}>
+                            <Text>Cancel</Text>
+                        </Button>
+                    </View>
                 </View>
             );
         }
@@ -417,5 +436,6 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
+    requestDownloadCancel: bindActionCreators(downloadCancel, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(ResourceExplorerScreen);

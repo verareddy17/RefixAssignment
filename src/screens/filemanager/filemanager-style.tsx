@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     },
     selectAll: {
         color: '#00bbd1',
-         marginLeft: 12,
+        marginLeft: 12,
     },
 });
 

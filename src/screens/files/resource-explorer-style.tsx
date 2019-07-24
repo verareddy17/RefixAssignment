@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.7)',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     overlay: {
         position: 'absolute',
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     progressBarText: {
-        color: '#fff',
+        color: '#000',
         textAlign: 'center',
     },
     fileSeparator: {

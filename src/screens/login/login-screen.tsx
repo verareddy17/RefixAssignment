@@ -15,7 +15,7 @@ import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
-
+import images from '../../assets/index';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -31,6 +31,7 @@ interface Props {
 
 interface State {
     text: string;
+    isSecure: boolean;
 }
 
 class LoginScreen extends Component<Props, State> {
@@ -41,19 +42,20 @@ class LoginScreen extends Component<Props, State> {
         super(props);
         this.state = {
             text: '',
+            isSecure: true,
         };
     }
 
     public render() {
         return (
             <View style={styles.rootContainer}>
-                <ImageBackground source={require('../../assets/images/login-bg.png')} style={styles.bgImageStyle}>
+                <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
                     <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.container}>
                             <View style={styles.logoWrapper}>
                                 <Image
-                                    source={require(`../../assets/images/hubspot_logo.png`)}
+                                    source={images.hubspotLogo}
                                     style={styles.logoImage}
                                 />
                             </View>
@@ -69,8 +71,9 @@ class LoginScreen extends Component<Props, State> {
                                     }
                                         value={this.props.inputText}
                                         autoCapitalize='none'
-                                        secureTextEntry={true}
+                                        secureTextEntry={this.state.isSecure}
                                     />
+                                    <Icon name={this.state.isSecure ? 'eye' : 'eye-off'} style={styles.secureIcon} onPress={() => this.showPassword()} />
                                 </Item>
                                 {this.props.userState.isLoading ?
                                     <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
@@ -116,11 +119,7 @@ class LoginScreen extends Component<Props, State> {
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
-            console.log('settings response: ', this.props.deviceTokenResponse.settings);
-            console.log('error of device token', this.props.deviceTokenResponse.error)
-            console.log('data of device token', this.props.deviceTokenResponse.settings)
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
-                console.log('inside');
                 await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
                 await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
                 await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
@@ -130,7 +129,6 @@ class LoginScreen extends Component<Props, State> {
                 await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
                 await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
-                    console.log('inside..');
                     if (err === null) {
                         this.props.resetInputText();
                         this.props.navigation.navigate('Home', { 'isFromLogin': true });
@@ -140,7 +138,7 @@ class LoginScreen extends Component<Props, State> {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if ( this.props.userState.error !== '') {
+            if (this.props.userState.error !== '') {
                 Alert.alert(Config.APP_NAME, this.props.userState.error);
 
             } else {
@@ -148,6 +146,12 @@ class LoginScreen extends Component<Props, State> {
             }
         }
     }
+
+    public showPassword() {
+        this.setState({
+            isSecure: !this.state.isSecure,
+        });
+    };
 }
 
 const mapStateToProps = (state: AppState) => ({

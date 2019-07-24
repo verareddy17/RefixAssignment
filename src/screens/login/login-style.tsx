@@ -87,6 +87,9 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         marginBottom: 10,
     },
+    secureIcon: {
+        color: '#000',
+    },
 });
 
 export default styles;
