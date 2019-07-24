@@ -15,9 +15,10 @@ export default class PreviewManager {
     public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string, resourceId: number) => void) {
         if (fileType === FileType.zip) {
             let resourceName = await PreviewManager.extractFileName(fileName);
-            const sourcePath = `${dir}/${resourceId}.${fileType}`;
+            const sourcePath = `${dir}/${resourceId}${fileType}`;
             const targetPath = `${dir}/${resourceId}/${resourceName}`;
             console.log('source path', sourcePath);
+            console.log('targetedPath', targetPath);
             await unzip(sourcePath, targetPath).then(() => {
                 callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType, resourceId);
             })

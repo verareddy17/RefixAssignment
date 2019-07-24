@@ -53,6 +53,7 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
             'AppResourceId': AppUserResourceID,
         };
         let path = filetype === FileType.video ? `${dirs}/${AppUserResourceID}${filetype}` : `${dirs}/${filename}`;
+        console.log('downloading path', path);
         dispatch(downloadResourceStart());
         try {
             task = RNFetchBlob.config({
@@ -71,6 +72,7 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
 
         } catch (error) {
             console.log('download file', error);
+            await dispatch(downloadResourceSuccess(0));
         }
     };
 }

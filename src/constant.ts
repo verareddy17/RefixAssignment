@@ -32,6 +32,7 @@ export class Constant {
     public static bookmarkDeleted = 'succesfully removed from bookmarks';
     public static noFiles = 'Please select at least one file';
     public static cancelDownload = 'Download canceled by user';
+    public static indexHtml = 'index.html';
 }
 
 export enum FileType {
