@@ -15,9 +15,7 @@ import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
-import { string } from 'prop-types';
-import { ResponseModel, Data } from '../../models/response-model';
-
+import images from '../../assets/index';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -49,13 +47,13 @@ class LoginScreen extends Component<Props, State> {
     public render() {
         return (
             <View style={styles.rootContainer}>
-                <ImageBackground source={require('../../assets/images/login-bg.png')} style={styles.bgImageStyle}>
+                <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
                     <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.container}>
                             <View style={styles.logoWrapper}>
                                 <Image
-                                    source={require(`../../assets/images/hubspot_logo.png`)}
+                                    source={images.hubspotLogo}
                                     style={styles.logoImage}
                                 />
                             </View>
@@ -75,6 +73,10 @@ class LoginScreen extends Component<Props, State> {
                                     />
                                 </Item>
                                 {this.props.userState.isLoading ?
+                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                                    : <View />
+                                }
+                                {this.props.deviceTokenResponse.isLoading ?
                                     <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
                                     : <View />
                                 }
@@ -111,10 +113,9 @@ class LoginScreen extends Component<Props, State> {
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
-            await this.storeData<string>(Constant.username, this.props.userState.user.BUName || '');
+            await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
-            console.log('settings response: ', this.props.deviceTokenResponse.settings);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
                 await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
                 await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
@@ -130,9 +131,11 @@ class LoginScreen extends Component<Props, State> {
                         this.props.navigation.navigate('Home', { 'isFromLogin': true });
                     }
                 });
+            } else {
+                Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if ( this.props.userState.error !== '') {
+            if (this.props.userState.error !== '') {
                 Alert.alert(Config.APP_NAME, this.props.userState.error);
 
             } else {

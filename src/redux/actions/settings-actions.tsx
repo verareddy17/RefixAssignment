@@ -1,4 +1,4 @@
-import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE } from './action-types';
+import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE, LOAD_SETTINGS_START, LOAD_SETTINGS_SUCCESS, LOAD_SETTINGS_FAIL } from './action-types';
 import { Data, ApiResponse } from '../../models/response-model';
 import ApiManager from '../../manager/api-manager';
 import { Dispatch } from 'redux';

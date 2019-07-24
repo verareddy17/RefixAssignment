@@ -24,6 +24,12 @@ export class Constant {
     public static deviceToken = '631e592d49224abc1faa41e18833c5303fdc09ee45cfb8331dfaa65ada840331';
     public static resources = 'resources';
     public static downloadedFiles = 'downloadedFiles';
+    public static allFiles = 'allFiles';
+    public static addTitle = 'Add   ';
+    public static removeTitle = 'Remove';
+    public static addedbookmarkTitle = 'successfully added to bookmark';
+    public static deleted = 'successfully deleted the downloaded file';
+    public static bookmarkDeleted = 'succesfully removed from bookmarks';
 }
 
 export enum FileType {

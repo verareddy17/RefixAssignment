@@ -1,4 +1,4 @@
-import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE } from '../actions/action-types';
+import { LOAD_USER_SUCCESS, LOAD_USER_START, LOAD_USER_FAILURE, LOAD_SETTINGS_START, LOAD_SETTINGS_SUCCESS, LOAD_SETTINGS_FAIL } from '../actions/action-types';
 import { CustomizeSettings } from '../../models/custom-settings';
 import { Action } from '../../models/generic-action';
 import { initialState } from '../../models/initial-settings-state';
@@ -22,6 +22,7 @@ export default function settingReducer(state = initialState, action: Action<Cust
                 ...state,
                 error: action.payload,
                 isLoading: false,
+                settings: null,
             };
         default:
             return state;

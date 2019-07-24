@@ -20,6 +20,7 @@ import downloadFile from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
 import imageCacheHoc from 'react-native-image-cache-hoc';
+import images from '../../assets/index';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -28,7 +29,7 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
-    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -91,9 +92,12 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async onBookmarkButtonPressed(data: ResourceModel) {
         let bookmarkFiles = this.state.bookmarkedFiles || [];
         let index = bookmarkFiles.findIndex(resource => resource.resourceId === data.ResourceId);
+        let isRemoved = false;
         if (index > -1) {
+            isRemoved = true;
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
+            isRemoved = false;
             bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.ResourceType }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
@@ -103,6 +107,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 this.setState({
                     bookmarkedFiles: bookmarkFiles,
                 });
+                Toast.show({ text: isRemoved ? Constant.bookmarkDeleted : Constant.addedbookmarkTitle, type: 'success', position: 'bottom' });
             }
         });
     }
@@ -110,7 +115,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public renderFolderImage(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             return (
-                <Image source={require('../../assets/images/folder.png')} style={styles.folderImage} />
+                <Image source={images.folder} style={styles.folderImage} />
             );
         } else {
             return (
@@ -121,22 +126,22 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public renderFilesImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.ResourceType === FileType.video) {
+            if (rowData.FileExtension === FileType.video) {
                 return (
-                    <Image source={require('../../assets/images/mp4.png')} style={styles.fileImage} />
+                    <Image source={images.mp4} style={styles.fileImage} />
                 );
-            } else if (rowData.ResourceType === FileType.pdf || rowData.ResourceType === FileType.zip) {
+            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
                 return (
-                    <Image source={require('../../assets/images/pdf.png')} style={styles.fileImage} />
+                    <Image source={images.pdf} style={styles.fileImage} />
                 );
-            } else if (rowData.ResourceType === FileType.png || rowData.ResourceType === FileType.jpg) {
+            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
                 return (
-                    <Image source={require('../../assets/images/png.png')} style={styles.fileImage} />
+                    <Image source={images.png} style={styles.fileImage} />
                 );
             } else {
-                if (rowData.ResourceType === FileType.pptx || rowData.ResourceType === FileType.xlsx || rowData.ResourceType === FileType.docx || rowData.ResourceType === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
                     return (
-                        <Image source={require('../../assets/images/ppt.png')} style={styles.fileImage} />
+                        <Image source={images.ppt} style={styles.fileImage} />
                     );
                 }
             }
@@ -150,9 +155,32 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public getBadgeNumber(data: SubResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
-                return (
-                    <Text style={styles.badgeText}>{data.Children.length}</Text>
-                );
+                let files = data.Children.filter((item) => {
+                    return item.ResourceType !== 0;
+                });
+                if (files.length > 0) {
+                    let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
+                    let badgeNumber = data.Children.length - newDownloadedFiles.length;
+                    if (badgeNumber === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge} >
+                                <Text style={styles.badgeText}>{badgeNumber}</Text>
+                            </Badge>
+                        );
+                    }
+
+                } else {
+                    if (data.Children.length === 0) {
+                        return;
+                    }
+                    return (
+                        <Badge style={styles.badge} >
+                            <Text style={styles.badgeText}>{data.Children.length}</Text>
+                        </Badge>
+                    );
+                }
             }
         }
     }
@@ -161,7 +189,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         let item = this.props.navigation.getParam('item');
         console.log('items', item);
         return item.Children.map((data: SubResourceModel, index: number) => {
-            if (data.ResourceType === 'Folder') {
+            if (data.ResourceType === 0) {
                 return (
                     <View key={index}>
                         <SwipeRow
@@ -171,9 +199,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <View style={styles.folderContainer}>
                                     <View style={[styles.folderImageContainer]}>
                                         {this.renderFolderImage(data)}
-                                        <Badge style={styles.badge}>
-                                            {this.getBadgeNumber(data)}
-                                        </Badge>
+                                        {this.getBadgeNumber(data)}
                                     </View>
                                     <View style={styles.resourceContainer}>
                                         <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data)}>
@@ -208,7 +234,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 {this.renderFilesImages(data)}
                             </View>
                             <View style={styles.resourceContainer}>
-                                <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.ResourceType, data.ResourceImage, data.LauncherFile)}>
+                                <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -250,10 +276,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
-        if (data.ResourceType === 'Folder') {
+        if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
         }
-        console.log('filedata', resourceId, resourceName, resourceType, resourceImage, launcherFile);
         this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
     }
 
@@ -278,14 +303,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
-        await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename);
+        await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename, resourceType);
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
-            console.log('Successfully inserted');
+            Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
         });
         let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
-        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType) => {
-            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
+        console.log('download resource id', resourceId);
+        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
     public async deleteFileIfAlreadyDownloaded(resoureID: number) {
@@ -299,6 +325,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
             await LocalDbManager.insert<DownloadedFilesModel[]>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
                 if (error !== null) {
                     Toast.show({ text: error!.message, type: 'warning', position: 'top' });
+                } else {
+                    Toast.show({ text: Constant.deleted, type: 'success', position: 'bottom' });
                 }
             });
         }
@@ -322,8 +350,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 }
                 let path: string = Platform.OS === 'ios' ? dirs : `file://${dirs}`;
                 console.log('downloadedPath', path);
-                await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType) => {
-                    await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, fileType: fileType });
+                await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+                    await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
                 });
             });
         } catch (error) {
@@ -349,4 +377,3 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(ResourceExplorerScreen);
-

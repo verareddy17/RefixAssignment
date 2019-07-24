@@ -28,7 +28,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const zipFile = `${RNFetchBlob.fs.dirs.DocumentDir}/${folder}/`;
         try {
             let files = await RNFetchBlob.fs.ls(zipFile);
-            console.log('files in main folder', files);
             let htmlFile = files.filter((file) => {
                 return file === 'index.html';
             });
@@ -45,12 +44,11 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                 }
             }
         } catch (error) {
-            console.log(error);
+
         }
     }
 
     public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string, resourceId: number) {
-        console.log('filetype', `${dirPath}/${resourceId}${fileType}`);
         if (fileType === FileType.video) {
             return (
                 <Video
@@ -85,7 +83,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileName = this.props.navigation.getParam('fileName') as string;
         const fileType = this.props.navigation.getParam('fileType') as string;
         const resourceId = this.props.navigation.getParam('resourceId') as number;
-        console.log('resourceid', resourceId);
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
