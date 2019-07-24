@@ -83,7 +83,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileName = this.props.navigation.getParam('fileName') as string;
         const fileType = this.props.navigation.getParam('fileType') as string;
         const resourceId = this.props.navigation.getParam('resourceId') as number;
-        console.log('resourceid', resourceId);
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
