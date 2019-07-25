@@ -16,6 +16,11 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
     },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });
 
 export default styles;

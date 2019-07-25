@@ -20,6 +20,9 @@ import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
+import { DownloadedFiles } from '../../redux/actions/downloaded-action';
+import {addDownloadedFile, removeDownloadedFile} from '../../redux/actions/downloaded-action';
+
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -27,7 +30,11 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
+    fetchDownloadedFiles: DownloadedFiles;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    addDownloadedFile(file: DownloadedFilesModel): any;
+    removeDownloadedFile(resourceId: number): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+
 }
 
 interface State {
@@ -186,11 +193,10 @@ class FileManagerScreen extends Component<Props, State> {
             <View style={styles.contentConatiner}>
                 {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
                     <CheckBox checked={this.state.isSelectAll}
-                        onPress={() => { this.onPressedSelectAll()}}
+                        onPress={() => { this.onPressedSelectAll();}}
                     />
                     <Text style={styles.selectAll}>Select All</Text>
                 </View> : <View />}
-
                 <Segment style={styles.segmentContainer}>
                     <Button style={styles.segmentButton} active={this.state.activePage === 1}
                         onPress={() => this.selectComponent(1)}><Text>{Constant.removeTitle}</Text></Button>
@@ -224,8 +230,8 @@ class FileManagerScreen extends Component<Props, State> {
                         </Body>
                         <Right />
                     </Header>}
+                    {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                     <Content contentContainerStyle={styles.container}>
-                        {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
@@ -329,9 +335,9 @@ class FileManagerScreen extends Component<Props, State> {
             return;
         }
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
-            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].ResourceType);
-            const { ResourceName, ResourceId, ResourceType, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
-            await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: ResourceType, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].FileExtension);
+            const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
+            await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
             console.log('files are pushed', this.state.downloadedFiles);
             let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
             this.setState({
@@ -340,6 +346,8 @@ class FileManagerScreen extends Component<Props, State> {
             await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
                 Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
             });
+            await this.props.addDownloadedFile({resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile});
+            // console.log('redux db', this.props.downloadedFiles.downloadedFiles);
         }
         this.setState({
             selectedFiles: [],
@@ -389,8 +397,11 @@ class FileManagerScreen extends Component<Props, State> {
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
+    fetchDownloadedFiles: state.fetchdownloadedFiles,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
+    addDownloadedFile: bindActionCreators(addDownloadedFile, dispatch),
+    removeDownloadedFile: bindActionCreators(removeDownloadedFile, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);
