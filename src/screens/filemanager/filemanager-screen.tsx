@@ -41,6 +41,21 @@ interface State {
     selectedFileIds: Array<number>;
 }
 // let result: SubResourceModel[] = [];
+
+const Details = [
+    {
+      "type": "Party",
+    },
+    {
+      "type": "Wedding",
+    },
+    {
+      "type": "Architecture",
+    },
+    {
+      "type": "Christening",
+    }
+];
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 class FileManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -197,11 +212,9 @@ class FileManagerScreen extends Component<Props, State> {
                                     onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                             </Segment>
                         </View>
-                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
                             </View>
-                        </ImageBackground>
                     </Content>
                 </Container>
             </SafeAreaView>

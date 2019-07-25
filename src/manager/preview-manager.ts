@@ -31,18 +31,20 @@ export default class PreviewManager {
             console.log('downladed file', `${dir}/${fileName}`);
             let type = fileType.split('.').join('');
             console.log('type', type);
-            OpenFile.openDoc([{
-                url: `${dir}/${fileName}`,
-                fileName: fileName,
-                fileType: type,
-                cache: false,
-            }], (error, url) => {
-                if (error) {
-                    Toast.show({ text: error, type: 'warning', position: 'top' });
-                } else {
-                    console.log('fetching path of downloaded file : ', url);
-                }
-            });
+            setTimeout(() => {
+                OpenFile.openDoc([{
+                    url: `${dir}/${fileName}`,
+                    fileName: fileName,
+                    fileType: type,
+                    cache: false,
+                }], (error, url) => {
+                    if (error) {
+                        Toast.show({ text: error, type: 'warning', position: 'top' });
+                    } else {
+                        console.log('fetching path of downloaded file : ', url);
+                    }
+                });
+            }, 2000); 
         }
     }
 }
