@@ -80,6 +80,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    containerColor: {
+        backgroundColor: 'transparent',
+    },
 });
 
 export default styles;

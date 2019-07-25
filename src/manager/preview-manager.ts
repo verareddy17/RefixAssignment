@@ -29,9 +29,9 @@ export default class PreviewManager {
             callback(`${dir}`, launcherFile, resourceName, fileType, resourceId);
         } else {
             console.log('downladed file', `${dir}/${fileName}`);
-            let type = fileType.split('.').join('');
+            let type = await fileType.split('.').join('');
             console.log('type', type);
-            OpenFile.openDoc([{
+            await OpenFile.openDoc([{
                 url: `${dir}/${fileName}`,
                 fileName: fileName,
                 fileType: type,

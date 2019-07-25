@@ -81,7 +81,14 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#ffffff',
     },
-
+    containerColor: {
+        backgroundColor: 'transparent',
+    },
+    spinnerContainer: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+    },
 });
 
 export default styles;

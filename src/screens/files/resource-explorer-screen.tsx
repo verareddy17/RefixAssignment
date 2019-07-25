@@ -196,17 +196,17 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             disableLeftSwipe={true}
                             disableRightSwipe={true}
                             body={
-                                <View style={styles.folderContainer}>
-                                    <View style={[styles.folderImageContainer]}>
-                                        {this.renderFolderImage(data)}
-                                        {this.getBadgeNumber(data)}
+                                    <View style={styles.folderContainer}>
+                                        <View style={[styles.folderImageContainer]}>
+                                            {this.renderFolderImage(data)}
+                                            {this.getBadgeNumber(data)}
+                                        </View>
+                                        <View style={styles.resourceContainer}>
+                                            <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data)}>
+                                                <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                    <View style={styles.resourceContainer}>
-                                        <TouchableOpacity style={styles.resourceText} onPress={() => this.resourceDetails(data)}>
-                                            <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
                             }
                         />
                     </View>

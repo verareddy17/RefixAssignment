@@ -53,7 +53,7 @@ class LoginScreen extends Component<Props, State> {
                         <View style={styles.container}>
                             <View style={styles.logoWrapper}>
                                 <Image
-                                    source={images.hubspotLogo}
+                                    source={images.appLogo}
                                     style={styles.logoImage}
                                 />
                             </View>
