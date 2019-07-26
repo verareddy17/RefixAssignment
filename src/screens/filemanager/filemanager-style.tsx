@@ -91,6 +91,9 @@ const styles = StyleSheet.create({
         color: '#00bbd1',
         marginLeft: 12,
     },
+    containerColor: {
+        backgroundColor: 'transparent',
+    },
 });
 
 export default styles;

@@ -13,7 +13,6 @@ const rootReducer = combineReducers({
     loginData: loginReducer,
     settings: settingReducer,
     downloadProgress: downloadReducer,
-    fetchDownloadedFiles: fetchDownloadedFilesReducer,
 });
 
 const store = createStore(rootReducer, applyMiddleware(thunk));

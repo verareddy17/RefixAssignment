@@ -265,7 +265,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, { position: 'absolute', width: '100%', height: '100%' }]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
+                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, styles.spinnerContainer]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
@@ -274,7 +274,7 @@ class HomeScreen extends Component<Props, State> {
                                     <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                         <View style={styles.resourceImageConatiner}>
                                             {this.renderFolderImage(rowData)}
-                                            {this.getFilesCountInFolder(rowData)}
+                                            {this.getBadgeNumber(rowData)}
                                         </View>
                                         <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                     </TouchableOpacity>
@@ -288,25 +288,26 @@ class HomeScreen extends Component<Props, State> {
 
         }
     }
-    
+
     public getFilesCountInFolder(data: ResourceModel) {
         if (data !== undefined) {
-           if (data.Children !== undefined) {
-              result = [],
-              this.getValues(data.Children);
-              console.log('result..', result);
-              if (result.length === 0) {
-                return;
-              } else {
-                return (
-                    <Badge style={styles.badge}>
-                        <Text style={styles.text}>{result.length}</Text>
-                    </Badge>
-                );
-              }
-           }
-         }
+            if (data.Children !== undefined) {
+                result = [],
+                    this.getValues(data.Children);
+                console.log('result..', result);
+                if (result.length === 0) {
+                    return;
+                } else {
+                    return (
+                        <Badge style={styles.badge}>
+                            <Text style={styles.text}>{result.length}</Text>
+                        </Badge>
+                    );
+                }
+            }
+        }
     }
+
     public getBadgeNumber(data: ResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
@@ -384,43 +385,43 @@ class HomeScreen extends Component<Props, State> {
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
-            <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
-                <NavigationEvents
-                    onWillFocus={() => this.componentWillMount()}
-                    onDidFocus={() => this.render()}
-                />
-                <Container>
-                    <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
-                            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
-                                <Icon name='menu' style={styles.iconColor}></Icon>
-                            </TouchableOpacity>
-                        </Left>
-                        <Body>
-                            <Title style={styles.headerTitle}>Home</Title>
-                        </Body>
-                        <Right>
-                            <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
-                                <Icon name='refresh' style={styles.iconColor}></Icon>
-                            </TouchableOpacity>
-                        </Right>
-                    </Header>
-                    <Content contentContainerStyle={styles.container}>
-                        <Header noShadow searchBar rounded style={styles.searchBarHeader}>
-                            <Item>
-                                <Icon name='search' />
-                                <Input placeholder='Search here'
-                                    autoCorrect={false}
-                                    onChangeText={text => this.searchFilterFunction(text)}
-                                />
-                            </Item>
+            <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+                    <NavigationEvents
+                        onWillFocus={() => this.componentWillMount()}
+                        onDidFocus={() => this.render()}
+                    />
+                    <Container style={styles.containerColor}>
+                        <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                            <Left>
+                                <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
+                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                                </TouchableOpacity>
+                            </Left>
+                            <Body>
+                                <Title style={styles.headerTitle}>Home</Title>
+                            </Body>
+                            <Right>
+                                <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
+                                    <Icon name='refresh' style={styles.iconColor}></Icon>
+                                </TouchableOpacity>
+                            </Right>
                         </Header>
-                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                        <Content contentContainerStyle={[styles.container, styles.containerColor]}>
+                            <Header noShadow searchBar rounded style={styles.searchBarHeader}>
+                                <Item>
+                                    <Icon name='search' />
+                                    <Input placeholder='Search'
+                                        autoCorrect={false}
+                                        onChangeText={text => this.searchFilterFunction(text)}
+                                    />
+                                </Item>
+                            </Header>
                             {this.renderResourceList()}
-                        </ImageBackground>
-                    </Content>
-                </Container>
-            </SafeAreaView>
+                        </Content>
+                    </Container>
+                </SafeAreaView>
+            </ImageBackground>
         );
     }
 }

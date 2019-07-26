@@ -17,7 +17,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                     <TouchableOpacity onPress={() => closeDrawer(props)}>
                         <Icon name='close' style={styles.logoIcon}></Icon>
                     </TouchableOpacity>
-                    <Image style={styles.logoImage} source={images.hubspotLogo} />
+                    <Image style={styles.logoImage} source={images.appLogo} />
                     <Text style={styles.businessUnitTitle}>{Config.APP_NAME}</Text>
                 </Header>
                 <Content>

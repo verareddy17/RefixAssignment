@@ -21,7 +21,7 @@ import downloadFile from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFiles } from '../../redux/actions/downloaded-action';
-import {addDownloadedFile, removeDownloadedFile} from '../../redux/actions/downloaded-action';
+import { addDownloadedFile, removeDownloadedFile } from '../../redux/actions/downloaded-action';
 
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -32,9 +32,6 @@ interface Props {
     downloadState: DownloadResourceFileProgress;
     fetchDownloadedFiles: DownloadedFiles;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
-    addDownloadedFile(file: DownloadedFilesModel): any;
-    removeDownloadedFile(resourceId: number): (dispatch: Dispatch<AnyAction>) => Promise<void>;
-
 }
 
 interface State {
@@ -193,7 +190,7 @@ class FileManagerScreen extends Component<Props, State> {
             <View style={styles.contentConatiner}>
                 {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
                     <CheckBox checked={this.state.isSelectAll}
-                        onPress={() => { this.onPressedSelectAll();}}
+                        onPress={() => { this.onPressedSelectAll(); }}
                     />
                     <Text style={styles.selectAll}>Select All</Text>
                 </View> : <View />}
@@ -213,33 +210,33 @@ class FileManagerScreen extends Component<Props, State> {
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
-            <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
-                <NavigationEvents
-                    onWillFocus={() => this.componentWillMount()}
-                    onDidFocus={() => this.render()}
-                />
-                <Container>
-                    {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
-                            <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                <Icon name='menu' style={styles.iconColor}></Icon>
-                            </Button>
-                        </Left>
-                        <Body>
-                            <Title style={styles.headerTitle}>Downloads Manager</Title>
-                        </Body>
-                        <Right />
-                    </Header>}
-                    {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
-                    <Content contentContainerStyle={styles.container}>
-                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+            <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+                    <NavigationEvents
+                        onWillFocus={() => this.componentWillMount()}
+                        onDidFocus={() => this.render()}
+                    />
+                    <Container style={styles.containerColor}>
+                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                            <Left>
+                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
+                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                                </Button>
+                            </Left>
+                            <Body>
+                                <Title style={styles.headerTitle}>Downloads Manager</Title>
+                            </Body>
+                            <Right />
+                        </Header>}
+                        {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
+                        <Content contentContainerStyle={styles.container}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
                             </View>
-                        </ImageBackground>
-                    </Content>
-                </Container>
-            </SafeAreaView>
+                        </Content>
+                    </Container>
+                </SafeAreaView>
+            </ImageBackground>
         );
     }
 
@@ -346,8 +343,6 @@ class FileManagerScreen extends Component<Props, State> {
             await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
                 Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
             });
-            await this.props.addDownloadedFile({resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile});
-            // console.log('redux db', this.props.downloadedFiles.downloadedFiles);
         }
         this.setState({
             selectedFiles: [],
@@ -397,11 +392,8 @@ class FileManagerScreen extends Component<Props, State> {
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
-    fetchDownloadedFiles: state.fetchdownloadedFiles,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
-    addDownloadedFile: bindActionCreators(addDownloadedFile, dispatch),
-    removeDownloadedFile: bindActionCreators(removeDownloadedFile, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);

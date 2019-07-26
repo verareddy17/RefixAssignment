@@ -5,7 +5,7 @@ import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './preview-manager-style';
 import Video from 'react-native-video';
-import { FileType } from '../../constant';
+import { FileType, Constant } from '../../constant';
 import RNFetchBlob from 'rn-fetch-blob';
 
 interface Props {
@@ -15,46 +15,82 @@ interface Props {
 
 interface State {
     isLoading: boolean;
+    path: string;
+    dirPath: string;
+    resourceId: number;
+    fileType: string;
+    videoPath: string;
 }
 export default class PreviewManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            isLoading: false,
+            isLoading: true,
+            path: '',
+            dirPath: '',
+            resourceId: 0,
+            fileType: '',
+            videoPath: '',
         };
     }
 
+    public async componentDidMount() {
+        let str = 'file:///storage/emulated/0/somwhere/foo foo Nov 21, 2018 12:16:04 PM.pdf';
+        let result = str.split(' ').join('%20');
+        console.log('Result', result);
+        const dirPath = this.props.navigation.getParam('dir');
+        const launcherFile = this.props.navigation.getParam('launcherFile') as string;
+        const fileName = this.props.navigation.getParam('fileName') as string;
+        const fileType = this.props.navigation.getParam('fileType') as string;
+        const resourceId = this.props.navigation.getParam('resourceId') as number;
+        if (fileType === FileType.zip) {
+            if (launcherFile === '' || launcherFile === undefined || launcherFile === null) {
+                let path = await this.findHtmlFile(`${dirPath}/${fileName}`);
+                this.setState({
+                    path: path || '',
+                    isLoading: false,
+                    fileType: fileType,
+
+                });
+            } else {
+                //TO-DO IF LAUNCHER FILE HAVE
+            }
+
+        } else {
+            this.setState({
+                isLoading: false,
+                videoPath: `${dirPath}/${resourceId}${fileType}`,
+                fileType: fileType,
+            });
+        }
+    }
     public async findHtmlFile(folder: string) {
-        const zipFile = `${RNFetchBlob.fs.dirs.DocumentDir}/${folder}/`;
         try {
-            let files = await RNFetchBlob.fs.ls(zipFile);
-            console.log('files in main folder', files);
+            let files = await RNFetchBlob.fs.ls(folder);
             let htmlFile = files.filter((file) => {
-                return file === 'index.html';
+                return file === Constant.indexHtml;
             });
             if (htmlFile.length > 0) {
-                return `${folder}/${htmlFile[0] as string}`;
+                return `${folder}/${files[0]}`;
             } else {
-                let subFolder = await RNFetchBlob.fs.ls(files[0]);
-                console.log('subFolder', subFolder);
-                let htmlFile = subFolder.filter((file) => {
-                    return file === 'index.html';
+                let subFolder = await RNFetchBlob.fs.ls(`${folder}/${files[0]}`);
+                let subfolderHtmlFile = subFolder.filter((subfolderFile) => {
+                    return subfolderFile === Constant.indexHtml;
                 });
-                if (htmlFile.length > 0) {
-                    return `${subFolder}/${htmlFile[0] as string}`;
+                if (subfolderHtmlFile.length > 0) {
+                    return `${folder}/${files[0]}/${subfolderHtmlFile[0]}`;
                 }
             }
         } catch (error) {
-            console.log(error);
+
         }
     }
 
-    public renderVideoOrHtmlFile(fileType: string, dirPath: string, launcherFile: string, fileName: string, resourceId: number) {
-        console.log('filetype', `${dirPath}/${resourceId}${fileType}`);
+    public renderVideoOrHtmlFile(fileType: string) {
         if (fileType === FileType.video) {
             return (
                 <Video
-                    source={{ uri: `${dirPath}/${resourceId}${fileType}` }}
+                    source={{ uri: this.state.videoPath }}
                     resizeMode='cover'
                     style={StyleSheet.absoluteFill}
                 />
@@ -63,29 +99,20 @@ export default class PreviewManagerScreen extends Component<Props, State> {
             return (
                 <WebView
                     originWhitelist={['*']}
-                    source={{ uri: `${dirPath}/${launcherFile}` }}
-                    onLoadStart={() => {
-                        this.setState({
-                            isLoading: true,
-                        });
-                    }}
-                    onLoadEnd={() => {
-                        this.setState({
-                            isLoading: false,
-                        });
-                    }}
+                    source={{ uri: this.state.path }}
                 />
             );
         }
     }
-
+    public renderIndicator() {
+        return (
+            <View style={styles.container}>
+                <Spinner style={styles.spinnerConatiner} size={'large'} color='#000' />
+            </View>
+        );
+    }
     public render() {
-        const dirPath = this.props.navigation.getParam('dir');
-        const launcherFile = this.props.navigation.getParam('launcherFile') as string;
         const fileName = this.props.navigation.getParam('fileName') as string;
-        const fileType = this.props.navigation.getParam('fileType') as string;
-        const resourceId = this.props.navigation.getParam('resourceId') as number;
-        console.log('resourceid', resourceId);
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
@@ -101,13 +128,11 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                         <Right />
                     </Header>
                     <Content contentContainerStyle={styles.contentContainer}>
-                        <View style={styles.contentContainer}>
-                            {this.state.isLoading ?
-                                <Spinner style={styles.spinnerConatiner} size={'large'} color='#fff' />
-                                : <View />
-                            }
-                            {this.renderVideoOrHtmlFile(fileType, dirPath, launcherFile, fileName, resourceId)}
-                        </View>
+                        {this.state.isLoading ? this.renderIndicator()
+                            : <View style={styles.contentContainer}>
+                                {this.renderVideoOrHtmlFile(this.state.fileType)}
+                            </View>
+                        }
                     </Content>
                 </Container>
             </SafeAreaView>

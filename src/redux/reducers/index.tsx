@@ -11,7 +11,6 @@ const rootReducer = combineReducers({
     resource: resourceReducer,
     settings: settingsReducer,
     downloadProgress: downloadReducer,
-    fetchdownloadedFiles: fetchDownloadedFilesReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
