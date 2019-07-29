@@ -48,6 +48,55 @@ class LoginScreen extends Component<Props, State> {
 
     public render() {
         return (
+            // <View style={styles.rootContainer}>
+            //     <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
+            //         <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
+            //         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            //             <View style={styles.container}>
+            //                 <View style={styles.logoWrapper}>
+            //                     <Image
+            //                         source={images.appLogo}
+            //                         style={styles.logoImage}
+            //                     />
+            //                 </View>
+            //                 <View style={styles.loginContainer}>
+            //                     <Text style={styles.text} adjustsFontSizeToFit>Login</Text>
+            //                     <View style={styles.lineContainer}>
+            //                         <View style={styles.line}></View>
+            //                     </View>
+            //                     <Item floatingLabel>
+            //                         <Label>Password</Label>
+            //                         <Input onChangeText={(text) =>
+            //                             this.props.getActivationPin(text)
+            //                         }
+            //                             value={this.props.inputText}
+            //                             autoCapitalize='none'
+            //                             secureTextEntry={this.state.isSecure}
+            //                         />
+            //                         <Icon name={this.state.isSecure ? 'eye' : 'eye-off'} style={styles.secureIcon} onPress={() => this.showPassword()} />
+            //                     </Item>
+            //                     {this.props.userState.isLoading ?
+            //                         <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+            //                         : <View />
+            //                     }
+            //                     {this.props.deviceTokenResponse.isLoading ?
+            //                         <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+            //                         : <View />
+            //                     }
+            //                     <View style={styles.buttonContainer}>
+            //                         <TouchableOpacity style={styles.button} onPress={() => {
+            //                             this.signInAsync();
+            //                         }}>
+            //                             <View>
+            //                                 <Icon name='arrow-round-forward' style={styles.buttonIcon} />
+            //                             </View>
+            //                         </TouchableOpacity>
+            //                     </View>
+            //                 </View>
+            //             </View>
+            //         </TouchableWithoutFeedback>
+            //     </ImageBackground>
+            // </View>
             <View style={styles.rootContainer}>
                 <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
                     <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
@@ -71,20 +120,12 @@ class LoginScreen extends Component<Props, State> {
                                     }
                                         value={this.props.inputText}
                                         autoCapitalize='none'
-                                        secureTextEntry={this.state.isSecure}
+                                        secureTextEntry={true}
                                     />
-                                    <Icon name={this.state.isSecure ? 'eye' : 'eye-off'} style={styles.secureIcon} onPress={() => this.showPassword()} />
                                 </Item>
-                                {this.props.userState.isLoading ?
-                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-                                    : <View />
-                                }
-                                {this.props.deviceTokenResponse.isLoading ?
-                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-                                    : <View />
-                                }
+                                {this.SpinnerLoading()}
                                 <View style={styles.buttonContainer}>
-                                    <TouchableOpacity style={styles.button} onPress={() => {
+                                    <TouchableOpacity disabled={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? true : false} style={styles.button} onPress={() => {
                                         this.signInAsync();
                                     }}>
                                         <View>
@@ -98,6 +139,20 @@ class LoginScreen extends Component<Props, State> {
                 </ImageBackground>
             </View>
         );
+    }
+
+    public SpinnerLoading() {
+        if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
+            return (
+                <View style={styles.spinnerContainer}>
+                        <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                </View>
+            );
+        } else {
+            return (
+                <View></View>
+            );
+        }
     }
 
     public storeData<T>(key: string, value: T) {
@@ -117,6 +172,7 @@ class LoginScreen extends Component<Props, State> {
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
+            Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {

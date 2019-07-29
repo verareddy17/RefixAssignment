@@ -11,7 +11,7 @@ import images from '../../assets';
 
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
     return (
-        < SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+        < SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
             <Container>
                 <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                     <TouchableOpacity onPress={() => closeDrawer(props)}>
@@ -23,7 +23,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={styles.userNameTitle}>{}</Text>
+                        <Text style={styles.userNameTitle}>{Constant.loginName}</Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />

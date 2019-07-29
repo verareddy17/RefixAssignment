@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     loginContainer: {
         backgroundColor: '#fff',
         padding: 10,
-        width: '90%',
+        width: 300,
         borderRadius: 20,
         position: 'relative',
         paddingBottom: 50,

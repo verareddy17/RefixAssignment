@@ -33,6 +33,7 @@ export class Constant {
     public static noFiles = 'Please select at least one file';
     public static cancelDownload = 'Download canceled by user';
     public static indexHtml = 'index.html';
+    public static loginName?: string;
 }
 
 export enum FileType {
