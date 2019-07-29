@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         height: 50,
+        backgroundColor: 'transparent',
     },
     folderImageContainer: {
         position: 'relative',
@@ -21,7 +22,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 70,
         justifyContent: 'center',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'transparent',
     },
     image: {
         width: 65,
@@ -66,6 +67,7 @@ const styles = StyleSheet.create({
     swipeContainer: {
         paddingRight: 0,
         paddingLeft: 0,
+        backgroundColor: 'transparent',
     },
     bookmarkIconContainer: {
         justifyContent: 'center',
@@ -112,6 +114,17 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 1,
         backgroundColor: '#A9A9A9',
+    },
+    transparentColor: {
+        backgroundColor: 'transparent',
+    },
+    swipeoutContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    swipeButtonIcon: {
+        color: '#fff',
     },
 });
 
