@@ -78,17 +78,19 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     refreshContainer: {
-        position: 'absolute',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
         width: 75,
         height: 75,
-        borderRadius: 4,
-        marginBottom: 10,
     },
-    secureIcon: {
-        color: '#000',
+    spinnerContainer: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
     },
 });
 

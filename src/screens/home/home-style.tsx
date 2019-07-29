@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
     },
     containerColor: {
+        flex: 1,
         backgroundColor: 'transparent',
     },
     spinnerContainer: {

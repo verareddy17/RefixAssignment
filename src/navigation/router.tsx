@@ -39,19 +39,19 @@ const AppDrawerNavigator = createDrawerNavigator(
                 ),
             },
         },
-        Bookmarks: {
-            screen: BookmarkScreen,
-            navigationOptions: {
-                drawerLabel: 'Bookmarks',
-                drawerIcon: () => (
-                    <Icon name='star' />
-                ),
-            },
-        },
+        // Bookmarks: {
+        //     screen: BookmarkScreen,
+        //     navigationOptions: {
+        //         drawerLabel: 'Bookmarks',
+        //         drawerIcon: () => (
+        //             <Icon name='star' />
+        //         ),
+        //     },
+        // },
         FileManager: {
             screen: FileManagerScreen,
             navigationOptions: {
-                drawerLabel: 'Downloads',
+                drawerLabel: 'Download Manager',
                 drawerIcon: () => (
                     <Icon name='folder' />
                 ),

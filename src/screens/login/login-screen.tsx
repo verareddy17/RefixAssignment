@@ -7,7 +7,7 @@ import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
 import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
-import { NavigationScreenProp } from 'react-navigation';
+import { NavigationScreenProp, DrawerItems } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
 import { Constant } from '../../constant';
@@ -31,7 +31,6 @@ interface Props {
 
 interface State {
     text: string;
-    isSecure: boolean;
 }
 
 class LoginScreen extends Component<Props, State> {
@@ -42,61 +41,11 @@ class LoginScreen extends Component<Props, State> {
         super(props);
         this.state = {
             text: '',
-            isSecure: true,
         };
     }
 
     public render() {
         return (
-            // <View style={styles.rootContainer}>
-            //     <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
-            //         <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
-            //         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            //             <View style={styles.container}>
-            //                 <View style={styles.logoWrapper}>
-            //                     <Image
-            //                         source={images.appLogo}
-            //                         style={styles.logoImage}
-            //                     />
-            //                 </View>
-            //                 <View style={styles.loginContainer}>
-            //                     <Text style={styles.text} adjustsFontSizeToFit>Login</Text>
-            //                     <View style={styles.lineContainer}>
-            //                         <View style={styles.line}></View>
-            //                     </View>
-            //                     <Item floatingLabel>
-            //                         <Label>Password</Label>
-            //                         <Input onChangeText={(text) =>
-            //                             this.props.getActivationPin(text)
-            //                         }
-            //                             value={this.props.inputText}
-            //                             autoCapitalize='none'
-            //                             secureTextEntry={this.state.isSecure}
-            //                         />
-            //                         <Icon name={this.state.isSecure ? 'eye' : 'eye-off'} style={styles.secureIcon} onPress={() => this.showPassword()} />
-            //                     </Item>
-            //                     {this.props.userState.isLoading ?
-            //                         <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-            //                         : <View />
-            //                     }
-            //                     {this.props.deviceTokenResponse.isLoading ?
-            //                         <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-            //                         : <View />
-            //                     }
-            //                     <View style={styles.buttonContainer}>
-            //                         <TouchableOpacity style={styles.button} onPress={() => {
-            //                             this.signInAsync();
-            //                         }}>
-            //                             <View>
-            //                                 <Icon name='arrow-round-forward' style={styles.buttonIcon} />
-            //                             </View>
-            //                         </TouchableOpacity>
-            //                     </View>
-            //                 </View>
-            //             </View>
-            //         </TouchableWithoutFeedback>
-            //     </ImageBackground>
-            // </View>
             <View style={styles.rootContainer}>
                 <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
                     <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
@@ -202,12 +151,6 @@ class LoginScreen extends Component<Props, State> {
             }
         }
     }
-
-    public showPassword() {
-        this.setState({
-            isSecure: !this.state.isSecure,
-        });
-    };
 }
 
 const mapStateToProps = (state: AppState) => ({
