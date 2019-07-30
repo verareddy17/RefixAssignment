@@ -359,7 +359,7 @@ class FileManagerScreen extends Component<Props, State> {
         if (this.state.isSelectAll) {
             this.setState({
                 selectedFileIds: allIds,
-                selectedFiles: {...this.state.resources},
+                selectedFiles: this.state.resources,
             });
         } else {
             this.setState({
