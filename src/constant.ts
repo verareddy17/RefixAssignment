@@ -39,7 +39,7 @@ export class Constant {
 export enum FileType {
     zip = '.zip',
     video = '.mp4',
-    jpg = '.JPG',
+    jpg = '.jpg',
     pptx = '.pptx',
     xlsx = '.xlsx',
     docx = '.docx',

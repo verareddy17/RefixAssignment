@@ -50,6 +50,7 @@ interface State {
     headerColor: string;
     fontColor?: string;
     logoImage?: string;
+    searchText: string;
 }
 
 let result: SubResourceModel[] = [];
@@ -71,6 +72,7 @@ class HomeScreen extends Component<Props, State> {
             barierToken: '',
             downloadedFiles: [],
             headerColor: '',
+            searchText: '',
         };
     }
 
@@ -205,6 +207,9 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async searchFilterFunction(textData: string) {
+        this.setState({
+            searchText: textData,
+        });
         if (textData.length >= 3) {
             this.setState({
                 isSearch: true,
@@ -395,6 +400,14 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
+    public closeSearch() {
+        this.setState({
+            searchText: '',
+            isSearch: false,
+            filterArray: [],
+        });
+    }
+
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -412,7 +425,7 @@ class HomeScreen extends Component<Props, State> {
                                 </TouchableOpacity>
                             </Left>
                             <Body>
-                                <Title style={{color: this.state.fontColor || '#fff'}}>Home</Title>
+                                <Title style={{ color: this.state.fontColor || '#fff' }}>Home</Title>
                             </Body>
                             <Right>
                                 <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
@@ -421,14 +434,16 @@ class HomeScreen extends Component<Props, State> {
                             </Right>
                         </Header>
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
-                                <Item>
-                                    <Icon name='search' />
-                                    <Input placeholder='Search'
-                                        autoCorrect={false}
-                                        onChangeText={text => this.searchFilterFunction(text)}
-                                    />
-                                </Item>
-                            </Header>
+                            <Item>
+                                <Icon name='search' />
+                                <Input placeholder='Search'
+                                    autoCorrect={false}
+                                    onChangeText={text => this.searchFilterFunction(text)}
+                                    value={this.state.searchText}
+                                />
+                                <Icon name='close' onPress={() => this.closeSearch()} />
+                            </Item>
+                        </Header>
                         <Content contentContainerStyle={styles.containerColor}>
                             {this.renderResourceList()}
                         </Content>
@@ -453,7 +468,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
 
 
-/* 
+/*
  import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';

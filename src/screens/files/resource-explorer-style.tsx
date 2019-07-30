@@ -126,6 +126,12 @@ const styles = StyleSheet.create({
     swipeButtonIcon: {
         color: '#fff',
     },
+    downloadContainer: {
+        height: 150,
+        width: '90%',
+        backgroundColor: 'white',
+        justifyContent: 'space-around',
+    },
 });
 
 export default styles;

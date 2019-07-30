@@ -71,7 +71,7 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
             });
 
         } catch (error) {
-            console.log('download file', error);
+            console.log('download file......', error);
             await dispatch(downloadResourceSuccess(0));
         }
     };

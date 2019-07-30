@@ -31,6 +31,7 @@ interface Props {
 
 interface State {
     text: string;
+    isSecureText: boolean;
 }
 
 class LoginScreen extends Component<Props, State> {
@@ -41,6 +42,7 @@ class LoginScreen extends Component<Props, State> {
         super(props);
         this.state = {
             text: '',
+            isSecureText: true,
         };
     }
 
@@ -69,8 +71,9 @@ class LoginScreen extends Component<Props, State> {
                                     }
                                         value={this.props.inputText}
                                         autoCapitalize='none'
-                                        secureTextEntry={true}
+                                        secureTextEntry={this.state.isSecureText}
                                     />
+                                    <Icon name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
                                 </Item>
                                 {this.SpinnerLoading()}
                                 <View style={styles.buttonContainer}>
@@ -90,11 +93,16 @@ class LoginScreen extends Component<Props, State> {
         );
     }
 
+    public showPassword() {
+        this.setState({
+            isSecureText: !this.state.isSecureText,
+        });
+    }
     public SpinnerLoading() {
         if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
             return (
                 <View style={styles.spinnerContainer}>
-                        <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
                 </View>
             );
         } else {

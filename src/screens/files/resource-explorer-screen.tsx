@@ -330,7 +330,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (Platform.OS === 'ios') {
             return (
                 <View style={styles.progressBarConainer}>
-                    <View style={{ height: 150, width: '90%', backgroundColor: 'white', justifyContent: 'space-around' }}>
+                    <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                         <Button style={{ marginLeft: '40%' }} onPress={() => this.cancelDownload()}>
@@ -343,7 +343,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.progressBarConainer}>
-                    <View style={{ height: 150, width: '90%', backgroundColor: 'white', justifyContent: 'space-around' }}>
+                    <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                         <Button style={{ marginLeft: '40%' }} onPress={() => this.cancelDownload()}>
