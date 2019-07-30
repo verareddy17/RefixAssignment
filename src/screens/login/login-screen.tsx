@@ -7,7 +7,7 @@ import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
 import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
-import { NavigationScreenProp } from 'react-navigation';
+import { NavigationScreenProp, DrawerItems } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
 import { Constant } from '../../constant';
@@ -53,7 +53,7 @@ class LoginScreen extends Component<Props, State> {
                         <View style={styles.container}>
                             <View style={styles.logoWrapper}>
                                 <Image
-                                    source={images.hubspotLogo}
+                                    source={images.appLogo}
                                     style={styles.logoImage}
                                 />
                             </View>
@@ -72,16 +72,9 @@ class LoginScreen extends Component<Props, State> {
                                         secureTextEntry={true}
                                     />
                                 </Item>
-                                {this.props.userState.isLoading ?
-                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-                                    : <View />
-                                }
-                                {this.props.deviceTokenResponse.isLoading ?
-                                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
-                                    : <View />
-                                }
+                                {this.SpinnerLoading()}
                                 <View style={styles.buttonContainer}>
-                                    <TouchableOpacity style={styles.button} onPress={() => {
+                                    <TouchableOpacity disabled={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? true : false} style={styles.button} onPress={() => {
                                         this.signInAsync();
                                     }}>
                                         <View>
@@ -95,6 +88,20 @@ class LoginScreen extends Component<Props, State> {
                 </ImageBackground>
             </View>
         );
+    }
+
+    public SpinnerLoading() {
+        if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
+            return (
+                <View style={styles.spinnerContainer}>
+                        <Spinner style={styles.refreshContainer} size={'large'} color= {Config.PRIMARY_COLOR}/>
+                </View>
+            );
+        } else {
+            return (
+                <View></View>
+            );
+        }
     }
 
     public storeData<T>(key: string, value: T) {
@@ -114,6 +121,7 @@ class LoginScreen extends Component<Props, State> {
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
+            Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {

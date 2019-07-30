@@ -18,6 +18,7 @@ import Orientation from 'react-native-orientation';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import images from '../../assets/index';
+import store from '../../redux/store';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -47,6 +48,9 @@ interface State {
     orientation: string;
     barierToken: string;
     downloadedFiles: Array<DownloadedFilesModel>;
+    headerColor: string;
+    fontColor?: string;
+    logoImage?: string;
 }
 
 let result: SubResourceModel[] = [];
@@ -67,6 +71,7 @@ class HomeScreen extends Component<Props, State> {
             orientation: '',
             barierToken: '',
             downloadedFiles: [],
+            headerColor: '',
         };
     }
 
@@ -100,8 +105,25 @@ class HomeScreen extends Component<Props, State> {
     public async componentDidMount() {
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
+        await LocalDbManager.get(Constant.headerColor, (err, color) => {
+            if (color !== null || color !== '') {
+                this.setState({ headerColor: color } as State);
+            }
+        });
+        await LocalDbManager.get(Constant.fontColor, (err, color) => {
+            if (color !== null || color !== '') {
+                this.setState({ fontColor: color } as State);
+            }
+        });
+        await LocalDbManager.get(Constant.logoImage, (err, image) => {
+            if (image !== null || image !== '') {
+                this.setState({ logoImage: image } as State);
+            }
+        });
         await LocalDbManager.get('userToken', (err, data) => {
-            this.setState({ token: data } as State);
+            if (data !== null || data !== '') {
+                this.setState({ token: data } as State);
+            }
         });
         await LocalDbManager.get<string>(Constant.token, async (err, token) => {
             if (token !== null && token !== '') {
@@ -251,7 +273,7 @@ class HomeScreen extends Component<Props, State> {
                         data={this.state.filterArray}
                         renderItem={({ item }) =>
                             <View style={styles.searchContainer}>
-                                {this.renderFilesImages(item)}
+                                {this.renderFileImages(item)}
                                 <TouchableOpacity onPress={() =>
                                     console.log('get detailes on item files', item)}>
                                     <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
@@ -265,8 +287,7 @@ class HomeScreen extends Component<Props, State> {
         } else {
             return (
                 <View style={styles.resourceListContainer}>
-                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, { position: 'absolute', width: "100%", height: '100%' }]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
-
+                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, styles.spinnerContainer]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
                     {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
                         <ListView
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
@@ -312,7 +333,7 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public renderFilesImages(rowData: SubResourceModel) {
+    public renderFileImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.FileExtension === FileType.video) {
                 return (
@@ -355,28 +376,28 @@ class HomeScreen extends Component<Props, State> {
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
-            <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+            <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
                 <NavigationEvents
                     onWillFocus={() => this.componentWillMount()}
                     onDidFocus={() => this.render()}
                 />
-                <Container>
-                    <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
-                            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
-                                <Icon name='menu' style={styles.iconColor}></Icon>
-                            </TouchableOpacity>
-                        </Left>
-                        <Body>
-                            <Title style={styles.headerTitle}>Home</Title>
-                        </Body>
-                        <Right>
-                            <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
-                                <Icon name='refresh' style={styles.iconColor}></Icon>
-                            </TouchableOpacity>
-                        </Right>
-                    </Header>
-                    <Content contentContainerStyle={styles.container}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                    <Container style={styles.containerColor}>
+                        <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                            <Left>
+                                <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
+                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                                </TouchableOpacity>
+                            </Left>
+                            <Body>
+                                <Title style={{ color: this.state.fontColor || '#fff' }} >Home</Title>
+                            </Body>
+                            <Right>
+                                <TouchableOpacity disabled={true} onPress={() => this.updateResouces()} style={styles.refreshIcon}>
+                                    <Icon name='refresh' style={styles.iconColor}></Icon>
+                                </TouchableOpacity>
+                            </Right>
+                        </Header>
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
@@ -386,11 +407,11 @@ class HomeScreen extends Component<Props, State> {
                                 />
                             </Item>
                         </Header>
-                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                        <Content contentContainerStyle={[styles.containerColor]}>
                             {this.renderResourceList()}
-                        </ImageBackground>
-                    </Content>
-                </Container>
+                        </Content>
+                    </Container>
+                </ImageBackground>
             </SafeAreaView>
         );
     }

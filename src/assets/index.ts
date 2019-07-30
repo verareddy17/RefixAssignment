@@ -1,6 +1,6 @@
 const images = {
     loginBG: require('./images/login-bg.png'),
-    hubspotLogo: require('./images/hubspot_logo.png'),
+    appLogo: require('./images/hubspot_logo.png'),
     mp4: require('./images/mp4.png'),
     pdf: require('./images/pdf.png'),
     png: require('./images/png.png'),

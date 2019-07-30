@@ -80,6 +80,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    containerColor: {
+        backgroundColor: 'transparent',
+    },
+    renderSeparator: {
+        height: 1,
+        width: '100%',
+        backgroundColor: '#ffffff',
+    }
 });
 
 export default styles;

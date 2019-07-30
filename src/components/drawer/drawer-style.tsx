@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
@@ -53,8 +53,15 @@ const styles = StyleSheet.create({
     },
     logoIcon: {
         color: '#fff',
-        marginLeft: '95%',
         marginTop: 10,
+        ...Platform.select({
+            ios: {
+                marginLeft: '95%',
+            },
+            android: {
+                marginLeft: '90%',
+            },
+        }),
     },
 });
 

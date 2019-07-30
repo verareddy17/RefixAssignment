@@ -39,6 +39,7 @@ interface State {
     orientation: string;
     selectedFiles: Array<SubResourceModel>;
     selectedFileIds: Array<number>;
+    fontColor?: string;
 }
 // let result: SubResourceModel[] = [];
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -66,6 +67,11 @@ class FileManagerScreen extends Component<Props, State> {
         });
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
+        await LocalDbManager.get(Constant.fontColor, (err, color) => {
+            if (color !== null || color !== '') {
+                this.setState({ fontColor: color } as State);
+            }
+        });
         await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
             if (image !== null && image !== '') {
                 this.setState({
@@ -159,7 +165,7 @@ class FileManagerScreen extends Component<Props, State> {
             }
         } else {
             return (
-                <Image source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
+                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
             );
         }
     }
@@ -171,24 +177,24 @@ class FileManagerScreen extends Component<Props, State> {
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
-            <SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+            <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
                 <NavigationEvents
                     onWillFocus={() => this.componentWillMount()}
                     onDidFocus={() => this.render()}
                 />
-                <Container>
-                    <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
-                            <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                <Icon name='menu' style={styles.iconColor}></Icon>
-                            </Button>
-                        </Left>
-                        <Body>
-                            <Title style={styles.headerTitle}>Downloads Manager</Title>
-                        </Body>
-                        <Right />
-                    </Header>
-                    <Content contentContainerStyle={styles.container}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                    <Container style={styles.containerColor}>
+                        <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                            <Left>
+                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
+                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                                </Button>
+                            </Left>
+                            <Body>
+                                <Title style={{color: this.state.fontColor || '#fff'}}>Download Manager</Title>
+                            </Body>
+                            <Right />
+                        </Header>
                         <View style={styles.contentConatiner}>
                             <Segment style={styles.segmentContainer}>
                                 <Button style={styles.segmentButton} active={this.state.activePage === 1}
@@ -197,13 +203,13 @@ class FileManagerScreen extends Component<Props, State> {
                                     onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                             </Segment>
                         </View>
-                        <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                        <Content contentContainerStyle={styles.container}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
                             </View>
-                        </ImageBackground>
-                    </Content>
-                </Container>
+                        </Content>
+                    </Container>
+                </ImageBackground>
             </SafeAreaView>
         );
     }
@@ -275,7 +281,6 @@ class FileManagerScreen extends Component<Props, State> {
         });
 
     }
-
 
     public progress() {
         const downloadProgress = Math.floor(this.props.downloadState.progress * 100);

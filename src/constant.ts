@@ -30,12 +30,14 @@ export class Constant {
     public static addedbookmarkTitle = 'successfully added to bookmark';
     public static deleted = 'successfully deleted the downloaded file';
     public static bookmarkDeleted = 'succesfully removed from bookmarks';
+    public static loginName?: string;
+    public static deleteFile = 'file is not downloaded yet';
 }
 
 export enum FileType {
     zip = '.zip',
     video = '.mp4',
-    jpg = '.JPG',
+    jpg = '.jpg',
     pptx = '.pptx',
     xlsx = '.xlsx',
     docx = '.docx',

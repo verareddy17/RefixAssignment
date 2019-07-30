@@ -45,7 +45,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                 }
             }
         } catch (error) {
-            console.log(error);
         }
     }
 

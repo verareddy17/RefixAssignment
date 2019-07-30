@@ -11,19 +11,19 @@ import images from '../../assets';
 
 const CustomDrawerComponent = (props: DrawerItemsProps) => {
     return (
-        < SafeAreaView style={styles.container} forceInset={{ top: 'never' }}>
+        < SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
             <Container>
                 <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                     <TouchableOpacity onPress={() => closeDrawer(props)}>
                         <Icon name='close' style={styles.logoIcon}></Icon>
                     </TouchableOpacity>
-                    <Image style={styles.logoImage} source={images.hubspotLogo} />
+                    <Image style={styles.logoImage} source={images.appLogo} />
                     <Text style={styles.businessUnitTitle}>{Config.APP_NAME}</Text>
                 </Header>
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={styles.userNameTitle}>{}</Text>
+                        <Text style={styles.userNameTitle}> {Constant.loginName } </Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />
