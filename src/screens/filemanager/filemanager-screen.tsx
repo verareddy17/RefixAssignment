@@ -356,11 +356,10 @@ class FileManagerScreen extends Component<Props, State> {
         let allIds = await this.state.resources.map(item => {
             return item.ResourceId;
         });
-        const allFiles = this.state.allFiles;
         if (this.state.isSelectAll) {
             this.setState({
                 selectedFileIds: allIds,
-                selectedFiles: allFiles,
+                selectedFiles: {...this.state.resources},
             });
         } else {
             this.setState({
@@ -368,6 +367,7 @@ class FileManagerScreen extends Component<Props, State> {
                 selectedFiles: [],
             });
         }
+        console.log('hhhhhhh', this.state.selectedFiles);
     }
 
     public async downloadSelectedFiles() {
@@ -375,26 +375,26 @@ class FileManagerScreen extends Component<Props, State> {
             Alert.alert(Config.APP_NAME, Constant.noFiles);
             return;
         }
-        for (let i = 0; i < this.state.selectedFiles.length; i++) {
-            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].FileExtension);
-            const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
-            await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
-            console.log('files are pushed', this.state.downloadedFiles);
-            let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-            this.setState({
-                resources: downloadFiles,
-                allFiles: downloadFiles,
-            });
-            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
-                Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
-            });
-        }
-        this.setState({
-            selectedFiles: [],
-            selectedFileIds: [],
-            isSelectAll: false,
-        });
-    }
+    //     for (let i = 0; i < this.state.selectedFiles.length; i++) {
+    //         await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].FileExtension);
+    //         const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
+    //         await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+    //         console.log('files are pushed', this.state.downloadedFiles);
+    //         let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
+    //         this.setState({
+    //             resources: downloadFiles,
+    //             allFiles: downloadFiles,
+    //         });
+    //         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
+    //             Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
+    //         });
+    //     }
+    //     this.setState({
+    //         selectedFiles: [],
+    //         selectedFileIds: [],
+    //         isSelectAll: false,
+    //     });
+     }
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
@@ -406,6 +406,42 @@ export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);
 
 
 /*
+
+
+async componentWillMount() {
+        this.setState({ Listing: this.props.listing })
+        await this.props.loadMaterData('Advertisement', false)
+        this.setState({ Listing: this.props.listing })
+        this.setState({
+            allAdOptions: this.props.options.map(x => {
+                x.selected = (this.state.Listing.adOptions.indexOf(x.key) >= 0);
+                return x;
+            }),
+            allAdSizes: this.state.allAdSizes.map(x => {
+                x.selected = (x.value == this.state.Listing.adSize);
+                return x;
+            })
+        });
+    }
+
+opulateAdOptions() {
+        console.log('allAdOptions', this.state.allAdOptions)
+        if (!this.state.Listing.adOptions) {
+            return;
+        }
+        let uiAdOptions = this.state.allAdOptions;
+        let dbAdOptions = this.state.Listing.adOptions;
+        for (let dbAdOption of dbAdOptions) {
+            for (let uiAdOption of uiAdOptions) {
+                if (uiAdOption.value == dbAdOption) {
+                    uiAdOption.selected = 'true';
+                    this.state.checked1.push(uiAdOption.key);
+                }
+            }
+        }
+
+    }
+
 import React, { Component } from 'react';
 import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Segment, Item, Input, Spinner, CheckBox, ListItem } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';

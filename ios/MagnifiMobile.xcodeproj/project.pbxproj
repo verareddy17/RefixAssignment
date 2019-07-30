@@ -1960,6 +1960,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.magnifigroup.corinapp;
 				PRODUCT_NAME = MagnifiMobile;
 				PROVISIONING_PROFILE_SPECIFIER = CorinProd;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1997,6 +1998,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.magnifigroup.corinapp;
 				PRODUCT_NAME = MagnifiMobile;
 				PROVISIONING_PROFILE_SPECIFIER = CorinProd;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
