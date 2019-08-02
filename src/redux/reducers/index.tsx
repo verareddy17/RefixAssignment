@@ -4,7 +4,6 @@ import loginReducer from './login-reducer';
 import resourceReducer from './resource-reducer';
 import settingsReducer from './settings-reducer';
 import downloadReducer from './download-reducer';
-import fetchDownloadedFilesReducer from './downloaded-reducer';
 const rootReducer = combineReducers({
     inputText: inputReducer,
     loginData: loginReducer,

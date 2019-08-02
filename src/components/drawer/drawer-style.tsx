@@ -1,6 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import Config from 'react-native-config';
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -41,20 +40,28 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         backgroundColor: '#d3d3d3',
+        alignItems: 'center',
     },
     userNameTitle: {
-        padding: 8,
+        marginLeft: 35,
     },
     spaceContainer: {
         height: 20,
     },
     profileIcon: {
-        marginLeft: 40,
+        marginLeft: 18,
     },
-    logoIcon: {
+    closeIcon: {
         color: '#fff',
-        marginLeft: '95%',
-        marginTop: 10,
+        // marginTop: 5,
+        ...Platform.select({
+            ios: {
+                marginLeft: '95%',
+            },
+            android: {
+                marginLeft: '90%',
+            },
+        }),
     },
 });
 

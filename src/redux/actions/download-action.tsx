@@ -3,33 +3,31 @@ import { Dispatch } from 'redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import Config from 'react-native-config';
 import { Constant, FileType } from '../../constant';
-import { loadResourceFail } from './resource-action';
-const dirs = RNFetchBlob.fs.dirs.DocumentDir;
-var task: any;
+let canceled: boolean;
 export const downloadResourceStart = () => {
     return {
         type: DOWNLOAD_START,
     };
 };
 
-export const downloadResourceProgress = (data: number) => {
+export const downloadResourceProgress = (data: number, task: any) => {
     return {
         type: DOWNLOAD_PROGRESS,
-        payload: data,
+        progress: data,
+        task: task,
     };
 };
 
 export const downloadResourceSuccess = (data: number) => {
     return {
         type: DOWNLOAD_SUCCESS,
-        payload: data,
+        progress: data,
     };
 };
 
-export const downloadResourceFailure = (error: string) => {
+export const downloadResourceFailure = () => {
     return {
         type: DOWNLOAD_FAILURE,
-        payload: error,
     };
 };
 
@@ -39,10 +37,13 @@ export class DownloadResourceFileProgress {
     public error: string = '';
 }
 
-export function downloadCancel(): (dispatch: Dispatch) => Promise<void> {
-    return async (dispatch: Dispatch) => {
-        await task.cancel(async (error: any) => {
-            await dispatch(downloadResourceFailure('Download canceled by user'));
+export function downloadCancel(): (dispatch: Dispatch, getState: Function) => Promise<void> {
+    return async (dispatch: Dispatch, getState: Function) => {
+        console.log('current state', getState().downloadProgress);
+        const cancelTask = getState().downloadProgress.task;
+        await cancelTask.cancel(async (error: Error) => {
+            canceled = true;
+            await dispatch(downloadResourceFailure());
         });
     };
 }
@@ -52,27 +53,32 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
         let params = {
             'AppResourceId': AppUserResourceID,
         };
-        let path = filetype === FileType.video ? `${dirs}/${AppUserResourceID}${filetype}` : `${dirs}/${filename}`;
+        console.log('document Dir', Constant.documentDir);
+        let path = filetype === FileType.video ? `${Constant.documentDir}/${AppUserResourceID}${filetype}` : `${'file://'}${Constant.documentDir}/${filename}`;
         console.log('downloading path', path);
         dispatch(downloadResourceStart());
         try {
-            task = RNFetchBlob.config({
+            let task = RNFetchBlob.config({
                 path: path,
             }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + bearer_token,
             }, JSON.stringify(params)).progress(async (received, total) => {
                 let progress = (received / total);
-                await dispatch(downloadResourceProgress(progress));
+                await dispatch(downloadResourceProgress(progress, task));
             });
             await task.then(async (res: any) => {
-                console.log('file downloaded path', res);
-                await dispatch(downloadResourceSuccess(0));
+                if (res.respInfo.status === 200) {
+                    if (canceled) {
+                        dispatch(downloadResourceFailure());
+                        canceled = false;
+                    } else {
+                        dispatch(downloadResourceSuccess(0));
+                    }
+                }
             });
-
         } catch (error) {
-            console.log('download file......', error);
-            await dispatch(downloadResourceSuccess(0));
+            dispatch(downloadResourceFailure());
         }
     };
 }

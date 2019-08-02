@@ -1,3 +1,7 @@
+import RNFetchBlob from 'rn-fetch-blob';
+const dirs = RNFetchBlob.fs.dirs.DocumentDir;
+import { Platform } from 'react-native';
+
 export class Constant {
     public static activateAppURL = 'login';
     public static resourceUrl = 'GetAppResources';
@@ -34,6 +38,10 @@ export class Constant {
     public static cancelDownload = 'Download canceled by user';
     public static indexHtml = 'index.html';
     public static loginName?: string;
+    public static magnifiFiles = Platform.OS === 'android' ? `file://${dirs}` : dirs;
+    public static documentDir = dirs + '/MagnifiMobile';
+    public static logoutTitle = 'Do you want to logout?';
+    public static platform = Platform.OS ;
 }
 
 export enum FileType {

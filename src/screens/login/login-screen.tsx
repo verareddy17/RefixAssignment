@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage, Platform } from 'react-native';
-import { Text, Item, Input, Icon, Header, Label, Spinner } from 'native-base';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { Text, Item, Input, Icon, Header, Label, Spinner, Toast } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
 import LocalDbManager from '../../manager/localdb-manager';
@@ -10,12 +10,14 @@ import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
 import { NavigationScreenProp, DrawerItems } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import images from '../../assets/index';
+import { string } from 'prop-types';
+import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -50,47 +52,49 @@ class LoginScreen extends Component<Props, State> {
         return (
             <View style={styles.rootContainer}>
                 <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
-                    <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                        <View style={styles.container}>
-                            <View style={styles.logoWrapper}>
-                                <Image
-                                    source={images.appLogo}
-                                    style={styles.logoImage}
-                                />
-                            </View>
-                            <View style={styles.loginContainer}>
-                                <Text style={styles.text} adjustsFontSizeToFit>Login</Text>
-                                <View style={styles.lineContainer}>
-                                    <View style={styles.line}></View>
-                                </View>
-                                <Item floatingLabel>
-                                    <Label>Password</Label>
-                                    <Input onChangeText={(text) =>
-                                        this.props.getActivationPin(text)
-                                    }
-                                        value={this.props.inputText}
-                                        autoCapitalize='none'
-                                        secureTextEntry={this.state.isSecureText}
+                    <KeyboardAvoidingView style={styles.keyboardAvoidContainer} behavior='padding' enabled={ Platform.OS === 'ios' ? true : false} >
+                        <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                            <View style={styles.container}>
+                                <View style={styles.logoWrapper}>
+                                    <Image
+                                        source={images.appLogo}
+                                        style={styles.logoImage}
                                     />
-                                    <Icon name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
-                                </Item>
-                                {this.SpinnerLoading()}
-                                <View style={styles.buttonContainer}>
-                                    <TouchableOpacity disabled={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? true : false} style={styles.button} onPress={() => {
-                                        this.signInAsync();
-                                    }}>
-                                        <View>
-                                            <Icon name='arrow-round-forward' style={styles.buttonIcon} />
-                                        </View>
-                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.loginContainer}>
+                                    <Text style={styles.text} adjustsFontSizeToFit>Login</Text>
+                                    <View style={styles.lineContainer}>
+                                        <View style={styles.line}></View>
+                                    </View>
+                                    <Item floatingLabel>
+                                        <Label>Password</Label>
+                                        <Input onChangeText={(text) =>
+                                            this.props.getActivationPin(text)
+                                        }
+                                            value={this.props.inputText}
+                                            autoCapitalize='none'
+                                            secureTextEntry={this.state.isSecureText}
+                                        />
+                                        <Icon name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
+                                    </Item>
+                                    {this.SpinnerLoading()}
+                                    <View style={styles.buttonContainer}>
+                                        <TouchableOpacity disabled={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? true : false} style={styles.button} onPress={() => {
+                                            this.signInAsync();
+                                        }}>
+                                            <View>
+                                                <Icon name='arrow-round-forward' style={styles.buttonIcon} />
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </TouchableWithoutFeedback>
+                        </TouchableWithoutFeedback>
+                    </KeyboardAvoidingView>
                 </ImageBackground>
             </View>
-        );
+        )
     }
 
     public showPassword() {
@@ -102,7 +106,7 @@ class LoginScreen extends Component<Props, State> {
         if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
             return (
                 <View style={styles.spinnerContainer}>
-                    <Spinner style={styles.refreshContainer} size={'large'} color='#000000' />
+                    <Spinner style={styles.refreshContainer} size={'large'} color={Config.PRIMARY_COLOR} />
                 </View>
             );
         } else {
@@ -127,6 +131,15 @@ class LoginScreen extends Component<Props, State> {
         console.log('pin', this.props.inputText);
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
+            await LocalDbManager.get<string>(Constant.username, async (error, userName) => {
+                if (userName !== null || userName !== '') {
+                    if (userName !== this.props.userState.user.UserFullName) {
+                        await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, [], async (err) => {
+                            Toast.show({ text: 'successfully removed all downloaded files', type: 'success', position: 'bottom' });
+                        });
+                    }
+                }
+            });
             await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             Constant.loginName = this.props.userState.user.UserFullName;
