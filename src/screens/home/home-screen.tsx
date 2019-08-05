@@ -122,7 +122,9 @@ class HomeScreen extends Component<Props, State> {
             this.setState({ logoImage: image } as State);
         });
         await LocalDbManager.get('userToken', (err, data) => {
-            this.setState({ token: data } as State);
+            if (data !== null || data !== '') {
+                this.setState({ token: data } as State);
+            }
         });
         await LocalDbManager.get<string>(Constant.token, async (err, token) => {
             if (token !== null && token !== '') {
@@ -186,7 +188,6 @@ class HomeScreen extends Component<Props, State> {
         this.setState({
             isUpdating: true,
         });
-        console.log('settings', this.props.deviceTokenResponse.settings);
         await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
         await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
         await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
@@ -195,14 +196,24 @@ class HomeScreen extends Component<Props, State> {
         await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
         await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
         await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
-        console.log('settings', this.props.deviceTokenResponse.settings);
         await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
             if (resource !== undefined) {
                 result = [];
                 await this.getValues(resource);
                 console.log('result', result);
-                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, (err) => {
+                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, async (err) => {
                     console.log('files are saved successfully');
+                    let downloadedFiles = this.state.downloadedFiles.filter(function (item1) {
+                        return result.some(function (item2) {
+                            return item1.resourceId === item2.ResourceId;          // assumes unique id
+                        });
+                    });
+                    console.log('removed files', downloadedFiles);
+                    await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, downloadedFiles, async (err) => {
+                        this.setState({
+                            downloadedFiles: downloadedFiles,
+                        });
+                    });
                     this.setState({
                         isUpdating: false,
                     });
@@ -310,7 +321,7 @@ class HomeScreen extends Component<Props, State> {
                         data={this.state.filterArray}
                         renderItem={({ item }) =>
                             <View style={styles.searchContainer}>
-                                {this.renderFilesImages(item)}
+                                {this.renderFileImages(item)}
                                 <TouchableOpacity onPress={() =>
                                     console.log('get detailes on item files', item)}>
                                     <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
@@ -406,7 +417,7 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public renderFilesImages(rowData: SubResourceModel) {
+    public renderFileImages(rowData: SubResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             if (rowData.FileExtension === FileType.video) {
                 return (

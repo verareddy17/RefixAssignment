@@ -42,6 +42,7 @@ export class Constant {
     public static documentDir = dirs + '/MagnifiMobile';
     public static logoutTitle = 'Do you want to logout?';
     public static platform = Platform.OS ;
+    public static deleteFile = 'file is not downloaded yet';
 }
 
 export enum FileType {

@@ -35,9 +35,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        // let str = 'file:///storage/emulated/0/somwhere/foo foo Nov 21, 2018 12:16:04 PM.pdf';
-        // let result = str.split(' ').join('%20');
-        // console.log('Result', result);
         const dirPath = this.props.navigation.getParam('dir');
         const launcherFile = this.props.navigation.getParam('launcherFile') as string;
         const fileName = this.props.navigation.getParam('fileName') as string;
@@ -46,7 +43,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         if (fileType === FileType.zip) {
             if (launcherFile === '' || launcherFile === undefined || launcherFile === null) {
                 let path = await this.findHtmlFile(`${dirPath}/${fileName}`);
-                console.log('findIndex', path);
                 this.setState({
                     path: path || '',
                     isLoading: false,
@@ -54,16 +50,10 @@ export default class PreviewManagerScreen extends Component<Props, State> {
 
                 });
             } else {
-                //TO-DO IF LAUNCHER FILE HAVE
                 let replacebackwardSlashInLancherFile = launcherFile.replace(/\\/g, '/');
-                console.log('launcher', replacebackwardSlashInLancherFile);
                 let splitLauncherPath = replacebackwardSlashInLancherFile.split('/');
-                console.log('spiltArray', splitLauncherPath);
-                let removeFirstIndexFromLauncher = splitLauncherPath.shift();
-                console.log('remove first index', removeFirstIndexFromLauncher, splitLauncherPath);
+                splitLauncherPath.shift();
                 let combinedPath = splitLauncherPath.join('/');
-                console.log('launcherPath', combinedPath);
-                console.log('launcherPathFinal', `${dirPath}/${fileName}/${combinedPath}`);
                 this.setState({
                     path: `${dirPath}/${fileName}/${combinedPath}`,
                     isLoading: false,
@@ -97,7 +87,6 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                 }
             }
         } catch (error) {
-
         }
     }
 

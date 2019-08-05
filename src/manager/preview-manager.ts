@@ -46,4 +46,20 @@ export default class PreviewManager {
             });
         }
     }
+
+    public static async unzipFile(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string) {
+        if (fileType === FileType.zip) {
+            let resourceName = await PreviewManager.extractFileName(fileName);
+            const sourcePath = `${dir}/${resourceId}${fileType}`;
+            const targetPath = `${dir}/${resourceId}/${resourceName}`;
+            console.log('source path', sourcePath);
+            console.log('targetedPath', targetPath);
+            await unzip(sourcePath, targetPath).then(async (path) => {
+                console.log('unzip path', path);
+            })
+                .catch((error) => {
+                    console.log('failed to unzip the file ', error);
+                });
+        }
+    }
 }

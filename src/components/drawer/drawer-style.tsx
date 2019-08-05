@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     },
     closeIcon: {
         color: '#fff',
-        // marginTop: 5,
         ...Platform.select({
             ios: {
                 marginLeft: '95%',

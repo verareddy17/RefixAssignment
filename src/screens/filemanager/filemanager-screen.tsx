@@ -20,7 +20,6 @@ import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
-import check from '../../screens/platform/check-platform';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -45,6 +44,7 @@ interface State {
     bearer_token: string;
     isSelectAll: boolean;
     allFiles: Array<SubResourceModel>;
+    fontColor?: string;
 }
 // let result: SubResourceModel[] = [];
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
@@ -67,10 +67,6 @@ class FileManagerScreen extends Component<Props, State> {
         };
     }
 
-    public async componentWillMount() {
-
-    }
-
     public async componentDidMount() {
         this.setState({
             isLoading: true,
@@ -79,6 +75,11 @@ class FileManagerScreen extends Component<Props, State> {
         });
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
+        await LocalDbManager.get(Constant.fontColor, (err, color) => {
+            if (color !== null || color !== '') {
+                this.setState({ fontColor: color } as State);
+            }
+        });
         await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
             if (image !== null && image !== '') {
                 this.setState({
@@ -235,12 +236,12 @@ class FileManagerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={styles.headerTitle}>Downloads Manager</Title>
+                                <Title style={{ color: this.state.fontColor || '#fff' }}>Downloads Manager</Title>
                             </Body>
                             <Right />
                         </Header>}
                         {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
-                        <Content contentContainerStyle={[styles.container, { paddingBottom: check.isAndroid ? 30 : 0 }]}>
+                        <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
                             </View>
@@ -396,8 +397,9 @@ class FileManagerScreen extends Component<Props, State> {
                 Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
                 return;
             }
-            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, this.state.selectedFiles[i].ResourceName, this.state.selectedFiles[i].FileExtension);
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
+            const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
+            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
             await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
             console.log('files are pushed', this.state.downloadedFiles);
             let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
@@ -409,6 +411,11 @@ class FileManagerScreen extends Component<Props, State> {
             });
             await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
             });
+            let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+            console.log('download resource id', ResourceId);
+            if (FileExtension === FileType.zip) {
+                await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
+            }
         }
         this.setState({
             selectedFiles: [],

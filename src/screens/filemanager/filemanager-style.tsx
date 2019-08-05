@@ -97,9 +97,14 @@ const styles = StyleSheet.create({
     downloadContainer: {
         height: 150,
         width: '90%',
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
         justifyContent: 'space-around',
         alignItems: 'center',
+    },
+    renderSeparator: {
+        height: 1,
+        width: '100%',
+        backgroundColor: '#ffffff',
     },
 });
 

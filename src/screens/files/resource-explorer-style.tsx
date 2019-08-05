@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     fileSeparator: {
         width: '100%',
         height: 1,
-        backgroundColor: '#A9A9A9',
+        backgroundColor: '#ffffff',
     },
     transparentColor: {
         backgroundColor: 'transparent',
@@ -132,6 +132,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         justifyContent: 'space-around',
         alignItems: 'center',
+    },
+    downloadingText: {
+        color: '#fff',
+        fontSize: 30,
+        fontWeight: '400',
     },
 });
 

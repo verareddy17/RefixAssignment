@@ -18,6 +18,7 @@ import deviceTokenApi from '../../redux/actions/settings-actions';
 import images from '../../assets/index';
 import { string } from 'prop-types';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
+import { isEnabled } from 'appcenter-crashes';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -34,6 +35,7 @@ interface Props {
 interface State {
     text: string;
     isSecureText: boolean;
+    isEnable: boolean;
 }
 
 class LoginScreen extends Component<Props, State> {
@@ -45,6 +47,7 @@ class LoginScreen extends Component<Props, State> {
         this.state = {
             text: '',
             isSecureText: true,
+            isEnable: true,
         };
     }
 
@@ -52,7 +55,7 @@ class LoginScreen extends Component<Props, State> {
         return (
             <View style={styles.rootContainer}>
                 <ImageBackground source={images.loginBG} style={styles.bgImageStyle}>
-                    <KeyboardAvoidingView style={styles.keyboardAvoidContainer} behavior='padding' enabled={ Platform.OS === 'ios' ? true : false} >
+                    <KeyboardAvoidingView style={styles.keyboardAvoidContainer} behavior='padding' enabled={Platform.OS === 'ios' ? true : false} >
                         <Header androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'} style={styles.header} />
                         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                             <View style={styles.container}>
@@ -76,7 +79,7 @@ class LoginScreen extends Component<Props, State> {
                                             autoCapitalize='none'
                                             secureTextEntry={this.state.isSecureText}
                                         />
-                                        <Icon name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
+                                        <Icon active={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? false : true } name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
                                     </Item>
                                     {this.SpinnerLoading()}
                                     <View style={styles.buttonContainer}>
@@ -94,7 +97,7 @@ class LoginScreen extends Component<Props, State> {
                     </KeyboardAvoidingView>
                 </ImageBackground>
             </View>
-        )
+        );
     }
 
     public showPassword() {
@@ -102,6 +105,7 @@ class LoginScreen extends Component<Props, State> {
             isSecureText: !this.state.isSecureText,
         });
     }
+
     public SpinnerLoading() {
         if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
             return (

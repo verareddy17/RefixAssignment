@@ -5,7 +5,7 @@ import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -47,7 +47,7 @@ interface State {
     backgroundPortraitImage: string;
     backgroundLandscapeImage: string;
     orientation: string;
-
+    fontColor?: string;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -67,8 +67,12 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
         Orientation.unlockAllOrientations();
+        await LocalDbManager.get(Constant.fontColor, (err, color) => {
+            if (color !== null || color !== '') {
+                this.setState({ fontColor: color } as State);
+            }
+        });
         Orientation.addOrientationListener(this._orientationDidChange);
         await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
             if (image !== null && image !== '') {
@@ -104,11 +108,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
             }
         });
     }
-
-    public async onBackPress() {
-        await this.props.requestDownloadCancel();
-    }
-
 
     public setColorIfFileIsBookmarked(resourceID: number) {
         let bookmarks = this.state.bookmarkedFiles || [];
@@ -302,7 +301,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={[styles.headerTitle, { marginLeft: Constant.platform === 'android' ? 15 : 0 }]}>{item.ResourceName}</Title>
+                                <Title style={{ color: this.state.fontColor || '#fff', marginLeft: Constant.platform === 'android' ? 15 : 0 }}>{item.ResourceName}</Title>
                             </Body>
                             <Right />
                         </Header>}
@@ -337,7 +336,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                         <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '400' }}>Cancel</Text>
+                            <Text style={styles.downloadingText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -349,7 +348,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
                         <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '400' }}>Cancel</Text>
+                            <Text style={styles.downloadingText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -389,6 +388,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     Toast.show({ text: Constant.deleted, type: 'success', position: 'bottom' });
                 }
             });
+        } else {
+            Alert.alert(Config.APP_NAME, Constant.deleteFile);
         }
 
     }
@@ -430,7 +431,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
-        BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
     }
 
     public _orientationDidChange = (orientation: string) => {
