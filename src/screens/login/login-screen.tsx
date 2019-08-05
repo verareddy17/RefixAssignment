@@ -71,7 +71,7 @@ class LoginScreen extends Component<Props, State> {
                                         <View style={styles.line}></View>
                                     </View>
                                     <Item floatingLabel>
-                                        <Label>Password</Label>
+                                        <Label>Enter User Pin</Label>
                                         <Input onChangeText={(text) =>
                                             this.props.getActivationPin(text)
                                         }

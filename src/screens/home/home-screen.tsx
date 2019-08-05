@@ -494,7 +494,7 @@ class HomeScreen extends Component<Props, State> {
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
-                                <Input placeholder='Search'
+                                <Input placeholder='Search Text'
                                     autoCorrect={false}
                                     onChangeText={text => this.searchFilterFunction(text)}
                                     value={this.state.searchText}
