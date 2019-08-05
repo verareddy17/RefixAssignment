@@ -48,7 +48,6 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             } else {
                 await dispatch(loadUserFailed('Please check internet connection'));
             }
-
         });
     };
 }
