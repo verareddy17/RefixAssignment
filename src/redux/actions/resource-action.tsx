@@ -1,5 +1,5 @@
 import { LOAD_RESOURCE_START, LOAD_RESOURCE_SUCCESS, LOAD_RESOURCE_FAIL } from './action-types';
-import { ApiResponse, ResponseJson } from '../../models/response-model';
+import { ApiResponse } from '../../models/response-model';
 import { ResourceModel } from '../../models/resource-model';
 import ApiManager from '../../manager/api-manager';
 import LocalDbManager from '../../manager/localdb-manager';
@@ -93,7 +93,7 @@ export const updateResources = (token: string) => {
                     console.log('Successfully insertedd');
                 });
                 if (data.Success) {
-                    await LocalDbManager.get<ResourceModel[]> ('resources', (err, data) => {
+                    await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
                         if (data) {
                             dispatch(loadResourceSuccess(data));
                         } else {

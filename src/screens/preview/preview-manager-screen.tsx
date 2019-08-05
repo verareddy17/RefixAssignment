@@ -114,6 +114,7 @@ export default class PreviewManagerScreen extends Component<Props, State> {
             return (
                 <WebView
                     originWhitelist={['*']}
+                    allowFileAccess={true}
                     source={{ uri: this.state.path }}
                 />
             );

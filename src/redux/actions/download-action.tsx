@@ -54,7 +54,7 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
             'AppResourceId': AppUserResourceID,
         };
         console.log('document Dir', Constant.documentDir);
-        let path = filetype === FileType.video ? `${Constant.documentDir}/${AppUserResourceID}${filetype}` : `${'file://'}${Constant.documentDir}/${filename}`;
+        let path = filetype === FileType.video ? `${Constant.documentDir}/${AppUserResourceID}${filetype}` : `${Constant.documentDir}/${filename}`;
         console.log('downloading path', path);
         dispatch(downloadResourceStart());
         try {

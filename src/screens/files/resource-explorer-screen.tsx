@@ -5,7 +5,7 @@ import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, AsyncStorage, ListView, PanResponder, PanResponderInstance, ImageBackground, Dimensions } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -22,7 +22,6 @@ import Swipeout from 'react-native-swipeout';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
 import images from '../../assets/index';
-import check from '../platform/check-platform';
 
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -33,7 +32,7 @@ interface Props {
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
-    requestDownloadCancel(): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
 }
 
 interface State {
@@ -47,11 +46,9 @@ interface State {
     bearer_token: string;
     backgroundPortraitImage: string;
     backgroundLandscapeImage: string;
-    orientation: string,
+    orientation: string;
 
 }
-
-const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 
 class ResourceExplorerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -68,46 +65,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
             orientation: Constant.portrait,
         };
     }
-    
-    public async componentWillMount() {
-        // Orientation.unlockAllOrientations();
-        // Orientation.addOrientationListener(this._orientationDidChange);
-        // await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
-        //     if (image !== null && image !== '') {
-        //         this.setState({
-        //             backgroundPortraitImage: image!,
-        //         });
-        //     }
-        // });
-        // await LocalDbManager.get<string>(Constant.backgroundLandscapeImage, (err, image) => {
-        //     if (image !== null && image !== '') {
-        //         this.setState({
-        //             backgroundLandscapeImage: image!,
-        //         });
-        //     }
-        // });
-        // await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
-        //     if (data) {
-        //         this.setState({
-        //             bookmarkedFiles: data,
-        //         });
-        //     }
-        // });
-        // await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
-        //     if (data) {
-        //         this.setState({ downloadedFiles: data } as State);
-        //     }
-        // });
-        // await LocalDbManager.get<string>(Constant.token, async (err, token) => {
-        //     if (token !== null && token !== '') {
-        //         await this.setState({
-        //             bearer_token: token!,
-        //         });
-        //     }
-        // });
-    }
 
     public async componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
         await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
@@ -144,6 +104,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
             }
         });
     }
+
+    public async onBackPress() {
+        await this.props.requestDownloadCancel();
+    }
+
 
     public setColorIfFileIsBookmarked(resourceID: number) {
         let bookmarks = this.state.bookmarkedFiles || [];
@@ -337,11 +302,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={[styles.headerTitle, { marginLeft: Constant.platform === 'android' ? 15 : 0}]}>{item.ResourceName}</Title>
+                                <Title style={[styles.headerTitle, { marginLeft: Constant.platform === 'android' ? 15 : 0 }]}>{item.ResourceName}</Title>
                             </Body>
                             <Right />
                         </Header>}
-                        <Content contentContainerStyle={[styles.container, { paddingBottom: check.isAndroid ? 30 : 0}]}>
+                        <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
                             </View>
@@ -361,8 +326,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public async cancelDownload() {
         await this.props.requestDownloadCancel();
-        Alert.alert(Config.APP_NAME, Constant.cancelDownload);
-        console.log('cancel download');
     }
 
     public progress() {
@@ -373,11 +336,10 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity style={{backgroundColor: Config.PRIMARY_COLOR}} onPress={() => this.cancelDownload()}>
-                            <Text style={{color : '#fff', fontSize: 30}}>Cancel</Text>
+                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
+                            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '400' }}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
-
                 </View>
             );
         } else {
@@ -386,9 +348,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <Button style={{ marginLeft: '40%' }} onPress={() => this.cancelDownload()}>
-                            <Text>Cancel</Text>
-                        </Button>
+                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
+                            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '400' }}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             );
@@ -398,9 +360,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
         await this.props.requestDownloadFile(this.state.bearer_token, resourceId, filename, resourceType);
-        console.log('erooor', this.props.downloadState);
         if (this.props.downloadState.error !== '') {
-           return;
+            Alert.alert(Config.APP_NAME, Constant.cancelDownload);
+            return;
         }
         await this.state.downloadedFiles.push({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
@@ -468,6 +430,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
     }
 
     public _orientationDidChange = (orientation: string) => {

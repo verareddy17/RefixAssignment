@@ -20,8 +20,6 @@ import { AppState } from '../../redux/reducers/index';
 import downloadFile from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
-import { DownloadedFiles } from '../../redux/actions/downloaded-action';
-import { addDownloadedFile, removeDownloadedFile } from '../../redux/actions/downloaded-action';
 import check from '../../screens/platform/check-platform';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
 export const CacheableImage = imageCacheHoc(Image, {
@@ -31,7 +29,6 @@ interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
-    fetchDownloadedFiles: DownloadedFiles;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
@@ -411,7 +408,6 @@ class FileManagerScreen extends Component<Props, State> {
                 Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
             });
             await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
-                // Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
             });
         }
         this.setState({

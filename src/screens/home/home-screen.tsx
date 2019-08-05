@@ -18,7 +18,6 @@ import Orientation from 'react-native-orientation';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import images from '../../assets/index';
-import check from '../../screens/platform/check-platform';
 import { string } from 'prop-types';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -333,7 +332,7 @@ class HomeScreen extends Component<Props, State> {
             } else {
                 return (
                     <View style={styles.resourceListContainer}>
-                        <ListView contentContainerStyle={{ paddingBottom: check.isAndroid ? 30 : 0 }}
+                        <ListView contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                             renderRow={(rowData: ResourceModel) =>
                                 <View>
