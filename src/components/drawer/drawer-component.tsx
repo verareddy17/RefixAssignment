@@ -23,7 +23,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={[styles.userNameTitle, {fontWeight: 'bold'}]}>{Constant.loginName}</Text>
+                        <Text style={styles.userNameTitle}>{Constant.loginName}</Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />

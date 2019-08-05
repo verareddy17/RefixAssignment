@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     },
     userNameTitle: {
         marginLeft: 35,
+        fontWeight: 'bold',
     },
     spaceContainer: {
         height: 20,

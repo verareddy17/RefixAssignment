@@ -106,6 +106,10 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#ffffff',
     },
+    selectAllFilesContainer: {
+        flexDirection: 'row',
+        marginLeft: 5,
+    },
 });
 
 export default styles;

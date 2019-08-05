@@ -200,7 +200,7 @@ class FileManagerScreen extends Component<Props, State> {
     public renderHeader() {
         return (
             <View style={styles.contentConatiner}>
-                {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
+                {this.state.activePage === 2 ? <View style={styles.selectAllFilesContainer}>
                     <CheckBox checked={this.state.isSelectAll}
                         onPress={() => { this.onPressedSelectAll(); }}
                     />
