@@ -43,6 +43,7 @@ export class Constant {
     public static logoutTitle = 'Do you want to logout?';
     public static platform = Platform.OS ;
     public static deleteFile = 'file is not downloaded yet';
+    public static deleteFilePath = Platform.OS === 'android' ? `file://${dirs}/${'MagnifiMobile'}` : `${dirs}/${'MagnifiMobile'}`;
 }
 
 export enum FileType {

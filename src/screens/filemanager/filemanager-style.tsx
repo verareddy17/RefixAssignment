@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     bodyContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        height: 75,
     },
     selectAll: {
         color: '#00bbd1',
@@ -105,6 +106,19 @@ const styles = StyleSheet.create({
         height: 1,
         width: '100%',
         backgroundColor: '#ffffff',
+    },
+    swipeoutContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    swipeButtonIcon: {
+        color: '#fff',
+    },
+    separator: {
+        height: 1,
+        backgroundColor: '#ffffff',
+        width: '100%',
     },
 });
 

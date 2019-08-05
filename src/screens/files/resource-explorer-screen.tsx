@@ -259,7 +259,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </View>),
                             backgroundColor: '#d11a2a',
                             onPress: () => {
-                                this.deleteFileIfAlreadyDownloaded(data.ResourceId);
+                                this.deleteFileIfAlreadyDownloaded(data.ResourceId, data.ResourceName, data.FileExtension);
                             },
                         },
                     ]}
@@ -373,7 +373,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
-    public async deleteFileIfAlreadyDownloaded(resoureID: number) {
+    public async deleteFileIfAlreadyDownloaded(resoureID: number, resourceName: string, fileType: string) {
+        console.log('resource name', resourceName);
+        console.log('dir', Constant.documentDir);
         let newData = [...this.state.downloadedFiles];
         const index = newData.findIndex(resource => resource.resourceId === resoureID);
         if (index > -1) {
@@ -385,6 +387,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 if (error !== null) {
                     Toast.show({ text: error!.message, type: 'warning', position: 'top' });
                 } else {
+                    const filename = fileType === FileType.zip ? `${resoureID}${fileType}` : fileType === FileType.video ? `${resoureID}${fileType}` : resourceName;
+                    LocalDbManager.unlinkFile(`${Constant.deleteFilePath}/${filename}`, fileType, `${Constant.deleteFilePath}/${resoureID}`);
                     Toast.show({ text: Constant.deleted, type: 'success', position: 'bottom' });
                 }
             });

@@ -275,14 +275,29 @@ class FileManagerScreen extends Component<Props, State> {
                     <FlatList
                         data={this.state.downloadedFiles}
                         renderItem={({ item }) =>
-                            <TouchableOpacity onPress={() => {
-                                this.previewFile(item);
-                            }}>
-                                <View style={styles.downloadedContainer}>
-                                    {this.renderLocalImagesForDownloads(item)}
-                                    <Text style={styles.textTitle}>{item.resourceName}</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <Swipeout autoClose={true} style={{ backgroundColor: 'transparent' }} right={[
+                                {
+                                    component: (<View style={styles.swipeoutContainer}>
+                                        <Icon style={styles.swipeButtonIcon} name='trash' />
+                                        <Text style={styles.swipeButtonIcon}>Delete</Text>
+                                    </View>),
+                                    backgroundColor: '#d11a2a',
+                                    onPress: () => {
+                                        this.removeFileFromLocalDB(item);
+                                    },
+                                },
+                            ]}
+                            >
+                                <TouchableOpacity onPress={() => {
+                                    this.previewFile(item);
+                                }}>
+                                    <View style={styles.downloadedContainer}>
+                                        {this.renderLocalImagesForDownloads(item)}
+                                        <Text style={styles.textTitle}>{item.resourceName}</Text>
+                                    </View>
+                                    <View style={styles.separator} />
+                                </TouchableOpacity>
+                            </Swipeout>
                         }
                     />
                 </View>
@@ -293,20 +308,23 @@ class FileManagerScreen extends Component<Props, State> {
                 <ListView
                     dataSource={ds.cloneWithRows(this.state.resources)}
                     renderRow={(item: SubResourceModel, secId, rowId) =>
-                        <ListItem style={styles.filesContainer}>
-                            <CheckBox
-                                checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
-                                onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
-                            />
-                            <Body>
-                                <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
-                                    <View style={styles.bodyContainer}>
-                                        {this.renderLocalImagesForNotDownloadedFiles(item)}
-                                        <Text style={styles.textTitle}>{item.ResourceName}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </Body>
-                        </ListItem>
+                        <View>
+                            <ListItem style={styles.filesContainer}>
+                                <CheckBox
+                                    checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
+                                    onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
+                                />
+                                <Body>
+                                    <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
+                                        <View style={styles.bodyContainer}>
+                                            {this.renderLocalImagesForNotDownloadedFiles(item)}
+                                            <Text style={styles.textTitle}>{item.ResourceName}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </Body>
+                            </ListItem>
+                            <View style={styles.separator} />
+                        </View>
                     }
                 />
             );
@@ -422,6 +440,35 @@ class FileManagerScreen extends Component<Props, State> {
             selectedFileIds: [],
             isSelectAll: false,
         });
+    }
+
+    public async removeFileFromLocalDB(data: DownloadedFilesModel) {
+        let newData = [...this.state.downloadedFiles];
+        const index = newData.findIndex(resource => resource.resourceId === data.resourceId);
+        if (index > -1) {
+            newData.splice(index, 1); // unbookmarking
+            await LocalDbManager.get<Array<SubResourceModel>>(Constant.allFiles, async (err, data) => {
+                if (data) {
+                    let downloadFiles = await data.filter(item1 => !newData.some(item2 => item1.ResourceId === item2.resourceId));
+                    this.setState({
+                        resources: downloadFiles,
+                        downloadedFiles: newData,
+                    });
+                }
+            });
+            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
+                if (error !== null) {
+                    Alert.alert(error!.message);
+                }
+            });
+            await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (error) => {
+                if (error !== null) {
+                    Alert.alert(error!.message);
+                }
+            });
+        }
+        const filename = data.resourceType === FileType.zip ? `${data.resourceId}${data.resourceType}` : data.resourceType === FileType.video ? `${data.resourceId}${data.resourceType}` : data.resourceName;
+        await LocalDbManager.unlinkFile(`${Constant.deleteFilePath}/${filename}`, data.resourceType, `${Constant.deleteFilePath}/${data.resourceId}`);
     }
 }
 const mapStateToProps = (state: AppState) => ({
