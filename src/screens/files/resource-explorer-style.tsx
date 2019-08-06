@@ -134,9 +134,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     downloadingText: {
-        color: '#fff',
-        fontSize: 30,
-        fontWeight: '400',
+        color: '#000000',
     },
 });
 

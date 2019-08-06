@@ -17,7 +17,7 @@ import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import { AppState } from '../../redux/reducers/index';
-import downloadFile from '../../redux/actions/download-action';
+import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
@@ -29,6 +29,7 @@ interface Props {
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
 }
 
 interface State {
@@ -200,7 +201,7 @@ class FileManagerScreen extends Component<Props, State> {
     public renderHeader() {
         return (
             <View style={styles.contentConatiner}>
-                {this.state.activePage === 2 ? <View style={{ flexDirection: 'row', marginLeft: 5 }}>
+                {this.state.activePage === 2 ? <View style={styles.selectAllFilesConatiner}>
                     <CheckBox checked={this.state.isSelectAll}
                         onPress={() => { this.onPressedSelectAll(); }}
                     />
@@ -345,16 +346,27 @@ class FileManagerScreen extends Component<Props, State> {
         if (Platform.OS === 'ios') {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                    <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                    <View style={styles.downloadContainer}>
+                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
+                        <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                        <TouchableOpacity onPress={() => this.cancelDownloadFile()}>
+                            <Text style={styles.cancelButton}>CANCEL</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             );
         } else {
             return (
                 <View style={styles.progressBarConainer}>
-                    <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                    <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                    <View style={styles.downloadContainer}>
+                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
+                        <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
+                        <TouchableOpacity onPress={() => this.cancelDownloadFile()}>
+                            <Text style={styles.cancelButton}>CANCEL</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+
             );
         }
     }
@@ -418,21 +430,25 @@ class FileManagerScreen extends Component<Props, State> {
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
-            await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
-            console.log('files are pushed', this.state.downloadedFiles);
-            let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-            this.setState({
-                resources: downloadFiles,
-            });
-            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
-                Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
-            });
-            await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
-            });
-            let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
-            console.log('download resource id', ResourceId);
-            if (FileExtension === FileType.zip) {
-                await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
+            if (this.props.downloadState.error !== '') {
+               Alert.alert(Config.APP_NAME, this.props.downloadState.error);
+            } else {
+                await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+                console.log('files are pushed', this.state.downloadedFiles);
+                let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
+                this.setState({
+                    resources: downloadFiles,
+                });
+                await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
+                    Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
+                });
+                await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
+                });
+                let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+                console.log('download resource id', ResourceId);
+                if (FileExtension === FileType.zip) {
+                    await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
+                }
             }
         }
         this.setState({
@@ -470,11 +486,16 @@ class FileManagerScreen extends Component<Props, State> {
         const filename = data.resourceType === FileType.zip ? `${data.resourceId}${data.resourceType}` : data.resourceType === FileType.video ? `${data.resourceId}${data.resourceType}` : data.resourceName;
         await LocalDbManager.unlinkFile(`${Constant.deleteFilePath}/${filename}`, data.resourceType, `${Constant.deleteFilePath}/${data.resourceId}`);
     }
+
+    public cancelDownloadFile = async () => {
+        await this.props.requestDownloadCancel();
+    }
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
+    requestDownloadCancel: bindActionCreators(downloadCancel, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);

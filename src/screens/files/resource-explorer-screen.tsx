@@ -335,8 +335,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>Cancel</Text>
+                        <TouchableOpacity onPress={() => this.cancelDownload()}>
+                            <Text style={styles.downloadingText}>CANCEL</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -347,8 +347,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>Cancel</Text>
+                        <TouchableOpacity onPress={() => this.cancelDownload()}>
+                            <Text style={styles.downloadingText}>CANCEL</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

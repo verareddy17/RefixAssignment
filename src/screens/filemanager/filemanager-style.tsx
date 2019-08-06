@@ -44,9 +44,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.8)',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     progressBarText: {
-        color: '#fff',
+        color: '#000000',
         textAlign: 'center',
     },
     progressBarWidth: {
@@ -119,6 +120,13 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: '#ffffff',
         width: '100%',
+    },
+    cancelButton: {
+        color: '#000000',
+    },
+    selectAllFilesConatiner: {
+        flexDirection: 'row',
+         marginLeft: 5,
     },
 });
 
