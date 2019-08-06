@@ -7,6 +7,7 @@ import styles from './preview-manager-style';
 import Video from 'react-native-video';
 import { FileType, Constant } from '../../constant';
 import RNFetchBlob from 'rn-fetch-blob';
+import PreviewManager from '../../manager/preview-manager';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -40,34 +41,49 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileName = this.props.navigation.getParam('fileName') as string;
         const fileType = this.props.navigation.getParam('fileType') as string;
         const resourceId = this.props.navigation.getParam('resourceId') as number;
-        if (fileType === FileType.zip) {
-            if (launcherFile === '' || launcherFile === undefined || launcherFile === null) {
-                let path = await this.findHtmlFile(`${dirPath}/${fileName}`);
-                this.setState({
-                    path: path || '',
-                    isLoading: false,
-                    fileType: fileType,
+        // if (fileType === FileType.zip) {
+        //     if (launcherFile === '' || launcherFile === undefined || launcherFile === null) {
+        //         let path = await this.findHtmlFile(`${dirPath}/${fileName}`);
+        //         this.setState({
+        //             path: path || '',
+        //             isLoading: false,
+        //             fileType: fileType,
 
+        //         });
+        //     } else {
+        //         let replacebackwardSlashInLancherFile = launcherFile.replace(/\\/g, '/');
+        //         let splitLauncherPath = replacebackwardSlashInLancherFile.split('/');
+        //         splitLauncherPath.shift();
+        //         let combinedPath = splitLauncherPath.join('/');
+        //         this.setState({
+        //             path: `${dirPath}/${fileName}/${combinedPath}`,
+        //             isLoading: false,
+        //             fileType: fileType,
+        //         });
+        //     }
+
+        // } else {
+        //     this.setState({
+        //         isLoading: false,
+        //         videoPath: `${dirPath}/${resourceId}${fileType}`,
+        //         fileType: fileType,
+        //     });
+        // }
+        await PreviewManager.previewZipOrVideoFile(dirPath, launcherFile, fileName, fileType, resourceId, async (path, isLoading, type) => {
+            if (fileType === FileType.video) {
+                this.setState({
+                    isLoading: isLoading,
+                    videoPath: path,
+                    fileType: fileType,
                 });
             } else {
-                let replacebackwardSlashInLancherFile = launcherFile.replace(/\\/g, '/');
-                let splitLauncherPath = replacebackwardSlashInLancherFile.split('/');
-                splitLauncherPath.shift();
-                let combinedPath = splitLauncherPath.join('/');
                 this.setState({
-                    path: `${dirPath}/${fileName}/${combinedPath}`,
-                    isLoading: false,
+                    path: path,
+                    isLoading: isLoading,
                     fileType: fileType,
                 });
             }
-
-        } else {
-            this.setState({
-                isLoading: false,
-                videoPath: `${dirPath}/${resourceId}${fileType}`,
-                fileType: fileType,
-            });
-        }
+        });
     }
     public async findHtmlFile(folder: string) {
         try {

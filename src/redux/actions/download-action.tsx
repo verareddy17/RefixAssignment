@@ -3,6 +3,7 @@ import { Dispatch } from 'redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import Config from 'react-native-config';
 import { Constant, FileType } from '../../constant';
+
 let canceled: boolean;
 export const downloadResourceStart = () => {
     return {
@@ -10,11 +11,11 @@ export const downloadResourceStart = () => {
     };
 };
 
-export const downloadResourceProgress = (data: number, task: any) => {
+export const downloadResourceProgress = (data: number, cancelDownload: any) => {
     return {
         type: DOWNLOAD_PROGRESS,
         progress: data,
-        task: task,
+        cancelDownload: cancelDownload,
     };
 };
 

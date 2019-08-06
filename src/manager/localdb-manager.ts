@@ -1,7 +1,6 @@
 import { AsyncStorage, Alert } from 'react-native';
 import Config from 'react-native-config';
 import RNFetchBlob from 'rn-fetch-blob';
-const dirs = RNFetchBlob.fs.dirs.DocumentDir + '/MagnifiMobile';
 
 export default class LocalDbManager {
 
@@ -37,20 +36,5 @@ export default class LocalDbManager {
 
     public static async showConfirmationAlert(confirmationMessage: string) {
         Alert.alert(Config.APP_NAME, confirmationMessage);
-    }
-
-    public static downloadImages(url: string, destinationPath: string, type: string ) {
-        RNFetchBlob
-        .config({
-          // response data will be saved to this path if it has access right.
-          path : `${dirs}/${destinationPath}${type}`,
-        })
-        .fetch('GET', url, {
-          //some headers ..
-        })
-        .then((res) => {
-          // the path should be dirs.DocumentDir + 'path-to-file.anything'
-          console.log('The file saved to ', res.path());
-        });
     }
 }

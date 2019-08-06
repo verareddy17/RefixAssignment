@@ -386,17 +386,22 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public async downloadSelectedFiles() {
-        if (this.state.selectedFiles.length === 0) {
+    public async isSelectedFile(selectedFiles: Array<SubResourceModel>) {
+        if (selectedFiles.length === 0) {
             Alert.alert(Config.APP_NAME, Constant.noFiles);
             return;
         }
+    }
+
+    public async downloadSelectedFiles() {
+        let isConnected = await NetworkCheckManager.isConnected();
+        if (!isConnected) {
+            Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
+            return;
+        }
+        await this.isSelectedFile(this.state.selectedFiles);
+
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
-            let isConnected = await NetworkCheckManager.isConnected();
-            if (!isConnected) {
-                Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
-                return;
-            }
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
@@ -417,6 +422,7 @@ class FileManagerScreen extends Component<Props, State> {
                 await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
             }
         }
+
         this.setState({
             selectedFiles: [],
             selectedFileIds: [],
