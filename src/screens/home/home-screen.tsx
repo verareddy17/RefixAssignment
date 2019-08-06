@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
-import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform, Keyboard } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform, Keyboard, WebView } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
@@ -19,6 +19,7 @@ import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import images from '../../assets/index';
 import { string } from 'prop-types';
+import Modal from 'react-native-modal';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -53,6 +54,7 @@ interface State {
     logoImage?: string;
     searchText: string;
     isUpdating: boolean;
+    isModalVisible: boolean;
 }
 
 let result: SubResourceModel[] = [];
@@ -76,6 +78,7 @@ class HomeScreen extends Component<Props, State> {
             headerColor: '',
             searchText: '',
             isUpdating: false,
+            isModalVisible: true,
         };
     }
 
@@ -466,6 +469,37 @@ class HomeScreen extends Component<Props, State> {
         Keyboard.dismiss();
     }
 
+    public renderAlert() {
+        return (
+            <Modal isVisible={true}>
+                <View style={{ flex: 1 }}>
+                    <Text>{this.state.confirmationMessage}</Text>
+                </View>
+            </Modal>
+        );
+    }
+
+    // public renderTermsAndConditions = (width: number) => {
+    //     return (
+    //         <View style={{
+    //             flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', opacity: 0.1, elevation: 5, backgroundColor: 'transparent', shadowColor: '#000',
+    //             shadowOffset: { width: 0, height: 2 },
+    //             shadowOpacity: 0.8,
+    //             shadowRadius: 2,
+
+    //         }}>
+    //             <WebView
+    //                 style={{ backgroundColor: 'blue', height: 100, width: width, }}
+    //                 html={this.state.confirmationMessage}
+    //                 scalesPageToFit={true}
+    //                 />
+    //             <TouchableOpacity>
+    //                 <Text>OK</Text>
+    //             </TouchableOpacity>
+    //         </View>
+    //     );
+    // }
+
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -512,6 +546,7 @@ class HomeScreen extends Component<Props, State> {
             </SafeAreaView>
         );
     }
+
 }
 
 const mapStateToProps = (state: AppState) => ({

@@ -44,6 +44,9 @@ export class Constant {
     public static platform = Platform.OS ;
     public static deleteFile = 'file is not downloaded yet';
     public static deleteFilePath = Platform.OS === 'android' ? `file://${dirs}/${'MagnifiMobile'}` : `${dirs}/${'MagnifiMobile'}`;
+    public static index: number = 0;
+    public static content: string[] = [];
+    public static navigationKey: string[] = [];
 }
 
 export enum FileType {

@@ -22,6 +22,7 @@ import Swipeout from 'react-native-swipeout';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
 import images from '../../assets/index';
+import Breadcrumb from 'react-native-breadcrumb';
 
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
@@ -48,6 +49,8 @@ interface State {
     backgroundLandscapeImage: string;
     orientation: string;
     fontColor?: string;
+    index: number;
+    content: string[];
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -63,10 +66,23 @@ class ResourceExplorerScreen extends Component<Props, State> {
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
             orientation: Constant.portrait,
+            index: 0,
+            content: [],
         };
+        this.handlePress = this.handlePress.bind(this);
     }
 
     public async componentDidMount() {
+        let item = await this.props.navigation.getParam('item');
+        this.setState({
+            index: this.state.index + 1,
+            content: [...this.state.content, item.ResourceName],
+        });
+        Constant.index = Constant.index + 1;
+        Constant.content = [...Constant.content, item.ResourceName]
+        console.log('this...', Constant.content);
+        Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
+        console.log('key', Constant.navigationKey);
         Orientation.unlockAllOrientations();
         await LocalDbManager.get(Constant.fontColor, (err, color) => {
             if (color !== null || color !== '') {
@@ -305,6 +321,19 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </Body>
                             <Right />
                         </Header>}
+                        <View style={{width: '100%', height: 60, justifyContent: 'flex-start', alignItems: 'center',backgroundColor: ''}}>
+                        <Breadcrumb
+                            entities={Constant.content}
+                            isTouchable={true}
+                            flowDepth={Constant.index}
+                            height={50}
+                            onCrumbPress={this.handlePress}
+                            borderRadius={5}
+                            activeCrumbStyle={{backgroundColor: 'green'}}
+                            activeCrumbTextStyle={{color: 'red'}}
+                            crumbsContainerStyle={{backgroundColor: 'blue'}}
+                        />
+                        </View>
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
@@ -316,6 +345,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
         );
     }
 
+   public handlePress(index: number) {
+        console.log('onpress', index);
+        console.log(this.props.navigation);
+        this.props.navigation.goBack(Constant.navigationKey[index]);
+      }
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
