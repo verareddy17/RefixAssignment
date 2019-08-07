@@ -79,7 +79,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             content: [...this.state.content, item.ResourceName],
         });
         Constant.index = Constant.index + 1;
-        Constant.content = [...Constant.content, item.ResourceName]
+        Constant.content = [...Constant.content, item.ResourceName];
         console.log('this...', Constant.content);
         Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
         console.log('key', Constant.navigationKey);
@@ -321,19 +321,17 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </Body>
                             <Right />
                         </Header>}
-                        <View style={{width: '100%', height: 60, justifyContent: 'flex-start', alignItems: 'center',backgroundColor: ''}}>
+                        {/* <View style={{width: '100%', height: 30, justifyContent: 'flex-start'}}> */}
                         <Breadcrumb
                             entities={Constant.content}
                             isTouchable={true}
                             flowDepth={Constant.index}
-                            height={50}
+                            height={30}
                             onCrumbPress={this.handlePress}
                             borderRadius={5}
-                            activeCrumbStyle={{backgroundColor: 'green'}}
-                            activeCrumbTextStyle={{color: 'red'}}
-                            crumbsContainerStyle={{backgroundColor: 'blue'}}
+                            crumbsContainerStyle={{backgroundColor: Config.PRIMARY_COLOR,width: 75 + 75 * Constant.index}}
                         />
-                        </View>
+                        {/* </View> */}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
