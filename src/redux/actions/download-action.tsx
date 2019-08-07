@@ -41,7 +41,7 @@ export class DownloadResourceFileProgress {
 export function downloadCancel(): (dispatch: Dispatch, getState: Function) => Promise<void> {
     return async (dispatch: Dispatch, getState: Function) => {
         console.log('current state', getState().downloadProgress);
-        const cancelTask = getState().downloadProgress.task;
+        const cancelTask = getState().downloadProgress.cancelDownload;
         await cancelTask.cancel(async (error: Error) => {
             canceled = true;
             await dispatch(downloadResourceFailure());
