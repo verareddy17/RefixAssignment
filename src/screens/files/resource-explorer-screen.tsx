@@ -5,7 +5,7 @@ import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -51,6 +51,7 @@ interface State {
     fontColor?: string;
     index: number;
     content: string[];
+    breadscumbItemsCount: number;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -68,21 +69,28 @@ class ResourceExplorerScreen extends Component<Props, State> {
             orientation: Constant.portrait,
             index: 0,
             content: [],
+            breadscumbItemsCount: 0,
         };
         this.handlePress = this.handlePress.bind(this);
+        this.handleBack = this.handleBack.bind(this);
     }
 
     public async componentDidMount() {
         let item = await this.props.navigation.getParam('item');
-        this.setState({
-            index: this.state.index + 1,
-            content: [...this.state.content, item.ResourceName],
-        });
+        // this.setState({
+        //     index: this.state.index + 1,
+        //     content: [...this.state.content, item.ResourceName],
+        // });
         Constant.index = Constant.index + 1;
         Constant.content = [...Constant.content, item.ResourceName];
         console.log('this...', Constant.content);
         Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
         console.log('key', Constant.navigationKey);
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            breadscumbItemsCount: Constant.content.length,
+        });
         Orientation.unlockAllOrientations();
         await LocalDbManager.get(Constant.fontColor, (err, color) => {
             if (color !== null || color !== '') {
@@ -123,6 +131,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 });
             }
         });
+        BackHandler.addEventListener('hardwareBackPress', this.handleBack);
     }
 
     public setColorIfFileIsBookmarked(resourceID: number) {
@@ -312,7 +321,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <Button transparent onPress={() => this.props.navigation.openDrawer()}>
                                     <Icon name='menu' style={styles.iconColor} />
                                 </Button>
-                                <Button transparent onPress={() => this.props.navigation.pop()}>
+                                <Button transparent onPress={() => this.goToPreviousScreen()}>
                                     <Icon name='arrow-back' style={[styles.iconColor]} />
                                 </Button>
                             </Left>
@@ -321,17 +330,18 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </Body>
                             <Right />
                         </Header>}
-                        {/* <View style={{width: '100%', height: 30, justifyContent: 'flex-start'}}> */}
                         <Breadcrumb
-                            entities={Constant.content}
+                            entities={this.state.content}
                             isTouchable={true}
-                            flowDepth={Constant.index}
+                            flowDepth={this.state.index}
                             height={30}
                             onCrumbPress={this.handlePress}
                             borderRadius={5}
-                            crumbsContainerStyle={{backgroundColor: Config.PRIMARY_COLOR,width: 75 + 75 * Constant.index}}
+                            activeCrumbTextStyle={{}}
+                            crumbTextStyle={{ fontSize: 20 }}
+                            activeCrumbStyle={{ backgroundColor: 'blue' }}
+                            // crumbsContainerStyle={{ width: 75 + 75 * this.state.breadscumbItemsCount }}
                         />
-                        {/* </View> */}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
@@ -342,12 +352,44 @@ class ResourceExplorerScreen extends Component<Props, State> {
             </SafeAreaView>
         );
     }
-
-   public handlePress(index: number) {
+    public goToPreviousScreen() {
+        console.log('back to previous screen');
+        Constant.navigationKey.pop();
+        Constant.content.pop();
+        Constant.index = Constant.index - 1;
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            breadscumbItemsCount: Constant.content.length,
+        });
+        this.props.navigation.pop();
+    }
+    public handlePress(index: number) {
         console.log('onpress', index);
-        console.log(this.props.navigation);
-        this.props.navigation.goBack(Constant.navigationKey[index]);
-      }
+        console.log('index', Constant.navigationKey);
+        console.log('keysss', Constant.navigationKey[index]);
+        // this.props.navigation.goBack(Constant.navigationKey[index]);
+        const key = Constant.navigationKey[index];
+        for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
+            console.log('loop', Constant.navigationKey);
+            if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+                break;
+            } else {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+            }
+        }
+        this.setState({
+            content: Constant.content,
+            breadscumbItemsCount: Constant.content.length,
+        });
+        console.log('after removing keys', Constant.navigationKey);
+        console.log('after removing content', Constant.content);
+        this.props.navigation.goBack(key);
+
+    }
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
@@ -467,6 +509,22 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBack);
+    }
+
+    public handleBack() {
+        console.log('android back button');
+        console.log('......', this.state.content);
+        Constant.navigationKey.pop();
+        console.log('navigation key', Constant.navigationKey);
+        Constant.content.pop();
+        Constant.index = Constant.index - 1;
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            breadscumbItemsCount: Constant.content.length,
+        });
+        console.log('android back button', this.state.content);
     }
 
     public _orientationDidChange = (orientation: string) => {
