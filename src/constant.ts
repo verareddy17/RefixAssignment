@@ -38,7 +38,6 @@ export class Constant {
     public static cancelDownload = 'Download canceled by user';
     public static indexHtml = 'index.html';
     public static loginName?: string;
-    public static magnifiFiles = Platform.OS === 'android' ? `file://${dirs}` : dirs;
     public static documentDir = dirs + '/MagnifiMobile';
     public static logoutTitle = 'Do you want to logout?';
     public static platform = Platform.OS ;

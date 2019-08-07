@@ -386,7 +386,7 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public async isSelectedFile(selectedFiles: Array<SubResourceModel>) {
+    public async isSelectedFiles(selectedFiles: Array<SubResourceModel>) {
         if (selectedFiles.length === 0) {
             Alert.alert(Config.APP_NAME, Constant.noFiles);
             return;
@@ -399,8 +399,7 @@ class FileManagerScreen extends Component<Props, State> {
             Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
             return;
         }
-        await this.isSelectedFile(this.state.selectedFiles);
-
+        await this.isSelectedFiles(this.state.selectedFiles);
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
@@ -417,7 +416,6 @@ class FileManagerScreen extends Component<Props, State> {
             await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
             });
             let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
-            console.log('download resource id', ResourceId);
             if (FileExtension === FileType.zip) {
                 await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
             }

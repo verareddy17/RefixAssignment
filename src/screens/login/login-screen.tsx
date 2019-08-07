@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { Text, Item, Input, Icon, Header, Label, Spinner, Toast } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
@@ -16,7 +16,6 @@ import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import images from '../../assets/index';
-import { string } from 'prop-types';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import { isEnabled } from 'appcenter-crashes';
 interface Props {
