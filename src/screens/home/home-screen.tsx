@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
-import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, AsyncStorage, FlatList, ImageBackground, Dimensions, Platform, Keyboard } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
@@ -18,7 +18,7 @@ import Orientation from 'react-native-orientation';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import images from '../../assets/index';
-import store from '../../redux/store';
+import { string } from 'prop-types';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -51,6 +51,8 @@ interface State {
     headerColor: string;
     fontColor?: string;
     logoImage?: string;
+    searchText: string;
+    isUpdating: boolean;
 }
 
 let result: SubResourceModel[] = [];
@@ -68,10 +70,12 @@ class HomeScreen extends Component<Props, State> {
             filterArray: [],
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
-            orientation: '',
+            orientation: Constant.portrait,
             barierToken: '',
             downloadedFiles: [],
             headerColor: '',
+            searchText: '',
+            isUpdating: false,
         };
     }
 
@@ -105,20 +109,17 @@ class HomeScreen extends Component<Props, State> {
     public async componentDidMount() {
         Orientation.unlockAllOrientations();
         Orientation.addOrientationListener(this._orientationDidChange);
+        await LocalDbManager.get<string>(Constant.username, (err, username) => {
+            Constant.loginName = username;
+        });
         await LocalDbManager.get(Constant.headerColor, (err, color) => {
-            if (color !== null || color !== '') {
-                this.setState({ headerColor: color } as State);
-            }
+            this.setState({ headerColor: color } as State);
         });
         await LocalDbManager.get(Constant.fontColor, (err, color) => {
-            if (color !== null || color !== '') {
-                this.setState({ fontColor: color } as State);
-            }
+            this.setState({ fontColor: color } as State);
         });
         await LocalDbManager.get(Constant.logoImage, (err, image) => {
-            if (image !== null || image !== '') {
-                this.setState({ logoImage: image } as State);
-            }
+            this.setState({ logoImage: image } as State);
         });
         await LocalDbManager.get('userToken', (err, data) => {
             if (data !== null || data !== '') {
@@ -175,6 +176,7 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async updateResouces() {
+        await this.closeSearch();
         const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
         await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.state.barierToken);
         console.log('update settings', this.props.deviceTokenResponse.settings);
@@ -183,6 +185,49 @@ class HomeScreen extends Component<Props, State> {
             backgroundPortraitImage: this.props.deviceTokenResponse.settings.PortraitImage || '',
         });
         await this.props.updateresource(this.state.barierToken);
+        this.setState({
+            isUpdating: true,
+        });
+        await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
+        await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
+        await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
+        await this.storeData<string>(Constant.fontColor, this.props.deviceTokenResponse.settings.FontColor!);
+        await this.storeData<string>(Constant.logoImage, this.props.deviceTokenResponse.settings.LogoImage!);
+        await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
+        await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
+        await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
+        await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
+            if (resource !== undefined) {
+                result = [];
+                await this.getValues(resource);
+                console.log('result', result);
+                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, async (err) => {
+                    console.log('files are saved successfully');
+                    let downloadedFiles = this.state.downloadedFiles.filter(function (item1) {
+                        return result.some(function (item2) {
+                            return item1.resourceId === item2.ResourceId;          // assumes unique id
+                        });
+                    });
+                    console.log('removed files', downloadedFiles);
+                    await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, downloadedFiles, async (err) => {
+                        this.setState({
+                            downloadedFiles: downloadedFiles,
+                        });
+                    });
+                    this.setState({
+                        isUpdating: false,
+                    });
+                });
+            }
+        });
+    }
+
+    public async storeData<T>(key: string, value: T) {
+        await LocalDbManager.insert<T>(key, value, async (err) => {
+            if (err !== null) {
+                Alert.alert(Config.APP_NAME, err!.message);
+            }
+        });
     }
 
     public componentWillUnmount() {
@@ -214,6 +259,9 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async searchFilterFunction(textData: string) {
+        this.setState({
+            searchText: textData,
+        });
         if (textData.length >= 3) {
             this.setState({
                 isSearch: true,
@@ -285,20 +333,24 @@ class HomeScreen extends Component<Props, State> {
                 </View>
             );
         } else {
-            return (
-                <View style={styles.resourceListContainer}>
-                    {this.props.deviceTokenResponse.isLoading ? <View style={[styles.loadingContainer, styles.spinnerContainer]}><Spinner color={Config.PRIMARY_COLOR}></Spinner></View> : <View />}
-                    {this.props.resourceState.isLoading === true ? <View style={styles.loadingContainer}><Spinner color={Config.PRIMARY_COLOR} /></View> :
-                        <ListView
+            if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isUpdating) {
+                console.log('spiiner');
+                return (
+                    <View style={styles.loadingContainer}>
+                        <Spinner color={Config.PRIMARY_COLOR}></Spinner>
+                    </View>
+                );
+            } else {
+                return (
+                    <View style={styles.resourceListContainer}>
+                        <ListView contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
                             dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                             renderRow={(rowData: ResourceModel) =>
                                 <View>
                                     <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                         <View style={styles.resourceImageConatiner}>
                                             {this.renderFolderImage(rowData)}
-                                            <Badge style={styles.badge}>
-                                                {this.getBadgeNumber(rowData)}
-                                            </Badge>
+                                            {this.getBadgeNumber(rowData)}
                                         </View>
                                         <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                     </TouchableOpacity>
@@ -306,10 +358,28 @@ class HomeScreen extends Component<Props, State> {
                                 </View>
                             }
                         />
-                    }
-                </View>
-            );
+                    </View>
+                );
+            }
+        }
+    }
 
+    public getFilesCountInFolder(data: ResourceModel) {
+        if (data !== undefined) {
+            if (data.Children !== undefined) {
+                result = [],
+                    this.getValues(data.Children);
+                console.log('result..', result);
+                if (result.length === 0) {
+                    return;
+                } else {
+                    return (
+                        <Badge style={styles.badge}>
+                            <Text style={styles.text}>{result.length}</Text>
+                        </Badge>
+                    );
+                }
+            }
         }
     }
 
@@ -321,13 +391,27 @@ class HomeScreen extends Component<Props, State> {
                 });
                 if (files.length > 0) {
                     let newDownloadedFiles = this.state.downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
-                    return (
-                        <Text style={styles.text}>{data.Children.length - newDownloadedFiles.length}</Text>
-                    );
+                    let count = data.Children.length - newDownloadedFiles.length;
+                    if (count === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge}>
+                                <Text style={styles.text}>{count}</Text>
+                            </Badge>
+                        );
+                    }
+
                 } else {
-                    return (
-                        <Text style={styles.text}>{data.Children.length}</Text>
-                    );
+                    if (data.Children.length === 0) {
+                        return;
+                    } else {
+                        return (
+                            <Badge style={styles.badge}>
+                                <Text style={styles.text}>{data.Children.length}</Text>
+                            </Badge>
+                        );
+                    }
                 }
             }
         }
@@ -373,6 +457,15 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
+    public closeSearch() {
+        this.setState({
+            searchText: '',
+            isSearch: false,
+            filterArray: [],
+        });
+        Keyboard.dismiss();
+    }
+
     public render() {
         let { height, width } = Dimensions.get('window');
         return (
@@ -390,10 +483,10 @@ class HomeScreen extends Component<Props, State> {
                                 </TouchableOpacity>
                             </Left>
                             <Body>
-                                <Title style={{ color: this.state.fontColor || '#fff' }} >Home</Title>
+                                <Title style={{ color: this.state.fontColor || '#fff' }}>Home</Title>
                             </Body>
                             <Right>
-                                <TouchableOpacity disabled={true} onPress={() => this.updateResouces()} style={styles.refreshIcon}>
+                                <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
                                     <Icon name='refresh' style={styles.iconColor}></Icon>
                                 </TouchableOpacity>
                             </Right>
@@ -401,14 +494,18 @@ class HomeScreen extends Component<Props, State> {
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
-                                <Input placeholder='Search'
+                                <Input placeholder='Search Text'
                                     autoCorrect={false}
                                     onChangeText={text => this.searchFilterFunction(text)}
+                                    value={this.state.searchText}
                                 />
+                                <Icon name='close' onPress={() => this.closeSearch()} />
                             </Item>
                         </Header>
-                        <Content contentContainerStyle={[styles.containerColor]}>
-                            {this.renderResourceList()}
+                        <Content contentContainerStyle={styles.containerColor}>
+                            <View style={styles.container}>
+                                {this.renderResourceList()}
+                            </View>
                         </Content>
                     </Container>
                 </ImageBackground>

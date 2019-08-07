@@ -1,3 +1,7 @@
+import RNFetchBlob from 'rn-fetch-blob';
+const dirs = RNFetchBlob.fs.dirs.DocumentDir;
+import { Platform } from 'react-native';
+
 export class Constant {
     public static activateAppURL = 'login';
     public static resourceUrl = 'GetAppResources';
@@ -27,10 +31,16 @@ export class Constant {
     public static allFiles = 'allFiles';
     public static addTitle = 'Add   ';
     public static removeTitle = 'Remove';
-    public static addedbookmarkTitle = 'successfully added to bookmark';
+    public static addedbookmarkTitle = 'successfully added to bookmarks';
     public static deleted = 'successfully deleted the downloaded file';
     public static bookmarkDeleted = 'succesfully removed from bookmarks';
+    public static noFiles = 'Please select at least one file';
+    public static cancelDownload = 'Download canceled by user';
+    public static indexHtml = 'index.html';
     public static loginName?: string;
+    public static documentDir = dirs + '/MagnifiMobile';
+    public static logoutTitle = 'Do you want to logout?';
+    public static platform = Platform.OS ;
     public static deleteFile = 'file is not downloaded yet';
 }
 

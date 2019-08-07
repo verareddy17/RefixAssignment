@@ -55,11 +55,18 @@ const styles = StyleSheet.create({
     contentConatiner: {
         backgroundColor: '#ffffff',
         height: 50,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        flexDirection: 'row',
+
     },
     segmentContainer: {
-        width: '100%',
+        width: '60%',
+        ...Platform.select({
+            ios: {
+                backgroundColor: '#ffffff',
+            },
+        }),
     },
     segmentButton: {
         borderLeftWidth: 1,
@@ -80,14 +87,29 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    selectAll: {
+        color: '#00bbd1',
+        marginLeft: 12,
+    },
     containerColor: {
         backgroundColor: 'transparent',
+    },
+    downloadContainer: {
+        height: 150,
+        width: '90%',
+        backgroundColor: '#ffffff',
+        justifyContent: 'space-around',
+        alignItems: 'center',
     },
     renderSeparator: {
         height: 1,
         width: '100%',
         backgroundColor: '#ffffff',
-    }
+    },
+    selectAllFilesContainer: {
+        flexDirection: 'row',
+        marginLeft: 5,
+    },
 });
 
 export default styles;

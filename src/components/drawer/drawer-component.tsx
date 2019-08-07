@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Alert } from 'react-native';
 import { View, Text, Container, Content, Header, Icon, Right, Left, Body } from 'native-base';
 import { SafeAreaView, DrawerItemsProps, DrawerItems } from 'react-navigation';
 import styles from './drawer-style';
@@ -15,7 +15,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
             <Container>
                 <Header noShadow style={styles.drawerHeader} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                     <TouchableOpacity onPress={() => closeDrawer(props)}>
-                        <Icon name='close' style={styles.logoIcon}></Icon>
+                        <Icon name='close' style={styles.closeIcon}></Icon>
                     </TouchableOpacity>
                     <Image style={styles.logoImage} source={images.appLogo} />
                     <Text style={styles.businessUnitTitle}>{Config.APP_NAME}</Text>
@@ -23,7 +23,7 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
                 <Content>
                     <View style={styles.userNameContainer}>
                         <Icon style={styles.profileIcon} name='person'></Icon>
-                        <Text style={styles.userNameTitle}> {Constant.loginName } </Text>
+                        <Text style={styles.userNameTitle}>{Constant.loginName}</Text>
                     </View>
                     <View style={styles.spaceContainer} />
                     <DrawerItems {...props} />
@@ -42,17 +42,30 @@ const CustomDrawerComponent = (props: DrawerItemsProps) => {
 function closeDrawer(props: DrawerItemsProps) {
     props.navigation.closeDrawer();
 }
-const _signout = async (props: DrawerItemsProps) => {
+
+const logout = async (props: DrawerItemsProps) => {
     await LocalDbManager.delete('userToken', async (err) => {
         if (err == null) {
-            await LocalDbManager.delete(Constant.bookmarks, (err) => {
-                if (err === null) {
-                    console.log('removed bookmarks from database.');
-                }
-            });
+            props.navigation.navigate('Login');
         }
     });
-    props.navigation.navigate('Login');
+};
+
+const _signout = async (props: DrawerItemsProps) => {
+
+    Alert.alert(Config.APP_NAME, Constant.logoutTitle,
+        [
+            {
+                text: 'Yes',
+                onPress: () => logout(props),
+                style: 'default',
+            },
+            {
+                text: 'No',
+                onPress: () => console.log('canceled'),
+                style: 'cancel',
+            },
+        ]);
 };
 
 export default CustomDrawerComponent;

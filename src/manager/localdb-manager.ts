@@ -1,5 +1,6 @@
 import { AsyncStorage, Alert } from 'react-native';
 import Config from 'react-native-config';
+import RNFetchBlob from 'rn-fetch-blob';
 
 export default class LocalDbManager {
 

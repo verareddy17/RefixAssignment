@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     },
     spinnerContainer: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
@@ -91,6 +91,11 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 2,
+    },
+    keyboardAvoidContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
     },
 });
 

@@ -5,6 +5,8 @@ import { Dispatch } from 'redux';
 import { ActivationAppResponse } from '../../models/login-model';
 import Config from 'react-native-config';
 import { Constant } from '../../constant';
+import LocalDbManager from '../../manager/localdb-manager';
+import { Alert } from 'react-native';
 
 export const loadUserRequest = () => {
     return {
@@ -46,7 +48,6 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             } else {
                 await dispatch(loadUserFailed('Please check internet connection'));
             }
-
         });
     };
 }

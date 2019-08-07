@@ -6,14 +6,12 @@ import inputReducer from '../../redux/reducers/input-reducer';
 import loginReducer from '../../redux/reducers/login-reducer';
 import settingReducer from '../../redux/reducers/settings-reducer';
 import downloadReducer from '../../redux/reducers/download-reducer';
-
 const rootReducer = combineReducers({
     resource: resourceReducer,
     inputText: inputReducer,
     loginData: loginReducer,
     settings: settingReducer,
     downloadProgress: downloadReducer,
-
 });
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
