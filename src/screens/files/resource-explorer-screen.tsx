@@ -52,6 +52,7 @@ interface State {
     index: number;
     content: string[];
     breadscumbItemsCount: number;
+    backButton: boolean;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -70,6 +71,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
             index: 0,
             content: [],
             breadscumbItemsCount: 0,
+            backButton: true,
+
         };
         this.handlePress = this.handlePress.bind(this);
         this.handleBack = this.handleBack.bind(this);
@@ -330,18 +333,20 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </Body>
                             <Right />
                         </Header>}
-                        <Breadcrumb
-                            entities={this.state.content}
-                            isTouchable={true}
-                            flowDepth={this.state.index}
-                            height={30}
-                            onCrumbPress={this.handlePress}
-                            borderRadius={5}
-                            activeCrumbTextStyle={{}}
-                            crumbTextStyle={{ fontSize: 20 }}
-                            activeCrumbStyle={{ backgroundColor: 'blue' }}
-                            // crumbsContainerStyle={{ width: 75 + 75 * this.state.breadscumbItemsCount }}
-                        />
+                        <View style={{ width: '100%', height: 30, justifyContent: 'flex-start'}}>
+                            <Breadcrumb
+                                entities={this.state.content}
+                                isTouchable={true}
+                                flowDepth={this.state.index}
+                                height={30}
+                                onCrumbPress={this.handlePress}
+                                borderRadius={5}
+                                activeCrumbTextStyle={{}}
+                                crumbTextStyle={{ fontSize: 20 }}
+                                crumbsContainerStyle={{backgroundColor: 'white', justifyContent: 'flex-start'}}
+                            />
+                        </View>
+
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
@@ -513,18 +518,26 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public handleBack() {
-        console.log('android back button');
-        console.log('......', this.state.content);
-        Constant.navigationKey.pop();
-        console.log('navigation key', Constant.navigationKey);
-        Constant.content.pop();
-        Constant.index = Constant.index - 1;
-        this.setState({
-            index: Constant.index,
-            content: Constant.content,
-            breadscumbItemsCount: Constant.content.length,
-        });
-        console.log('android back button', this.state.content);
+        // Constant.navigationKey.pop();
+        // console.log('navigation key', Constant.navigationKey);
+        // Constant.content.pop();
+        // Constant.index = Constant.index - 1;
+        // console.log('android back button', this.state.content);
+        console.log('navigation props', this.props.navigation);
+        if (this.props.navigation.state.key === Constant.navigationKey[0]) {
+            console.log('android back button');
+            Constant.navigationKey.pop();
+            Constant.content.pop();
+            Constant.index = Constant.index - 1;
+            this.setState({
+                index: Constant.index,
+                content: Constant.content,
+                breadscumbItemsCount: Constant.content.length,
+            });
+        }
+        if (this.props.downloadState.progress !== 0) {
+            return true;
+        }
     }
 
     public _orientationDidChange = (orientation: string) => {

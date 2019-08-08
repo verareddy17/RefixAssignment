@@ -4,7 +4,7 @@ import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navi
 import styles from './filemanager-style';
 import Config from 'react-native-config';
 import Swipeout from 'react-native-swipeout';
-import { TouchableOpacity, FlatList, Image, ImageBackground, Dimensions, Alert, ListView, Platform, ProgressBarAndroid, ProgressViewIOS } from 'react-native';
+import { TouchableOpacity, FlatList, Image, ImageBackground, Dimensions, Alert, ListView, Platform, ProgressBarAndroid, ProgressViewIOS, BackHandler } from 'react-native';
 import { FileType, Constant } from '../../constant';
 import { SubResourceModel, ResourceModel } from '../../models/resource-model';
 import LocalDbManager from '../../manager/localdb-manager';
@@ -66,6 +66,7 @@ class FileManagerScreen extends Component<Props, State> {
             isSelectAll: false,
             allFiles: [],
         };
+        this.handleBack = this.handleBack.bind(this);
     }
 
     public async componentDidMount() {
@@ -124,10 +125,12 @@ class FileManagerScreen extends Component<Props, State> {
                 });
             }
         });
+        BackHandler.addEventListener('hardwareBackPress', this.handleBack);
     }
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBack);
     }
 
     public _orientationDidChange = (orientation: string) => {
@@ -490,6 +493,13 @@ class FileManagerScreen extends Component<Props, State> {
     public cancelDownloadFile = async () => {
         await this.props.requestDownloadCancel();
     }
+
+    public handleBack() {
+        if (this.props.downloadState.progress !== 0) {
+            return true;
+        }
+    }
+
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,

@@ -70,9 +70,11 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
             await task.then(async (res: any) => {
                 if (res.respInfo.status === 200) {
                     if (canceled) {
+                        console.log('caneled', canceled);
                         dispatch(downloadResourceFailure());
                         canceled = false;
                     } else {
+                        console.log('success', canceled);
                         dispatch(downloadResourceSuccess(0));
                     }
                 }
