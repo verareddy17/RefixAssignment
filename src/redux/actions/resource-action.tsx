@@ -52,18 +52,24 @@ export const fetchResources = (token: string) => {
                 dispatch(loadResourceStart());
                 await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
-                        console.log('resourcesResponse', data.Success);
-                        await LocalDbManager.insert('resources', data.Data, (err) => {
-                            console.log('Successfully inserted');
-                        });
-                        await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
-                            console.log('fetch data from local data base', data);
-                            if (data) {
-                                dispatch(loadResourceSuccess(data));
-                            } else {
-                                dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
-                            }
-                        });
+                        try {
+                            let error = data.Errors[0];
+                            console.log('resourcesResponse', data.Success);
+                            await LocalDbManager.insert('resources', data.Data, (err) => {
+                                console.log('Successfully inserted');
+                            });
+                            await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
+                                console.log('fetch data from local data base', data);
+                                if (data) {
+                                    dispatch(loadResourceSuccess(data));
+                                } else {
+                                    dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                                }
+                            });
+                        } catch {
+                            dispatch(loadResourceFail('Network request failed'));
+                        }
+
                     } else {
                         dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
                     }

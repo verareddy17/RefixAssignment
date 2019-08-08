@@ -36,15 +36,20 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
         await ApiManager.post<ApiResponse<ActivationAppResponse>>(`${Config.BASE_URL}/${Constant.activateAppURL}`, { iPadPin: pin }, '', async (response, err, isNetworkFail) => {
             console.log('internetfail', isNetworkFail);
             if (!isNetworkFail) {
-                if (response) {
-                    if (response.Success) {
-                        dispatch(loadUserSuccess(response.Data));
+                    if (response) {
+                        if (response.Success) {
+                            dispatch(loadUserSuccess(response.Data));
+                        } else {
+                            try {
+                                let error = response.Errors[0];
+                                await dispatch(loadUserFailed('Please Enter Valid Pin'));
+                            } catch {
+                                await dispatch(loadUserFailed('Network Request Failed'));
+                            }
+                        }
                     } else {
-                        dispatch(loadUserFailed(response.Errors[0]));
+                        await dispatch(loadUserFailed('Network Request Failed'));
                     }
-                } else {
-                    await dispatch(loadUserFailed(err !== null ? err as string : ''));
-                }
             } else {
                 await dispatch(loadUserFailed('Please check internet connection'));
             }

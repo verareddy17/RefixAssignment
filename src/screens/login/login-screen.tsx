@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView, NetInfo } from 'react-native';
 import { Text, Item, Input, Icon, Header, Label, Spinner, Toast } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
@@ -134,6 +134,7 @@ class LoginScreen extends Component<Props, State> {
         console.log('pin', this.props.inputText);
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
+            console.log('login', this.props.userState);
             await LocalDbManager.get<string>(Constant.username, async (error, userName) => {
                 if (userName !== null || userName !== '') {
                     if (userName !== this.props.userState.user.UserFullName) {
@@ -143,7 +144,7 @@ class LoginScreen extends Component<Props, State> {
                     }
                 }
             });
-            await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
+            await this.storeData<string>(Constant.token, this.props.userState.user.Token || '');
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
@@ -167,12 +168,7 @@ class LoginScreen extends Component<Props, State> {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if (this.props.userState.error !== '') {
-                Alert.alert(Config.APP_NAME, this.props.userState.error);
-
-            } else {
-                Alert.alert(Config.APP_NAME, Constant.validationPin);
-            }
+            Alert.alert(Config.APP_NAME, this.props.userState.error);
         }
     }
 }

@@ -39,11 +39,17 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
                     if (data.Success) {
                         dispatch(loadUserSuccess(data.Data.Settings));
                     } else {
-                        dispatch(loadUserFailed(data.Errors[0]));
+                        try {
+                            let error = data.Errors[0];
+                            dispatch(loadUserFailed(error));
+                        } catch {
+                            dispatch(loadUserFailed('Network request failed'));
+                        }
                     }
                 } else {
-                    dispatch(loadUserFailed(err !== null ? err as string : ''));
+                    dispatch(loadUserFailed('Network request failed'));
                 }
+
             } else {
                 dispatch(loadUserFailed('Please check internet connection'));
             }
