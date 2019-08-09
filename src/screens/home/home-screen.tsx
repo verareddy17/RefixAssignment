@@ -182,7 +182,11 @@ class HomeScreen extends Component<Props, State> {
         await this.closeSearch();
         const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
         await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.state.barierToken);
-        console.log('update settings', this.props.deviceTokenResponse.settings);
+        console.log('update settings', this.props.deviceTokenResponse);
+        if (this.props.deviceTokenResponse.error !== '') {
+            Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
+            return;
+        };
         this.setState({
             backgroundLandscapeImage: this.props.deviceTokenResponse.settings.LandscapeImage || '',
             backgroundPortraitImage: this.props.deviceTokenResponse.settings.PortraitImage || '',
@@ -202,6 +206,7 @@ class HomeScreen extends Component<Props, State> {
         await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
             if (resource !== undefined) {
                 result = [];
+                console.log('resources....', resource);
                 await this.getValues(resource);
                 console.log('result', result);
                 await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, async (err) => {
@@ -317,56 +322,62 @@ class HomeScreen extends Component<Props, State> {
 
     public renderResourceList() {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        if (this.state.isSearch) {
-            return (
-                <View style={styles.resourceListContainer}>
-                    <FlatList
-                        data={this.state.filterArray}
-                        renderItem={({ item }) =>
-                            <View style={styles.searchContainer}>
-                                {this.renderFileImages(item)}
-                                <TouchableOpacity onPress={() =>
-                                    console.log('get detailes on item files', item)}>
-                                    <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        }
-                        ItemSeparatorComponent={this.renderSeparator}
-                    />
-                </View>
-            );
-        } else {
-            if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isUpdating) {
-                console.log('spiiner');
-                return (
-                    <View style={styles.loadingContainer}>
-                        <Spinner color={Config.PRIMARY_COLOR}></Spinner>
-                    </View>
-                );
-            } else {
+        if (this.props.resourceState.resources.length > 0) {
+            if (this.state.isSearch) {
                 return (
                     <View style={styles.resourceListContainer}>
-                        <ListView contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
-                            dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
-                            renderRow={(rowData: ResourceModel) =>
-                                <View>
-                                    <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
-                                        <View style={styles.resourceImageConatiner}>
-                                            {this.renderFolderImage(rowData)}
-                                            {this.getBadgeNumber(rowData)}
-                                        </View>
-                                        <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
+                        <FlatList
+                            data={this.state.filterArray}
+                            renderItem={({ item }) =>
+                                <View style={styles.searchContainer}>
+                                    {this.renderFileImages(item)}
+                                    <TouchableOpacity onPress={() =>
+                                        console.log('get detailes on item files', item)}>
+                                        <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
                                     </TouchableOpacity>
-                                    <View style={styles.renderSeparator} />
                                 </View>
                             }
+                            ItemSeparatorComponent={this.renderSeparator}
                         />
                     </View>
                 );
+            } else {
+                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isUpdating) {
+                    return (
+                        <View style={styles.loadingContainer}>
+                            <Spinner color={Config.PRIMARY_COLOR}></Spinner>
+                        </View>
+                    );
+                } else {
+                    return (
+                        <View style={styles.resourceListContainer}>
+                            <ListView contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
+                                dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
+                                renderRow={(rowData: ResourceModel) =>
+                                    <View>
+                                        <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
+                                            <View style={styles.resourceImageConatiner}>
+                                                {this.renderFolderImage(rowData)}
+                                                {this.getBadgeNumber(rowData)}
+                                            </View>
+                                            <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
+                                        </TouchableOpacity>
+                                        <View style={styles.renderSeparator} />
+                                    </View>
+                                }
+                            />
+                        </View>
+                    );
+                }
             }
+        } else {
+            return (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: '#000' }}>No Data Found </Text>
+                </View>
+            );
         }
     }
-
     public getFilesCountInFolder(data: ResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
@@ -435,7 +446,7 @@ class HomeScreen extends Component<Props, State> {
                     <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
                     return (
                         <Image source={images.ppt} style={styles.resourceImage} />
                     );

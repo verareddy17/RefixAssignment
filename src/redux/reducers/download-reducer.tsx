@@ -1,13 +1,13 @@
 import { DOWNLOAD_START, DOWNLOAD_PROGRESS, DOWNLOAD_SUCCESS, DOWNLOAD_FAILURE } from '../actions/action-types';
-import { Action } from '../../models/generic-action';
 import { initialState } from '../../models/initial-download-file-state';
 
-export default function downloadReducer(state = initialState, action: { type: string, progress: number, task?: any }) {
+export default function downloadReducer(state = initialState, action: { type: string, progress: number, cancelDownload?: any }) {
     switch (action.type) {
         case DOWNLOAD_START:
             return {
                 ...state,
                 isLoading: true,
+                cancelDownload: action.cancelDownload,
             };
         case DOWNLOAD_PROGRESS:
             return {
@@ -15,7 +15,7 @@ export default function downloadReducer(state = initialState, action: { type: st
                 progress: action.progress,
                 isLoading: true,
                 error: '',
-                task: action.task,
+                cancelDownload: action.cancelDownload,
             };
         case DOWNLOAD_SUCCESS:
             return {
@@ -23,7 +23,7 @@ export default function downloadReducer(state = initialState, action: { type: st
                 progress: action.progress,
                 isLoading: false,
                 error: '',
-                task: null,
+                cancelDownload: null,
             };
         case DOWNLOAD_FAILURE:
             return {
@@ -31,7 +31,7 @@ export default function downloadReducer(state = initialState, action: { type: st
                 progress: 0,
                 isLoading: false,
                 error: 'Download canceled by user',
-                task: null,
+                cancelDownload: null,
             };
         default:
             return state;

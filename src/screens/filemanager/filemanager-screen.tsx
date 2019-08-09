@@ -66,7 +66,7 @@ class FileManagerScreen extends Component<Props, State> {
             isSelectAll: false,
             allFiles: [],
         };
-        this.handleBack = this.handleBack.bind(this);
+        this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
     }
 
     public async componentDidMount() {
@@ -125,12 +125,12 @@ class FileManagerScreen extends Component<Props, State> {
                 });
             }
         });
-        BackHandler.addEventListener('hardwareBackPress', this.handleBack);
+        BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBack);
+        BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
     public _orientationDidChange = (orientation: string) => {
@@ -156,7 +156,7 @@ class FileManagerScreen extends Component<Props, State> {
                     <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt) {
+                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt || rowData.resourceType === FileType.doc || rowData.resourceType === FileType.xls) {
                     return (
                         <Image source={images.ppt} style={styles.resourceImage} />
                     );
@@ -184,7 +184,7 @@ class FileManagerScreen extends Component<Props, State> {
                     <Image source={images.png} style={styles.resourceImage} />
                 );
             } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
                     return (
                         <Image source={images.ppt} style={styles.resourceImage} />
                     );
@@ -419,17 +419,21 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public async downloadSelectedFiles() {
-        if (this.state.selectedFiles.length === 0) {
+    public async isSelectedFiles(selectedFiles: Array<SubResourceModel>) {
+        if (selectedFiles.length === 0) {
             Alert.alert(Config.APP_NAME, Constant.noFiles);
             return;
         }
+    }
+
+    public async downloadSelectedFiles() {
+        let isConnected = await NetworkCheckManager.isConnected();
+        if (!isConnected) {
+            Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
+            return;
+        }
+        await this.isSelectedFiles(this.state.selectedFiles);
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
-            let isConnected = await NetworkCheckManager.isConnected();
-            if (!isConnected) {
-                Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
-                return;
-            }
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
@@ -454,6 +458,7 @@ class FileManagerScreen extends Component<Props, State> {
                 }
             }
         }
+
         this.setState({
             selectedFiles: [],
             selectedFileIds: [],
@@ -494,8 +499,8 @@ class FileManagerScreen extends Component<Props, State> {
         await this.props.requestDownloadCancel();
     }
 
-    public handleBack() {
-        if (this.props.downloadState.progress !== 0) {
+    public handleAndroidBackButton() {
+        if (this.props.downloadState.progress !== 0 || this.props.downloadState.isLoading) {
             return true;
         }
     }

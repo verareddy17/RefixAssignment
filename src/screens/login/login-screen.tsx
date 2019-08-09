@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, ActivityIndicator, AsyncStorage, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView, NetInfo } from 'react-native';
 import { Text, Item, Input, Icon, Header, Label, Spinner, Toast } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
@@ -16,7 +16,6 @@ import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import images from '../../assets/index';
-import { string } from 'prop-types';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import { isEnabled } from 'appcenter-crashes';
 interface Props {
@@ -139,12 +138,11 @@ class LoginScreen extends Component<Props, State> {
                 if (userName !== null || userName !== '') {
                     if (userName !== this.props.userState.user.UserFullName) {
                         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, [], async (err) => {
-                            Toast.show({ text: 'successfully removed all downloaded files', type: 'success', position: 'bottom' });
                         });
                     }
                 }
             });
-            await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
+            await this.storeData<string>(Constant.token, this.props.userState.user.Token || '');
             await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
@@ -168,12 +166,7 @@ class LoginScreen extends Component<Props, State> {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if (this.props.userState.error !== '') {
-                Alert.alert(Config.APP_NAME, this.props.userState.error);
-
-            } else {
-                Alert.alert(Config.APP_NAME, Constant.validationPin);
-            }
+            Alert.alert(Config.APP_NAME, this.props.userState.error);
         }
     }
 }

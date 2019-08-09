@@ -53,6 +53,7 @@ interface State {
     content: string[];
     breadscumbItemsCount: number;
     backButton: boolean;
+    flowDepth: number;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -72,28 +73,25 @@ class ResourceExplorerScreen extends Component<Props, State> {
             content: [],
             breadscumbItemsCount: 0,
             backButton: true,
+            flowDepth: 0,
 
         };
-        this.handlePress = this.handlePress.bind(this);
-        this.handleBack = this.handleBack.bind(this);
+        this.onCrumbPress = this.onCrumbPress.bind(this);
+        this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
     }
 
     public async componentDidMount() {
         let item = await this.props.navigation.getParam('item');
-        // this.setState({
-        //     index: this.state.index + 1,
-        //     content: [...this.state.content, item.ResourceName],
-        // });
         Constant.index = Constant.index + 1;
         Constant.content = [...Constant.content, item.ResourceName];
-        console.log('this...', Constant.content);
         Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
-        console.log('key', Constant.navigationKey);
         this.setState({
             index: Constant.index,
             content: Constant.content,
             breadscumbItemsCount: Constant.content.length,
+            flowDepth: Constant.content.length - 1,
         });
+        console.log('flowdepth.', this.state.flowDepth);
         Orientation.unlockAllOrientations();
         await LocalDbManager.get(Constant.fontColor, (err, color) => {
             if (color !== null || color !== '') {
@@ -134,7 +132,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 });
             }
         });
-        BackHandler.addEventListener('hardwareBackPress', this.handleBack);
+        BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
     public setColorIfFileIsBookmarked(resourceID: number) {
@@ -196,7 +194,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <Image source={images.png} style={styles.fileImage} />
                 );
             } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
+                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
                     return (
                         <Image source={images.ppt} style={styles.fileImage} />
                     );
@@ -333,20 +331,18 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </Body>
                             <Right />
                         </Header>}
-                        <View style={{ width: '100%', height: 30, justifyContent: 'flex-start'}}>
+                        {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
                             <Breadcrumb
                                 entities={this.state.content}
                                 isTouchable={true}
-                                flowDepth={this.state.index}
+                                flowDepth={this.state.flowDepth}
                                 height={30}
-                                onCrumbPress={this.handlePress}
+                                onCrumbPress={this.onCrumbPress}
                                 borderRadius={5}
-                                activeCrumbTextStyle={{}}
-                                crumbTextStyle={{ fontSize: 20 }}
-                                crumbsContainerStyle={{backgroundColor: 'white', justifyContent: 'flex-start'}}
+                                crumbTextStyle={{ fontSize: 25 }}
+                                crumbsContainerStyle={[styles.breadscrumbsView]}
                             />
-                        </View>
-
+                        </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
@@ -358,22 +354,18 @@ class ResourceExplorerScreen extends Component<Props, State> {
         );
     }
     public goToPreviousScreen() {
-        console.log('back to previous screen');
         Constant.navigationKey.pop();
         Constant.content.pop();
         Constant.index = Constant.index - 1;
         this.setState({
             index: Constant.index,
             content: Constant.content,
-            breadscumbItemsCount: Constant.content.length,
+            flowDepth: Constant.content.length - 1,
         });
         this.props.navigation.pop();
     }
-    public handlePress(index: number) {
-        console.log('onpress', index);
-        console.log('index', Constant.navigationKey);
-        console.log('keysss', Constant.navigationKey[index]);
-        // this.props.navigation.goBack(Constant.navigationKey[index]);
+    public onCrumbPress(index: number) {
+        console.log('index', index);
         const key = Constant.navigationKey[index];
         for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
             console.log('loop', Constant.navigationKey);
@@ -388,10 +380,12 @@ class ResourceExplorerScreen extends Component<Props, State> {
         }
         this.setState({
             content: Constant.content,
-            breadscumbItemsCount: Constant.content.length,
+            flowDepth: index - 1,
         });
+        console.log('......');
         console.log('after removing keys', Constant.navigationKey);
         console.log('after removing content', Constant.content);
+        console.log('flowdepth on click', this.state.flowDepth);
         this.props.navigation.goBack(key);
 
     }
@@ -514,25 +508,19 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
     public componentWillUnmount() {
         Orientation.removeOrientationListener(this._orientationDidChange);
-        BackHandler.removeEventListener('hardwareBackPress', this.handleBack);
+        BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
-    public handleBack() {
-        // Constant.navigationKey.pop();
-        // console.log('navigation key', Constant.navigationKey);
-        // Constant.content.pop();
-        // Constant.index = Constant.index - 1;
-        // console.log('android back button', this.state.content);
-        console.log('navigation props', this.props.navigation);
+    public handleAndroidBackButton() {
         if (this.props.navigation.state.key === Constant.navigationKey[0]) {
-            console.log('android back button');
             Constant.navigationKey.pop();
             Constant.content.pop();
             Constant.index = Constant.index - 1;
+            const flowDepth = Constant.content.length > 0 ? Constant.content.length - 1 : Constant.content.length;
             this.setState({
                 index: Constant.index,
                 content: Constant.content,
-                breadscumbItemsCount: Constant.content.length,
+                flowDepth: flowDepth,
             });
         }
         if (this.props.downloadState.progress !== 0) {

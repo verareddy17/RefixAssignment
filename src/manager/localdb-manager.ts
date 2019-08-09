@@ -2,7 +2,6 @@ import { AsyncStorage, Alert } from 'react-native';
 import Config from 'react-native-config';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FileType } from '../constant';
-const dirs = RNFetchBlob.fs.dirs.DocumentDir + '/MagnifiMobile';
 
 export default class LocalDbManager {
 
@@ -40,23 +39,7 @@ export default class LocalDbManager {
         Alert.alert(Config.APP_NAME, confirmationMessage);
     }
 
-    public static downloadImages(url: string, destinationPath: string, type: string) {
-        RNFetchBlob
-            .config({
-                // response data will be saved to this path if it has access right.
-                path: `${dirs}/${destinationPath}${type}`,
-            })
-            .fetch('GET', url, {
-                // some headers ..
-            })
-            .then((res) => {
-                // the path should be dirs.DocumentDir + 'path-to-file.anything'
-                console.log('The file saved to ', res.path());
-            });
-    }
-
     public static async unlinkFile(path: string, type: string, unzipPath: string) {
-        console.log('local path', path)
         await RNFetchBlob.fs.unlink(path)
             .then(async () => {
                 console.log('succesfully removed file from device');

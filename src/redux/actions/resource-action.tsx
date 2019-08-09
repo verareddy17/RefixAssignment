@@ -52,18 +52,27 @@ export const fetchResources = (token: string) => {
                 dispatch(loadResourceStart());
                 await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
-                        console.log('resourcesResponse', data.Success);
-                        await LocalDbManager.insert('resources', data.Data, (err) => {
-                            console.log('Successfully inserted');
-                        });
-                        await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
-                            console.log('fetch data from local data base', data);
-                            if (data) {
-                                dispatch(loadResourceSuccess(data));
-                            } else {
-                                dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                        if (data.Success) {
+                            await LocalDbManager.insert('resources', data.Data, (err) => {
+                                console.log('Successfully inserted');
+                            });
+                            await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
+                                console.log('fetch data from local data base', data);
+                                if (data) {
+                                    dispatch(loadResourceSuccess(data));
+                                } else {
+                                    dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                                }
+                            });
+                        } else {
+                            try {
+                                let error = data.Errors[0];
+                                await dispatch(loadResourceFail(error));
+                            } catch {
+                                await dispatch(loadResourceFail('Network Request Failed'));
                             }
-                        });
+                        }
+
                     } else {
                         dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
                     }
@@ -86,13 +95,21 @@ export const updateResources = (token: string) => {
             }
             dispatch(loadResourceStart());
             if (data) {
-                await LocalDbManager.delete('resources', (err) => {
-                    console.log('successfully removed');
-                });
-                await LocalDbManager.insert('resources', data.Data, (err) => {
-                    console.log('Successfully insertedd');
-                });
+                // await LocalDbManager.delete('resources', (err) => {
+                //     console.log('successfully removed');
+                // });
+                // await LocalDbManager.insert('resources', data.Data, (err) => {
+                //     console.log('Successfully insertedd');
+                // });
+                console.log('resource response', data);
                 if (data.Success) {
+                    console.log('success');
+                    await LocalDbManager.delete('resources', (err) => {
+                        console.log('successfully removed');
+                    });
+                    await LocalDbManager.insert('resources', data.Data, (err) => {
+                        console.log('Successfully insertedd');
+                    });
                     await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
                         if (data) {
                             dispatch(loadResourceSuccess(data));
@@ -101,7 +118,14 @@ export const updateResources = (token: string) => {
                         }
                     });
                 } else {
-                    dispatch(loadResourceFail(data.Errors[0]));
+                    console.log('faliure');
+
+                    try {
+                       let error = data.Errors[0];
+                       dispatch(loadResourceFail(error));
+                    } catch {
+                        dispatch(loadResourceFail('Newtwork request failed'));
+                    }
                 }
             } else {
                 dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));

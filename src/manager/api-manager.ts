@@ -18,7 +18,9 @@ export default class ApiManager {
                     headers: { 'Authorization': 'Bearer ' + bearer_token },
                 };
                 try {
-                    let response = await axios.get(url, config);
+                    const instance = axios.create();
+                    instance.defaults.timeout = 2500;
+                    let response = await instance.get(url, config);
                     if (response.status === 200) {
                         if (response !== null) {
                             let res = await response.data;
@@ -31,7 +33,11 @@ export default class ApiManager {
                         callBack(undefined, ' Request failed', false);
                     }
                 } catch (error) {
-                    callBack(undefined, error.message, false);
+                    if (error.code === 'ECONNABORTED') {
+                        callBack(undefined, 'Request time out');
+                    } else {
+                        callBack(undefined, error.message, false);
+                    }
                 }
             } else {
                 callBack(undefined, undefined, true);
@@ -47,7 +53,10 @@ export default class ApiManager {
                     headers: { 'Authorization': 'Bearer ' + bearer_token },
                 };
                 try {
-                    let response = await axios.post(url, params, config);
+                    const instance = axios.create();
+                    instance.defaults.timeout = 2500;
+                    let response = await instance.post(url, params, config);
+                    console.log('responseApi post', response);
                     if (response.status === 200) {
                         if (response !== null) {
                             let jsonData = await response.data;
@@ -59,9 +68,12 @@ export default class ApiManager {
                     } else {
                         callBack(undefined, ' Request failed', false);
                     }
-
                 } catch (error) {
-                    callBack(undefined, error.message, false);
+                    if (error.code === 'ECONNABORTED') {
+                        callBack(undefined, 'Request time out');
+                    } else {
+                        callBack(undefined, error.message, false);
+                    }
                 }
             } else {
                 callBack(undefined, '', true);

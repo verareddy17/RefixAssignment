@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     },
     selectAllFilesConatiner: {
         flexDirection: 'row',
-         marginLeft: 5,
+        marginLeft: 5,
     },
 });
 

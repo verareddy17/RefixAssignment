@@ -6,20 +6,21 @@ import Config from 'react-native-config';
 import { Constant } from '../../constant';
 import { CustomizeSettings, Setting } from '../../models/custom-settings';
 
-export const loadUserRequest = () => {
+export const loadSettingRequest = () => {
     return {
-        type: LOAD_USER_START,
+        type: LOAD_SETTINGS_START,
     };
 };
-export const loadUserSuccess = (data: CustomizeSettings) => {
+export const loadSettingSuccess = (data: CustomizeSettings) => {
+    console.log('data', data);
     return {
-        type: LOAD_USER_SUCCESS,
+        type: LOAD_SETTINGS_SUCCESS,
         payload: data,
     };
 };
-export const loadUserFailed = (error: string) => {
+export const loadSettingFailed = (error: string) => {
     return {
-        type: LOAD_USER_FAILURE,
+        type: LOAD_SETTINGS_FAIL,
         payload: error,
     };
 };
@@ -32,20 +33,28 @@ export class SettingsResponse {
 
 export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
-        dispatch(loadUserRequest());
-        await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, (data, err, isNetworkFail) => {
+        dispatch(loadSettingRequest());
+        await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, async (data, err, isNetworkFail) => {
             if (!isNetworkFail) {
+                console.log('setting', data);
                 if (data) {
                     if (data.Success) {
-                        dispatch(loadUserSuccess(data.Data.Settings));
+                        console.log('..../');
+                        await dispatch(loadSettingSuccess(data.Data.Settings));
                     } else {
-                        dispatch(loadUserFailed(data.Errors[0]));
+                        try {
+                            let error = data.Errors[0];
+                            dispatch(loadSettingFailed(error));
+                        } catch {
+                            dispatch(loadSettingFailed('Network request failed'));
+                        }
                     }
                 } else {
-                    dispatch(loadUserFailed(err !== null ? err as string : ''));
+                    dispatch(loadSettingFailed('Network request failed'));
                 }
+
             } else {
-                dispatch(loadUserFailed('Please check internet connection'));
+                dispatch(loadSettingFailed('Please check internet connection'));
             }
         });
     };
