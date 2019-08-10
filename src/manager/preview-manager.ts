@@ -3,7 +3,8 @@ import { unzip } from 'react-native-zip-archive';
 import OpenFile from 'react-native-doc-viewer';
 import { Toast } from 'native-base';
 import RNFetchBlob from 'rn-fetch-blob';
-
+import { SubResourceModel, ResourceModel } from '../models/resource-model';
+let result: SubResourceModel[] = [];
 export default class PreviewManager {
 
     public static async extractFileName(fileName: string): Promise<string> {
@@ -71,7 +72,7 @@ export default class PreviewManager {
                 return file === Constant.indexHtml;
             });
             if (htmlFile.length > 0) {
-                return `${folder}/${files[0]}`;
+                return `${folder}/${htmlFile[0]}`;
             } else {
                 let subFolder = await RNFetchBlob.fs.ls(`${folder}/${files[0]}`);
                 let subfolderHtmlFile = subFolder.filter((subfolderFile) => {
@@ -103,5 +104,24 @@ export default class PreviewManager {
             const videoPath = `${dirPath}/${resourceId}${fileType}`;
             callback(videoPath, false, fileType);
         }
+    }
+
+    public static async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
+        if (children.Children === undefined || children.Children === null) {
+            await resultArray.push(children);
+            return;
+        }
+        for (let i = 0; i < children.Children.length; i++) {
+            await this.LoopIn(children.Children[i], resultArray);
+        }
+        console.log('resultArray', result);
+    }
+
+    public static async getValues(json: ResourceModel[]) {
+        result = [];
+        for (let j = 0; j < json.length; j++) {
+            await this.LoopIn(json[j], result);
+        }
+        return result;
     }
 }

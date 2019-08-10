@@ -61,6 +61,7 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
         dispatch(downloadResourceStart());
         try {
             let task = RNFetchBlob.config({
+                // IOSBackgroundTask: true,
                 path: path,
             }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
                 'Content-Type': 'application/json',

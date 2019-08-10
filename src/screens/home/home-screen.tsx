@@ -19,10 +19,11 @@ import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import images from '../../assets/index';
 import { string } from 'prop-types';
-import Modal from 'react-native-modal';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
+import ImageHoc from '../../assets/imageshoc';
+import PreviewManager from '../../manager/preview-manager';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -54,10 +55,8 @@ interface State {
     logoImage?: string;
     searchText: string;
     isUpdating: boolean;
-    isModalVisible: boolean;
+    searchArray: SubResourceModel[];
 }
-
-let result: SubResourceModel[] = [];
 
 class HomeScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -78,7 +77,7 @@ class HomeScreen extends Component<Props, State> {
             headerColor: '',
             searchText: '',
             isUpdating: false,
-            isModalVisible: true,
+            searchArray: [],
         };
     }
 
@@ -164,11 +163,12 @@ class HomeScreen extends Component<Props, State> {
         }
         await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
             if (resource !== undefined) {
-                result = [];
-                await this.getValues(resource);
-                console.log('result', result);
+                let result = await PreviewManager.getValues(resource);
                 await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, (err) => {
                     console.log('files are saved successfully');
+                    this.setState({
+                        searchArray: result,
+                    });
                 });
             }
         });
@@ -205,10 +205,8 @@ class HomeScreen extends Component<Props, State> {
         await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
         await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
             if (resource !== undefined) {
-                result = [];
-                console.log('resources....', resource);
-                await this.getValues(resource);
-                console.log('result', result);
+                const result = await PreviewManager.getValues(resource);
+                console.log('update', result);
                 await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, async (err) => {
                     console.log('files are saved successfully');
                     let downloadedFiles = this.state.downloadedFiles.filter(function (item1) {
@@ -224,6 +222,7 @@ class HomeScreen extends Component<Props, State> {
                     });
                     this.setState({
                         isUpdating: false,
+                        searchArray: result,
                     });
                 });
             }
@@ -274,8 +273,8 @@ class HomeScreen extends Component<Props, State> {
             this.setState({
                 isSearch: true,
             });
-            console.log('all files', result);
-            let filteredArray = await result.filter((item: { ResourceName: string; }) => {
+            console.log('all files', this.state.searchArray);
+            let filteredArray = await this.state.searchArray.filter((item: { ResourceName: string; }) => {
                 let name = item.ResourceName.toUpperCase();
                 return name.indexOf(textData.toUpperCase()) > -1;
             });
@@ -289,23 +288,6 @@ class HomeScreen extends Component<Props, State> {
             });
         }
 
-    }
-
-    public async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
-        if (children.Children === undefined || children.Children === null) {
-            await resultArray.push(children);
-            return;
-        }
-        for (let i = 0; i < children.Children.length; i++) {
-            await this.LoopIn(children.Children[i], resultArray);
-        }
-        console.log('resultArray', result);
-    }
-
-    public async getValues(json: ResourceModel[]) {
-        for (let j = 0; j < json.length; j++) {
-            await this.LoopIn(json[j], result);
-        }
     }
 
     public renderSeparator = () => {
@@ -330,7 +312,7 @@ class HomeScreen extends Component<Props, State> {
                             data={this.state.filterArray}
                             renderItem={({ item }) =>
                                 <View style={styles.searchContainer}>
-                                    {this.renderFileImages(item)}
+                                    <ImageHoc fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                     <TouchableOpacity onPress={() =>
                                         console.log('get detailes on item files', item)}>
                                         <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
@@ -378,11 +360,11 @@ class HomeScreen extends Component<Props, State> {
             );
         }
     }
-    public getFilesCountInFolder(data: ResourceModel) {
+
+    public async getFilesCountInFolder(data: ResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
-                result = [],
-                    this.getValues(data.Children);
+                const result = await PreviewManager.getValues(data.Children);
                 console.log('result..', result);
                 if (result.length === 0) {
                     return;
@@ -431,34 +413,6 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public renderFileImages(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.FileExtension === FileType.video) {
-                return (
-                    <Image source={images.mp4} style={styles.resourceImage} />
-                );
-            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
-                return (
-                    <Image source={images.pdf} style={styles.resourceImage} />
-                );
-            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
-                return (
-                    <Image source={images.png} style={styles.resourceImage} />
-                );
-            } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
-                    return (
-                        <Image source={images.ppt} style={styles.resourceImage} />
-                    );
-                }
-            }
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={[styles.resourceImage, { marginLeft: 10 }]} />
-            );
-        }
-    }
-
     public renderFolderImage(rowData: ResourceModel) {
         if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
             return (
@@ -479,37 +433,6 @@ class HomeScreen extends Component<Props, State> {
         });
         Keyboard.dismiss();
     }
-
-    public renderAlert() {
-        return (
-            <Modal isVisible={true}>
-                <View style={{ flex: 1 }}>
-                    <Text>{this.state.confirmationMessage}</Text>
-                </View>
-            </Modal>
-        );
-    }
-
-    // public renderTermsAndConditions = (width: number) => {
-    //     return (
-    //         <View style={{
-    //             flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', opacity: 0.1, elevation: 5, backgroundColor: 'transparent', shadowColor: '#000',
-    //             shadowOffset: { width: 0, height: 2 },
-    //             shadowOpacity: 0.8,
-    //             shadowRadius: 2,
-
-    //         }}>
-    //             <WebView
-    //                 style={{ backgroundColor: 'blue', height: 100, width: width, }}
-    //                 html={this.state.confirmationMessage}
-    //                 scalesPageToFit={true}
-    //                 />
-    //             <TouchableOpacity>
-    //                 <Text>OK</Text>
-    //             </TouchableOpacity>
-    //         </View>
-    //     );
-    // }
 
     public render() {
         let { height, width } = Dimensions.get('window');
@@ -547,7 +470,7 @@ class HomeScreen extends Component<Props, State> {
                                 <Icon name='close' onPress={() => this.closeSearch()} />
                             </Item>
                         </Header>
-                        <Content contentContainerStyle={styles.containerColor}>
+                        <Content contentContainerStyle={[styles.containerColor, Constant.platform === 'android' ? { paddingBottom: 30 } : { paddingBottom: 0 }]}>
                             <View style={styles.container}>
                                 {this.renderResourceList()}
                             </View>

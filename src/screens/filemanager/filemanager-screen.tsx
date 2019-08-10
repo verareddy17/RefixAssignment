@@ -24,6 +24,8 @@ import NetworkCheckManager from '../../manager/networkcheck-manager';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
+import ImageHoc from '../../assets/imageshoc';
+
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -141,62 +143,6 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
-    public renderLocalImagesForDownloads(rowData: DownloadedFilesModel) {
-        if (rowData.resourceImage === undefined || rowData.resourceImage === '') {
-            if (rowData.resourceType === FileType.video) {
-                return (
-                    <Image source={images.mp4} style={styles.resourceImage} />
-                );
-            } else if (rowData.resourceType === FileType.pdf) {
-                return (
-                    <Image source={images.pdf} style={styles.resourceImage} />
-                );
-            } else if (rowData.resourceType === FileType.png || rowData.resourceType === FileType.jpg || rowData.resourceType === FileType.zip) {
-                return (
-                    <Image source={images.png} style={styles.resourceImage} />
-                );
-            } else {
-                if (rowData.resourceType === FileType.pptx || rowData.resourceType === FileType.xlsx || rowData.resourceType === FileType.docx || rowData.resourceType === FileType.ppt || rowData.resourceType === FileType.doc || rowData.resourceType === FileType.xls) {
-                    return (
-                        <Image source={images.ppt} style={styles.resourceImage} />
-                    );
-                }
-            }
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.resourceImage }} style={styles.resourceImage} />
-            );
-        }
-    }
-
-    public renderLocalImagesForNotDownloadedFiles(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.FileExtension === FileType.video) {
-                return (
-                    <Image source={images.mp4} style={styles.resourceImage} />
-                );
-            } else if (rowData.FileExtension === FileType.pdf) {
-                return (
-                    <Image source={images.pdf} style={styles.resourceImage} />
-                );
-            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg || rowData.FileExtension === FileType.zip) {
-                return (
-                    <Image source={images.png} style={styles.resourceImage} />
-                );
-            } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
-                    return (
-                        <Image source={images.ppt} style={styles.resourceImage} />
-                    );
-                }
-            }
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
-            );
-        }
-    }
-
     public selectComponent(activePage: number) {
         this.setState({ activePage: activePage });
     }
@@ -296,7 +242,7 @@ class FileManagerScreen extends Component<Props, State> {
                                     this.previewFile(item);
                                 }}>
                                     <View style={styles.downloadedContainer}>
-                                        {this.renderLocalImagesForDownloads(item)}
+                                        <ImageHoc fileImage= {item.resourceImage || ''} fileType= {item.resourceType} styles={styles.resourceImage}/>
                                         <Text style={styles.textTitle}>{item.resourceName}</Text>
                                     </View>
                                     <View style={styles.separator} />
@@ -321,7 +267,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            {this.renderLocalImagesForNotDownloadedFiles(item)}
+                                            <ImageHoc fileImage= {item.ResourceImage || ''} fileType= {item.FileExtension} styles={styles.resourceImage}/>
                                             <Text style={styles.textTitle}>{item.ResourceName}</Text>
                                         </View>
                                     </TouchableOpacity>
@@ -338,6 +284,7 @@ class FileManagerScreen extends Component<Props, State> {
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
         console.log('preview file', path);
+        console.log('preview navigation', this.props);
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });

@@ -23,7 +23,7 @@ import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
 import images from '../../assets/index';
 import Breadcrumb from 'react-native-breadcrumb';
-
+import ImageHoc from '../../assets/imageshoc';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -153,7 +153,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
             isRemoved = false;
-            bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.ResourceType }); // adding bookmark
+            bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.FileExtension }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
             if (error !== null) {
@@ -175,34 +175,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
         } else {
             return (
                 <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.folderImage} />
-            );
-        }
-    }
-
-    public renderFilesImages(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.FileExtension === FileType.video) {
-                return (
-                    <Image source={images.mp4} style={styles.fileImage} />
-                );
-            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
-                return (
-                    <Image source={images.pdf} style={styles.fileImage} />
-                );
-            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
-                return (
-                    <Image source={images.png} style={styles.fileImage} />
-                );
-            } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt || rowData.FileExtension === FileType.doc || rowData.FileExtension === FileType.xls) {
-                    return (
-                        <Image source={images.ppt} style={styles.fileImage} />
-                    );
-                }
-            }
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.fileImage} />
             );
         }
     }
@@ -293,7 +265,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    {this.renderFilesImages(data)}
+                                    <ImageHoc fileImage= {data.ResourceImage || ''} fileType= {data.FileExtension} styles={styles.fileImage}/>
                                 </View>
                                 <View style={styles.resourceContainer}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
@@ -440,8 +412,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
             Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
         });
-        let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
-        console.log('download resource id', resourceId);
+        let path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+        console.log('preview path', path );
         await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
@@ -486,7 +458,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
-                let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+                let path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
                 console.log('downloadedPath', path);
                 await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
                     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
