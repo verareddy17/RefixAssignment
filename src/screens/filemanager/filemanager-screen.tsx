@@ -282,7 +282,8 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public async previewFile(data: DownloadedFilesModel) {
-        let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+        let path: string = Platform.OS === 'ios' ? Constant.documentDir : data.resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+        // let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
         console.log('preview file', path);
         console.log('preview navigation', this.props);
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
@@ -398,7 +399,8 @@ class FileManagerScreen extends Component<Props, State> {
                 });
                 await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
                 });
-                let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+                let path: string = Platform.OS === 'ios' ? Constant.documentDir : FileExtension === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+                // let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
                 console.log('download resource id', ResourceId);
                 if (FileExtension === FileType.zip) {
                     await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
