@@ -121,8 +121,8 @@ export const updateResources = (token: string) => {
                     console.log('faliure');
 
                     try {
-                       let error = data.Errors[0];
-                       dispatch(loadResourceFail(error));
+                        let error = data.Errors[0];
+                        dispatch(loadResourceFail(error));
                     } catch {
                         dispatch(loadResourceFail('Newtwork request failed'));
                     }

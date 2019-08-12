@@ -4,6 +4,8 @@ import OpenFile from 'react-native-doc-viewer';
 import { Toast } from 'native-base';
 import RNFetchBlob from 'rn-fetch-blob';
 import { SubResourceModel, ResourceModel } from '../models/resource-model';
+import Config from 'react-native-config';
+import { Alert} from 'react-native';
 let result: SubResourceModel[] = [];
 export default class PreviewManager {
 
@@ -26,6 +28,7 @@ export default class PreviewManager {
             })
                 .catch((error) => {
                     console.log('failed to unzip the file ', error);
+                    Alert.alert(Config.APP_NAME, 'Failed to extract the file');
                 });
         } else if (fileType === FileType.video) {
             let resourceName = await PreviewManager.extractFileName(fileName);

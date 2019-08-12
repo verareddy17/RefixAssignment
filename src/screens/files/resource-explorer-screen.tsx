@@ -23,7 +23,7 @@ import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
 import images from '../../assets/index';
 import Breadcrumb from 'react-native-breadcrumb';
-import ImageHoc from '../../assets/imageshoc';
+import ImagesComponet from '../../assets/images-component';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -91,7 +91,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
             breadscumbItemsCount: Constant.content.length,
             flowDepth: Constant.content.length - 1,
         });
-        console.log('flowdepth.', this.state.flowDepth);
         Orientation.unlockAllOrientations();
         await LocalDbManager.get(Constant.fontColor, (err, color) => {
             if (color !== null || color !== '') {
@@ -265,7 +264,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    <ImageHoc fileImage= {data.ResourceImage || ''} fileType= {data.FileExtension} styles={styles.fileImage}/>
+                                    <ImagesComponet fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
                                 </View>
                                 <View style={styles.resourceContainer}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
@@ -291,11 +290,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <Container style={styles.transparentColor}>
                         {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left style={{ flexDirection: 'row' }}>
-                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                    <Icon name='menu' style={styles.iconColor} />
-                                </Button>
                                 <Button transparent onPress={() => this.goToPreviousScreen()}>
                                     <Icon name='arrow-back' style={[styles.iconColor]} />
+                                </Button>
+                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
+                                    <Icon name='menu' style={styles.iconColor} />
                                 </Button>
                             </Left>
                             <Body>
@@ -311,7 +310,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 height={30}
                                 onCrumbPress={this.onCrumbPress}
                                 borderRadius={5}
-                                crumbTextStyle={{ fontSize: 25 }}
+                                crumbTextStyle={{ fontSize: 15 }}
                                 crumbsContainerStyle={[styles.breadscrumbsView]}
                             />
                         </View>}
@@ -325,6 +324,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             </SafeAreaView>
         );
     }
+
     public goToPreviousScreen() {
         Constant.navigationKey.pop();
         Constant.content.pop();
@@ -336,11 +336,10 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
         this.props.navigation.pop();
     }
+
     public onCrumbPress(index: number) {
-        console.log('index', index);
         const key = Constant.navigationKey[index];
         for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
-            console.log('loop', Constant.navigationKey);
             if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
                 Constant.navigationKey.pop();
                 Constant.content.pop();
@@ -354,13 +353,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
             content: Constant.content,
             flowDepth: index - 1,
         });
-        console.log('......');
-        console.log('after removing keys', Constant.navigationKey);
-        console.log('after removing content', Constant.content);
-        console.log('flowdepth on click', this.state.flowDepth);
         this.props.navigation.goBack(key);
-
     }
+
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
         if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
@@ -412,8 +407,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
             Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
         });
-        let path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
-        console.log('preview path', path );
+        const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+        console.log('preview path', path);
         await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
@@ -458,7 +453,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
-                let path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+                const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
                 console.log('downloadedPath', path);
                 await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
                     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });

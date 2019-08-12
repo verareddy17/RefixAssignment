@@ -24,7 +24,7 @@ import NetworkCheckManager from '../../manager/networkcheck-manager';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
-import ImageHoc from '../../assets/imageshoc';
+import ImagesComponet from '../../assets/images-component';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -242,7 +242,7 @@ class FileManagerScreen extends Component<Props, State> {
                                     this.previewFile(item);
                                 }}>
                                     <View style={styles.downloadedContainer}>
-                                        <ImageHoc fileImage= {item.resourceImage || ''} fileType= {item.resourceType} styles={styles.resourceImage}/>
+                                        <ImagesComponet fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
                                         <Text style={styles.textTitle}>{item.resourceName}</Text>
                                     </View>
                                     <View style={styles.separator} />
@@ -267,7 +267,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            <ImageHoc fileImage= {item.ResourceImage || ''} fileType= {item.FileExtension} styles={styles.resourceImage}/>
+                                            <ImagesComponet fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                             <Text style={styles.textTitle}>{item.ResourceName}</Text>
                                         </View>
                                     </TouchableOpacity>
@@ -283,9 +283,6 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? Constant.documentDir : data.resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
-        // let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
-        console.log('preview file', path);
-        console.log('preview navigation', this.props);
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
@@ -340,7 +337,6 @@ class FileManagerScreen extends Component<Props, State> {
             selectedFileIds: tmp,
             selectedFiles: newData,
         });
-        console.log('resources...', this.state.selectedFiles, this.state.selectedFileIds);
     }
 
     public async onPressedSelectAll() {
@@ -386,7 +382,7 @@ class FileManagerScreen extends Component<Props, State> {
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
             if (this.props.downloadState.error !== '') {
-               Alert.alert(Config.APP_NAME, this.props.downloadState.error);
+                Alert.alert(Config.APP_NAME, this.props.downloadState.error);
             } else {
                 await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
                 console.log('files are pushed', this.state.downloadedFiles);
@@ -399,8 +395,7 @@ class FileManagerScreen extends Component<Props, State> {
                 });
                 await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
                 });
-                let path: string = Platform.OS === 'ios' ? Constant.documentDir : FileExtension === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
-                // let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+                const path: string = Platform.OS === 'ios' ? Constant.documentDir : FileExtension === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
                 console.log('download resource id', ResourceId);
                 if (FileExtension === FileType.zip) {
                     await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);

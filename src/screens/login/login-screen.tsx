@@ -7,10 +7,10 @@ import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
 import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
-import { NavigationScreenProp, DrawerItems } from 'react-navigation';
+import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
-import { Constant, FileType } from '../../constant';
+import { Constant } from '../../constant';
 import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
@@ -78,7 +78,7 @@ class LoginScreen extends Component<Props, State> {
                                             autoCapitalize='none'
                                             secureTextEntry={this.state.isSecureText}
                                         />
-                                        <Icon style={{color: this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? '#ffffff' : '#000000'}}name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
+                                        <Icon style={{ color: this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? '#ffffff' : '#000000' }} name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
                                     </Item>
                                     {this.SpinnerLoading()}
                                     <View style={styles.buttonContainer}>
@@ -132,6 +132,9 @@ class LoginScreen extends Component<Props, State> {
             return;
         }
         console.log('pin', this.props.inputText);
+        Constant.index = 0;
+        Constant.content = [];
+        Constant.navigationKey = [];
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await LocalDbManager.get<string>(Constant.username, async (error, userName) => {

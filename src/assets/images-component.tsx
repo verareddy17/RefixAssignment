@@ -9,18 +9,16 @@ export const CacheableImage = imageCacheHoc(Image, {
 });
 
 interface Props {
-    fileImage?: string,
-    fileType: string,
-    styles: object,
+    fileImage?: string;
+    fileType: string;
+    styles: object;
 }
 
-export default class ImageComponet extends Component<Props> {
+export default class ImagesComponet extends Component<Props> {
     constructor(props: Props) {
         super(props);
-        console.log('hello');
     }
     public render() {
-        console.log('hello....', this.props);
         return (
             <View>
                 {this.renderFileImages(this.props.fileType, this.props.styles, this.props.fileImage)}

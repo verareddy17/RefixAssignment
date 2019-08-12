@@ -22,7 +22,7 @@ import { string } from 'prop-types';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
-import ImageHoc from '../../assets/imageshoc';
+import ImagesComponet from '../../assets/images-component';
 import PreviewManager from '../../manager/preview-manager';
 interface Props {
     // tslint:disable-next-line:no-any
@@ -312,7 +312,7 @@ class HomeScreen extends Component<Props, State> {
                             data={this.state.filterArray}
                             renderItem={({ item }) =>
                                 <View style={styles.searchContainer}>
-                                    <ImageHoc fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                    <ImagesComponet fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                     <TouchableOpacity onPress={() =>
                                         console.log('get detailes on item files', item)}>
                                         <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
