@@ -24,7 +24,7 @@ import NetworkCheckManager from '../../manager/networkcheck-manager';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
-import ImagesComponet from '../../assets/images-component';
+import FileImages from '../../assets/file-images';
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -49,8 +49,6 @@ interface State {
     allFiles: Array<SubResourceModel>;
     fontColor?: string;
 }
-// let result: SubResourceModel[] = [];
-const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 class FileManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
@@ -151,7 +149,7 @@ class FileManagerScreen extends Component<Props, State> {
         return (
             <View style={styles.contentConatiner}>
                 {this.state.activePage === 2 ? <View style={styles.selectAllFilesConatiner}>
-                    <CheckBox checked={this.state.isSelectAll}
+                    <CheckBox color={Config.PRIMARY_COLOR} checked={this.state.isSelectAll}
                         onPress={() => { this.onPressedSelectAll(); }}
                     />
                     <Text style={styles.selectAll}>Select All</Text>
@@ -231,7 +229,7 @@ class FileManagerScreen extends Component<Props, State> {
                                         <Icon style={styles.swipeButtonIcon} name='trash' />
                                         <Text style={styles.swipeButtonIcon}>Delete</Text>
                                     </View>),
-                                    backgroundColor: '#d11a2a',
+                                    backgroundColor: Constant.swipeButtonBackgroundColor,
                                     onPress: () => {
                                         this.removeFileFromLocalDB(item);
                                     },
@@ -242,7 +240,7 @@ class FileManagerScreen extends Component<Props, State> {
                                     this.previewFile(item);
                                 }}>
                                     <View style={styles.downloadedContainer}>
-                                        <ImagesComponet fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
+                                        <FileImages fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
                                         <Text style={styles.textTitle}>{item.resourceName}</Text>
                                     </View>
                                     <View style={styles.separator} />
@@ -260,14 +258,14 @@ class FileManagerScreen extends Component<Props, State> {
                     renderRow={(item: SubResourceModel, secId, rowId) =>
                         <View>
                             <ListItem style={styles.filesContainer}>
-                                <CheckBox
+                                <CheckBox color={Config.PRIMARY_COLOR}
                                     checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
                                     onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
                                 />
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            <ImagesComponet fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                            <FileImages fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                             <Text style={styles.textTitle}>{item.ResourceName}</Text>
                                         </View>
                                     </TouchableOpacity>
@@ -373,7 +371,7 @@ class FileManagerScreen extends Component<Props, State> {
     public async downloadSelectedFiles() {
         let isConnected = await NetworkCheckManager.isConnected();
         if (!isConnected) {
-            Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
+            Toast.show({ text: Constant.noInternetConnction, type: 'danger', position: 'top' });
             return;
         }
         await this.isSelectedFiles(this.state.selectedFiles);

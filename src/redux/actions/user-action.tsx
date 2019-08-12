@@ -42,7 +42,7 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
                     } else {
                         try {
                             let error = response.Errors[0];
-                            await dispatch(loadUserFailed('Please Enter Valid Pin'));
+                            await dispatch(loadUserFailed(Constant.validationPin));
                         } catch {
                             await dispatch(loadUserFailed(Constant.networkConnctionFailed));
                         }
@@ -51,7 +51,7 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
                     await dispatch(loadUserFailed(Constant.networkConnctionFailed));
                 }
             } else {
-                await dispatch(loadUserFailed('Please check internet connection'));
+                await dispatch(loadUserFailed(Constant.noInternetConnction));
             }
         });
     };

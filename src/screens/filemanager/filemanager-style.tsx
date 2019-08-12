@@ -90,11 +90,7 @@ const styles = StyleSheet.create({
         height: 75,
     },
     selectAll: {
-        color: '#00bbd1',
-        marginLeft: 12,
-    },
-    selectAll: {
-        color: '#00bbd1',
+        color: Config.PRIMARY_COLOR,
         marginLeft: 12,
     },
     containerColor: {

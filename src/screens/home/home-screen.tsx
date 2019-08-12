@@ -22,7 +22,7 @@ import { string } from 'prop-types';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
-import ImagesComponet from '../../assets/images-component';
+import FileImages from '../../assets/file-images';
 import PreviewManager from '../../manager/preview-manager';
 interface Props {
     // tslint:disable-next-line:no-any
@@ -54,7 +54,6 @@ interface State {
     fontColor?: string;
     logoImage?: string;
     searchText: string;
-    isUpdating: boolean;
     searchArray: SubResourceModel[];
 }
 
@@ -76,7 +75,6 @@ class HomeScreen extends Component<Props, State> {
             downloadedFiles: [],
             headerColor: '',
             searchText: '',
-            isUpdating: false,
             searchArray: [],
         };
     }
@@ -161,14 +159,10 @@ class HomeScreen extends Component<Props, State> {
         if (isFromLogin === true) {
             LocalDbManager.showConfirmationAlert(this.state.confirmationMessage);
         }
-        await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
-            if (resource !== undefined) {
-                let result = await PreviewManager.getValues(resource);
-                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, (err) => {
-                    console.log('files are saved successfully');
-                    this.setState({
-                        searchArray: result,
-                    });
+        await LocalDbManager.get<SubResourceModel[]>(Constant.allFiles, async (err, allFiles) => {
+            if (allFiles !== undefined) {
+                this.setState({
+                    searchArray: allFiles,
                 });
             }
         });
@@ -186,54 +180,28 @@ class HomeScreen extends Component<Props, State> {
         if (this.props.deviceTokenResponse.error !== '') {
             Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             return;
-        };
+        }
         this.setState({
             backgroundLandscapeImage: this.props.deviceTokenResponse.settings.LandscapeImage || '',
             backgroundPortraitImage: this.props.deviceTokenResponse.settings.PortraitImage || '',
         });
         await this.props.updateresource(this.state.barierToken);
-        this.setState({
-            isUpdating: true,
-        });
-        await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
-        await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
-        await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
-        await this.storeData<string>(Constant.fontColor, this.props.deviceTokenResponse.settings.FontColor!);
-        await this.storeData<string>(Constant.logoImage, this.props.deviceTokenResponse.settings.LogoImage!);
-        await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
-        await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
-        await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
-        await LocalDbManager.get<ResourceModel[]>(Constant.resources, async (err, resource) => {
-            if (resource !== undefined) {
-                const result = await PreviewManager.getValues(resource);
-                console.log('update', result);
-                await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, result, async (err) => {
-                    console.log('files are saved successfully');
-                    let downloadedFiles = this.state.downloadedFiles.filter(function (item1) {
-                        return result.some(function (item2) {
-                            return item1.resourceId === item2.ResourceId;          // assumes unique id
-                        });
+        await LocalDbManager.get<SubResourceModel[]>(Constant.allFiles, async (err, files) => {
+            if (files) {
+                let downloadedFiles = this.state.downloadedFiles.filter(function (item1) {
+                    return files.some(function (item2) {
+                        return item1.resourceId === item2.ResourceId;          // assumes unique id
                     });
-                    console.log('removed files', downloadedFiles);
-                    await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, downloadedFiles, async (err) => {
-                        this.setState({
-                            downloadedFiles: downloadedFiles,
-                        });
-                    });
+                });
+                console.log('downloaded files', downloadedFiles);
+                await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, downloadedFiles, async (err) => {
                     this.setState({
-                        isUpdating: false,
-                        searchArray: result,
+                        downloadedFiles: downloadedFiles,
+                        searchArray: files,
                     });
                 });
             }
-        });
-    }
 
-    public async storeData<T>(key: string, value: T) {
-        await LocalDbManager.insert<T>(key, value, async (err) => {
-            if (err !== null) {
-                Alert.alert(Config.APP_NAME, err!.message);
-            }
         });
     }
 
@@ -306,25 +274,33 @@ class HomeScreen extends Component<Props, State> {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.props.resourceState.resources.length > 0) {
             if (this.state.isSearch) {
-                return (
-                    <View style={styles.resourceListContainer}>
-                        <FlatList
-                            data={this.state.filterArray}
-                            renderItem={({ item }) =>
-                                <View style={styles.searchContainer}>
-                                    <ImagesComponet fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                    <TouchableOpacity onPress={() =>
-                                        console.log('get detailes on item files', item)}>
-                                        <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            }
-                            ItemSeparatorComponent={this.renderSeparator}
-                        />
-                    </View>
-                );
+                if (this.state.filterArray.length > 0) {
+                    return (
+                        <View style={styles.resourceListContainer}>
+                            <FlatList
+                                data={this.state.filterArray}
+                                renderItem={({ item }) =>
+                                    <View style={styles.searchContainer}>
+                                        <FileImages fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                        <TouchableOpacity onPress={() =>
+                                            console.log('get detailes on item files', item)}>
+                                            <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                }
+                                ItemSeparatorComponent={this.renderSeparator}
+                            />
+                        </View>
+                    );
+                } else {
+                    return (
+                        <View style={styles.noDataContainer}>
+                            <Text style={{ color: '#000' }}>No Data Found </Text>
+                        </View>
+                    );
+                }
             } else {
-                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isUpdating) {
+                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading) {
                     return (
                         <View style={styles.loadingContainer}>
                             <Spinner color={Config.PRIMARY_COLOR}></Spinner>
@@ -364,7 +340,7 @@ class HomeScreen extends Component<Props, State> {
     public async getFilesCountInFolder(data: ResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
-                const result = await PreviewManager.getValues(data.Children);
+                const result = await PreviewManager.getFilesFromAllFolders(data.Children);
                 console.log('result..', result);
                 if (result.length === 0) {
                     return;
@@ -462,7 +438,7 @@ class HomeScreen extends Component<Props, State> {
                         <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
-                                <Input placeholder='Search Text'
+                                <Input placeholder={Constant.searchPlaceholder}
                                     autoCorrect={false}
                                     onChangeText={text => this.searchFilterFunction(text)}
                                     value={this.state.searchText}

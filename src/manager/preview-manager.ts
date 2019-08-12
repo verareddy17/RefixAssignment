@@ -109,21 +109,21 @@ export default class PreviewManager {
         }
     }
 
-    public static async LoopIn(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
+    public static async subfolderrecursive(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
         if (children.Children === undefined || children.Children === null) {
             await resultArray.push(children);
             return;
         }
         for (let i = 0; i < children.Children.length; i++) {
-            await this.LoopIn(children.Children[i], resultArray);
+            await this.subfolderrecursive(children.Children[i], resultArray);
         }
         console.log('resultArray', result);
     }
 
-    public static async getValues(json: ResourceModel[]) {
+    public static async getFilesFromAllFolders(json: ResourceModel[]) {
         result = [];
         for (let j = 0; j < json.length; j++) {
-            await this.LoopIn(json[j], result);
+            await this.subfolderrecursive(json[j], result);
         }
         return result;
     }

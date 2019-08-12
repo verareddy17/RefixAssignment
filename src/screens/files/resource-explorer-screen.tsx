@@ -23,7 +23,7 @@ import imageCacheHoc from 'react-native-image-cache-hoc';
 import Orientation from 'react-native-orientation';
 import images from '../../assets/index';
 import Breadcrumb from 'react-native-breadcrumb';
-import ImagesComponet from '../../assets/images-component';
+import FileImages from '../../assets/file-images';
 export const CacheableImage = imageCacheHoc(Image, {
     validProtocols: ['http', 'https'],
 });
@@ -264,7 +264,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    <ImagesComponet fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
+                                    <FileImages fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
                                 </View>
                                 <View style={styles.resourceContainer}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
@@ -312,7 +312,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 borderRadius={5}
                                 crumbTextStyle={{ fontSize: 15 }}
                                 crumbsContainerStyle={[styles.breadscrumbsView]}
-                                activeCrumbStyle={{backgroundColor: Config.PRIMARY_COLOR}}
+                                activeCrumbStyle={{ backgroundColor: Config.PRIMARY_COLOR }}
                             />
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
@@ -324,37 +324,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 </ImageBackground>
             </SafeAreaView>
         );
-    }
-
-    public goToPreviousScreen() {
-        Constant.navigationKey.pop();
-        Constant.content.pop();
-        Constant.index = Constant.index - 1;
-        this.setState({
-            index: Constant.index,
-            content: Constant.content,
-            flowDepth: Constant.content.length - 1,
-        });
-        this.props.navigation.pop();
-    }
-
-    public onCrumbPress(index: number) {
-        const key = Constant.navigationKey[index];
-        for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
-            if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
-                Constant.navigationKey.pop();
-                Constant.content.pop();
-                break;
-            } else {
-                Constant.navigationKey.pop();
-                Constant.content.pop();
-            }
-        }
-        this.setState({
-            content: Constant.content,
-            flowDepth: index - 1,
-        });
-        this.props.navigation.goBack(key);
     }
 
     public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
@@ -468,7 +437,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         let isConnected = await NetworkCheckManager.isConnected();
         if (!isConnected) {
-            Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
+            Toast.show({ text: Constant.noInternetConnction, type: 'danger', position: 'top' });
             return;
         }
         this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile);
@@ -502,6 +471,37 @@ class ResourceExplorerScreen extends Component<Props, State> {
         } else {
             this.setState({ orientation: Constant.portrait });
         }
+    }
+
+    private goToPreviousScreen() {
+        Constant.navigationKey.pop();
+        Constant.content.pop();
+        Constant.index = Constant.index - 1;
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            flowDepth: Constant.content.length - 1,
+        });
+        this.props.navigation.pop();
+    }
+
+    private onCrumbPress(index: number) {
+        const key = Constant.navigationKey[index];
+        for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
+            if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+                break;
+            } else {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+            }
+        }
+        this.setState({
+            content: Constant.content,
+            flowDepth: index - 1,
+        });
+        this.props.navigation.goBack(key);
     }
 }
 

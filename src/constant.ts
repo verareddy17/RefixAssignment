@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 export class Constant {
     public static activateAppURL = 'login';
     public static resourceUrl = 'GetAppResources';
-    public static validationPin = 'Please enter valid pin';
+    public static validationPin = 'Please Enter Valid Pin';
     public static downloadFile = 'GetResourceByIdAsStream';
     public static deviceTokenUrl = 'SaveDeviceToken';
     public static confirmationMessage = 'ConfirmationMessage';
@@ -29,8 +29,8 @@ export class Constant {
     public static resources = 'resources';
     public static downloadedFiles = 'downloadedFiles';
     public static allFiles = 'allFiles';
-    public static addTitle = 'Add   ';
-    public static removeTitle = 'Remove';
+    public static addTitle = '   Add   ';
+    public static removeTitle = '  Remove  ';
     public static addedbookmarkTitle = 'successfully added to bookmarks';
     public static deleted = 'successfully deleted the downloaded file';
     public static bookmarkDeleted = 'succesfully removed from bookmarks';
@@ -48,6 +48,9 @@ export class Constant {
     public static navigationKey: string[] = [];
     public static networkConnctionFailed = 'No Internet Found';
     public static timeout = 60 * 1000;
+    public static swipeButtonBackgroundColor = '#d11a2a';
+    public static noInternetConnction = 'Please check internet connection';
+    public static searchPlaceholder = 'search file';
 }
 
 export enum FileType {

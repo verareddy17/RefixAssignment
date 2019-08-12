@@ -14,7 +14,7 @@ interface Props {
     styles: object;
 }
 
-export default class ImagesComponet extends Component<Props> {
+export default class FileImages extends Component<Props> {
     constructor(props: Props) {
         super(props);
     }
@@ -26,7 +26,7 @@ export default class ImagesComponet extends Component<Props> {
         );
     }
 
-    public renderFileImages(fileType: string, styles: object, fileImage?: string) {
+    private renderFileImages(fileType: string, styles: object, fileImage?: string) {
         if (fileImage === undefined || fileImage === '') {
             if (fileType === FileType.video) {
                 return (
