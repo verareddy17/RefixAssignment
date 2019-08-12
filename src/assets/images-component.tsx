@@ -40,12 +40,14 @@ export default class ImagesComponet extends Component<Props> {
                 return (
                     <Image source={images.png} style={styles} />
                 );
+            } else if (fileType === FileType.pptx || fileType === FileType.xlsx || fileType === FileType.docx || fileType === FileType.ppt || fileType === FileType.doc || fileType === FileType.xls) {
+                return (
+                    <Image source={images.ppt} style={styles} />
+                );
             } else {
-                if (fileType === FileType.pptx || fileType === FileType.xlsx || fileType === FileType.docx || fileType === FileType.ppt || fileType === FileType.doc || fileType === FileType.xls) {
-                    return (
-                        <Image source={images.ppt} style={styles} />
-                    );
-                }
+                return (
+                    <Image source={images.png} style={styles} />
+                );
             }
         } else {
             return (

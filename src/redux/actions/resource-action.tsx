@@ -69,10 +69,9 @@ export const fetchResources = (token: string) => {
                                 let error = data.Errors[0];
                                 await dispatch(loadResourceFail(error));
                             } catch {
-                                await dispatch(loadResourceFail('Network Request Failed'));
+                                await dispatch(loadResourceFail(Constant.networkConnctionFailed));
                             }
                         }
-
                     } else {
                         dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
                     }
@@ -124,7 +123,7 @@ export const updateResources = (token: string) => {
                         let error = data.Errors[0];
                         dispatch(loadResourceFail(error));
                     } catch {
-                        dispatch(loadResourceFail('Newtwork request failed'));
+                        dispatch(loadResourceFail(Constant.networkConnctionFailed));
                     }
                 }
             } else {

@@ -36,21 +36,19 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
         dispatch(loadSettingRequest());
         await ApiManager.post<ApiResponse<Setting<CustomizeSettings>>>(`${Config.BASE_URL}/${Constant.deviceTokenUrl}`, { 'DeviceToken': DeviceToken, 'ThemeVersion': ThemeVersion, 'DeviceOs': DeviceOs }, token, async (data, err, isNetworkFail) => {
             if (!isNetworkFail) {
-                console.log('setting', data);
                 if (data) {
                     if (data.Success) {
-                        console.log('..../');
                         await dispatch(loadSettingSuccess(data.Data.Settings));
                     } else {
                         try {
                             let error = data.Errors[0];
                             dispatch(loadSettingFailed(error));
                         } catch {
-                            dispatch(loadSettingFailed('Network request failed'));
+                            dispatch(loadSettingFailed(Constant.networkConnctionFailed));
                         }
                     }
                 } else {
-                    dispatch(loadSettingFailed('Network request failed'));
+                    dispatch(loadSettingFailed(Constant.networkConnctionFailed));
                 }
 
             } else {

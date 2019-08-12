@@ -1,6 +1,7 @@
 import { NetInfo, Alert } from 'react-native';
 import Config from 'react-native-config';
 import axios from 'axios';
+import { Constant } from '../constant';
 
 export default class ApiManager {
 
@@ -18,8 +19,8 @@ export default class ApiManager {
                     headers: { 'Authorization': 'Bearer ' + bearer_token },
                 };
                 try {
-                    const instance = axios.create();
-                    instance.defaults.timeout = 2500;
+                    let instance = axios.create();
+                    instance.defaults.timeout = Constant.timeout;
                     let response = await instance.get(url, config);
                     if (response.status === 200) {
                         if (response !== null) {
@@ -53,8 +54,8 @@ export default class ApiManager {
                     headers: { 'Authorization': 'Bearer ' + bearer_token },
                 };
                 try {
-                    const instance = axios.create();
-                    instance.defaults.timeout = 2500;
+                    let instance = axios.create();
+                    instance.defaults.timeout = Constant.timeout;
                     let response = await instance.post(url, params, config);
                     console.log('responseApi post', response);
                     if (response.status === 200) {

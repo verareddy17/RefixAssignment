@@ -46,6 +46,8 @@ export class Constant {
     public static index: number = 0;
     public static content: string[] = [];
     public static navigationKey: string[] = [];
+    public static networkConnctionFailed = 'No Internet Found';
+    public static timeout = 60 * 1000;
 }
 
 export enum FileType {

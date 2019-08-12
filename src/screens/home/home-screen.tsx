@@ -354,7 +354,7 @@ class HomeScreen extends Component<Props, State> {
             }
         } else {
             return (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={styles.noDataContainer}>
                     <Text style={{ color: '#000' }}>No Data Found </Text>
                 </View>
             );
