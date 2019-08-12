@@ -2,7 +2,6 @@ import { AsyncStorage, Alert, Image, View } from 'react-native';
 import Config from 'react-native-config';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FileType } from '../constant';
-import images from '../assets/index';
 
 export default class LocalDbManager {
 

@@ -312,6 +312,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 borderRadius={5}
                                 crumbTextStyle={{ fontSize: 15 }}
                                 crumbsContainerStyle={[styles.breadscrumbsView]}
+                                activeCrumbStyle={{backgroundColor: Config.PRIMARY_COLOR}}
                             />
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
