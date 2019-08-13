@@ -1,6 +1,6 @@
-import { FileType } from '../constant';
+import { FileType } from '../../constant';
 import { Image, View } from 'react-native';
-import images from './index';
+import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import React, { Component } from 'react';
 
@@ -14,7 +14,7 @@ interface Props {
     styles: object;
 }
 
-export default class FileImages extends Component<Props> {
+export default class FileImageComponent extends Component<Props> {
     constructor(props: Props) {
         super(props);
     }

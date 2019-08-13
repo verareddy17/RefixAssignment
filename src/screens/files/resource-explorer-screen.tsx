@@ -19,19 +19,17 @@ import { DownloadResourceFileProgress } from '../../redux/actions/download-actio
 import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
-import imageCacheHoc from 'react-native-image-cache-hoc';
-import Orientation from 'react-native-orientation';
-import images from '../../assets/index';
 import Breadcrumb from 'react-native-breadcrumb';
-import FileImages from '../../assets/file-images';
-export const CacheableImage = imageCacheHoc(Image, {
-    validProtocols: ['http', 'https'],
-});
+import FileImageComponent from '../components/file-images';
+import { SettingsResponse } from '../../redux/actions/settings-actions';
+import FolderImageComponet from '../components/folder-images';
+import { removeOrientationOfScreen, handleOrientationOfScreen, getInitialScreenOrientation } from '../components/screen-orientation';
 
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
+    deviceTokenResponse: SettingsResponse;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
 }
@@ -45,8 +43,6 @@ interface State {
     marginLeft: number;
     isRowClosed: boolean;
     bearer_token: string;
-    backgroundPortraitImage: string;
-    backgroundLandscapeImage: string;
     orientation: string;
     fontColor?: string;
     index: number;
@@ -66,9 +62,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             marginLeft: 1,
             isRowClosed: false,
             bearer_token: '',
-            backgroundPortraitImage: '',
-            backgroundLandscapeImage: '',
-            orientation: Constant.portrait,
+            orientation: getInitialScreenOrientation(),
             index: 0,
             content: [],
             breadscumbItemsCount: 0,
@@ -76,7 +70,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             flowDepth: 0,
 
         };
-        this.onCrumbPress = this.onCrumbPress.bind(this);
+        this.onBreadCrumbPress = this.onBreadCrumbPress.bind(this);
         this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
     }
 
@@ -91,26 +85,10 @@ class ResourceExplorerScreen extends Component<Props, State> {
             breadscumbItemsCount: Constant.content.length,
             flowDepth: Constant.content.length - 1,
         });
-        Orientation.unlockAllOrientations();
-        await LocalDbManager.get(Constant.fontColor, (err, color) => {
-            if (color !== null || color !== '') {
-                this.setState({ fontColor: color } as State);
-            }
-        });
-        Orientation.addOrientationListener(this._orientationDidChange);
-        await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundPortraitImage: image!,
-                });
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundLandscapeImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundLandscapeImage: image!,
-                });
-            }
+        handleOrientationOfScreen((orientation) => {
+            this.setState({
+                orientation: orientation,
+            });
         });
         await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
             if (data) {
@@ -166,18 +144,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
     }
 
-    public renderFolderImage(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            return (
-                <Image source={images.folder} style={styles.folderImage} />
-            );
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.folderImage} />
-            );
-        }
-    }
-
     public getBadgeNumber(data: SubResourceModel) {
         if (data !== undefined) {
             if (data.Children !== undefined) {
@@ -224,7 +190,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             body={
                                 <TouchableOpacity style={styles.folderContainer} onPress={() => this.resourceDetails(data)}>
                                     <View style={[styles.folderImageContainer]}>
-                                        {this.renderFolderImage(data)}
+                                    <FolderImageComponet styles={styles.folderImage} folderImage={data.ResourceImage}/>
                                         {this.getBadgeNumber(data)}
                                     </View>
                                     <View style={styles.resourceContainer}>
@@ -264,7 +230,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    <FileImages fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
+                                    <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
                                 </View>
                                 <View style={styles.resourceContainer}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
@@ -286,7 +252,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         let item = this.props.navigation.getParam('item');
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
-                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.props.deviceTokenResponse.settings.PortraitImage : this.props.deviceTokenResponse.settings.LandscapeImage }} style={{ width, height }}>
                     <Container style={styles.transparentColor}>
                         {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left style={{ flexDirection: 'row' }}>
@@ -295,9 +261,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={{color: this.state.fontColor || '#fff' }}>{item.ResourceName}</Title>
+                                <Title style={{ color: this.props.deviceTokenResponse.settings.FontColor || '#fff' }}>{item.ResourceName}</Title>
                             </Body>
-                            {Constant.platform === 'ios' ? <Right/> : null}
+                            {Constant.platform === 'ios' ? <Right /> : null}
                         </Header>}
                         {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
                             <Breadcrumb
@@ -305,7 +271,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 isTouchable={true}
                                 flowDepth={this.state.flowDepth}
                                 height={30}
-                                onCrumbPress={this.onCrumbPress}
+                                onCrumbPress={this.onBreadCrumbPress}
                                 borderRadius={5}
                                 crumbTextStyle={{ fontSize: 15 }}
                                 crumbsContainerStyle={[styles.breadscrumbsView]}
@@ -441,7 +407,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        Orientation.removeOrientationListener(this._orientationDidChange);
+        removeOrientationOfScreen();
         BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
@@ -462,14 +428,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
         }
     }
 
-    public _orientationDidChange = (orientation: string) => {
-        if (orientation === Constant.landscape) {
-            this.setState({ orientation: Constant.landscape });
-        } else {
-            this.setState({ orientation: Constant.portrait });
-        }
-    }
-
     private goToPreviousScreen() {
         Constant.navigationKey.pop();
         Constant.content.pop();
@@ -482,7 +440,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         this.props.navigation.pop();
     }
 
-    private onCrumbPress(index: number) {
+    private onBreadCrumbPress(index: number) {
         const key = Constant.navigationKey[index];
         for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
             if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
@@ -504,6 +462,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
+    deviceTokenResponse: state.settings,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

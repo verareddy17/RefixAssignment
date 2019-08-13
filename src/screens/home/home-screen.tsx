@@ -14,16 +14,14 @@ import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import Crashes from 'appcenter-crashes';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
-import Orientation from 'react-native-orientation';
-import imageCacheHoc from 'react-native-image-cache-hoc';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
-import images from '../../assets/index';
-import { string } from 'prop-types';
-export const CacheableImage = imageCacheHoc(Image, {
-    validProtocols: ['http', 'https'],
-});
-import FileImages from '../../assets/file-images';
+import { string } from 'prop-types'
+import FileImageComponent from '../components/file-images';
 import PreviewManager from '../../manager/preview-manager';
+import { CustomizeSettings } from '../../models/custom-settings';
+import { ActivationAppResponse } from '../../models/login-model';
+import FolderImageComponet from '../components/folder-images';
+import { removeOrientationOfScreen, handleOrientationOfScreen, getInitialScreenOrientation } from '../components/screen-orientation';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -39,20 +37,14 @@ interface Props {
 
 interface State {
     token: '';
-    confirmationMessage: string;
-    confirmationModifiedDate: string;
     isFromLogin: boolean;
     resourceFiles: ResourceModel[];
     isSearch: boolean;
     filterArray: SubResourceModel[];
-    backgroundPortraitImage: string;
-    backgroundLandscapeImage: string;
     orientation: string;
     barierToken: string;
     downloadedFiles: Array<DownloadedFilesModel>;
-    headerColor: string;
     fontColor?: string;
-    logoImage?: string;
     searchText: string;
     searchArray: SubResourceModel[];
 }
@@ -62,35 +54,16 @@ class HomeScreen extends Component<Props, State> {
         super(props);
         this.state = {
             token: '',
-            confirmationMessage: '',
-            confirmationModifiedDate: '',
             isFromLogin: false,
             resourceFiles: [],
             isSearch: false,
             filterArray: [],
-            backgroundPortraitImage: '',
-            backgroundLandscapeImage: '',
-            orientation: Constant.portrait,
+            orientation: getInitialScreenOrientation(),
             barierToken: '',
             downloadedFiles: [],
-            headerColor: '',
             searchText: '',
             searchArray: [],
         };
-    }
-
-    public _orientationDidChange = (orientation: string) => {
-        if (orientation === Constant.landscape) {
-            console.log('landscape');
-            this.setState({
-                orientation: Constant.landscape,
-            });
-        } else {
-            console.log('portrait');
-            this.setState({
-                orientation: Constant.portrait,
-            });
-        }
     }
 
     public async componentWillMount() {
@@ -107,57 +80,36 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        Orientation.unlockAllOrientations();
-        Orientation.addOrientationListener(this._orientationDidChange);
-        await LocalDbManager.get<string>(Constant.username, (err, username) => {
-            Constant.loginName = username;
+        handleOrientationOfScreen((orientation) => {
+            this.setState({
+                orientation: orientation,
+            });
         });
-        await LocalDbManager.get(Constant.headerColor, (err, color) => {
-            this.setState({ headerColor: color } as State);
+        await LocalDbManager.get<ActivationAppResponse>(Constant.userDetailes, (err, data) => {
+            if (data) {
+                Constant.loginName = data.UserFullName,
+                    this.setState({
+                        barierToken: data.Token || '',
+                    });
+            }
         });
-        await LocalDbManager.get(Constant.fontColor, (err, color) => {
-            this.setState({ fontColor: color } as State);
-        });
-        await LocalDbManager.get(Constant.logoImage, (err, image) => {
-            this.setState({ logoImage: image } as State);
+        await LocalDbManager.get<CustomizeSettings>(Constant.customSettings, (err, data) => {
+            if (data) {
+                this.setState({
+                });
+            }
         });
         await LocalDbManager.get('userToken', (err, data) => {
             if (data !== null || data !== '') {
                 this.setState({ token: data } as State);
             }
         });
-        await LocalDbManager.get<string>(Constant.token, async (err, token) => {
-            if (token !== null && token !== '') {
-                await this.setState({
-                    barierToken: token!,
-                });
-            }
-        });
         await this.getAllResources();
-        await LocalDbManager.get<string>(Constant.confirmationMessage, (err, message) => {
-            if (message !== null && message !== '') {
-                this.setState({
-                    confirmationMessage: message!,
-                });
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundPortraitImage: image!,
-                });
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundLandscapeImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundLandscapeImage: image!,
-                });
-            }
-        });
         const isFromLogin = this.props.navigation.getParam('isFromLogin');
         if (isFromLogin === true) {
-            LocalDbManager.showConfirmationAlert(this.state.confirmationMessage);
+            if (this.props.deviceTokenResponse.settings.ConfirmationMessage || ''.length  > 5) {
+                LocalDbManager.showConfirmationAlert(this.props.deviceTokenResponse.settings.ConfirmationMessage!);
+            }
         }
         await LocalDbManager.get<SubResourceModel[]>(Constant.allFiles, async (err, allFiles) => {
             if (allFiles !== undefined) {
@@ -175,16 +127,13 @@ class HomeScreen extends Component<Props, State> {
     public async updateResouces() {
         await this.closeSearch();
         const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
+        // settings action
         await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.state.barierToken);
-        console.log('update settings', this.props.deviceTokenResponse);
         if (this.props.deviceTokenResponse.error !== '') {
             Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             return;
         }
-        this.setState({
-            backgroundLandscapeImage: this.props.deviceTokenResponse.settings.LandscapeImage || '',
-            backgroundPortraitImage: this.props.deviceTokenResponse.settings.PortraitImage || '',
-        });
+        // resources action.
         await this.props.updateresource(this.state.barierToken);
         await LocalDbManager.get<SubResourceModel[]>(Constant.allFiles, async (err, files) => {
             if (files) {
@@ -206,31 +155,11 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        Orientation.removeOrientationListener(this._orientationDidChange);
+        removeOrientationOfScreen();
     }
 
     public async showConfirmationMessage(message: string, date: string) {
-        LocalDbManager.get<string>(Constant.confirmationModifiedDate, (err, date) => {
-            if (err === null) {
-                if (date !== null && date !== '') {
-                    this.setState({
-                        confirmationModifiedDate: date!,
-                    });
-                }
-            }
-        });
-        console.log('date..confirmation date', date, this.state.confirmationModifiedDate);
-        if (date !== this.state.confirmationModifiedDate) {
-            if (message!.length > 0) {
-                LocalDbManager.insert<string>(Constant.confirmationMessage, message!, (err) => {
-                    console.log('Successfully inserted');
-                });
-                LocalDbManager.insert<string>(Constant.confirmationModifiedDate, date!, (err) => {
-                    console.log('Successfully inserted');
-                });
-                LocalDbManager.showConfirmationAlert(message!);
-            }
-        }
+
     }
 
     public async searchFilterFunction(textData: string) {
@@ -281,7 +210,7 @@ class HomeScreen extends Component<Props, State> {
                                 data={this.state.filterArray}
                                 renderItem={({ item }) =>
                                     <View style={styles.searchContainer}>
-                                        <FileImages fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                         <TouchableOpacity onPress={() =>
                                             console.log('get detailes on item files', item)}>
                                             <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
@@ -315,7 +244,7 @@ class HomeScreen extends Component<Props, State> {
                                     <View>
                                         <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                             <View style={styles.resourceImageConatiner}>
-                                                {this.renderFolderImage(rowData)}
+                                                <FolderImageComponet styles={styles.resourceImage} folderImage={rowData.ResourceImage} />
                                                 {this.getBadgeNumber(rowData)}
                                             </View>
                                             <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
@@ -389,18 +318,6 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public renderFolderImage(rowData: ResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            return (
-                <Image source={images.folder} style={styles.resourceImage} />
-            );
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.resourceImage} />
-            );
-        }
-    }
-
     public closeSearch() {
         this.setState({
             searchText: '',
@@ -418,7 +335,7 @@ class HomeScreen extends Component<Props, State> {
                     onWillFocus={() => this.componentWillMount()}
                     onDidFocus={() => this.render()}
                 />
-                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.props.deviceTokenResponse.settings.PortraitImage : this.props.deviceTokenResponse.settings.LandscapeImage }} style={{ width, height }}>
                     <Container style={styles.containerColor}>
                         <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left>
@@ -427,7 +344,7 @@ class HomeScreen extends Component<Props, State> {
                                 </TouchableOpacity>
                             </Left>
                             <Body>
-                                <Title style={{ color: this.state.fontColor || '#fff' }}>Home</Title>
+                                <Title style={{ color: this.props.deviceTokenResponse.settings.FontColor || '#fff' }}>Home</Title>
                             </Body>
                             <Right>
                                 <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>

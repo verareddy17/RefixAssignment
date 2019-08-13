@@ -54,6 +54,7 @@ export const fetchResources = (token: string) => {
                 await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
                         if (data.Success) {
+                            console.log('dataattt', data)
                             await LocalDbManager.insert('resources', data.Data, (err) => {
                                 console.log('Successfully inserted');
                             });

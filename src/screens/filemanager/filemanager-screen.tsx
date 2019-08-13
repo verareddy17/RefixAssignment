@@ -9,27 +9,22 @@ import { FileType, Constant } from '../../constant';
 import { SubResourceModel, ResourceModel } from '../../models/resource-model';
 import LocalDbManager from '../../manager/localdb-manager';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
-import Orientation from 'react-native-orientation';
-import store from '../../redux/store';
-import RNFetchBlob from 'rn-fetch-blob';
 import PreviewManager from '../../manager/preview-manager';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { DownloadResourceFileProgress } from '../../redux/actions/download-action';
 import { AppState } from '../../redux/reducers/index';
 import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
-import images from '../../assets/index';
-import imageCacheHoc from 'react-native-image-cache-hoc';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
-export const CacheableImage = imageCacheHoc(Image, {
-    validProtocols: ['http', 'https'],
-});
-import FileImages from '../../assets/file-images';
+import FileImageComponent from '../components/file-images';
+import { SettingsResponse } from '../../redux/actions/settings-actions';
+import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen } from '../components/screen-orientation';
 
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
+    deviceTokenResponse: SettingsResponse;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
 }
@@ -59,7 +54,7 @@ class FileManagerScreen extends Component<Props, State> {
             activePage: 1,
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
-            orientation: Constant.portrait,
+            orientation: getInitialScreenOrientation(),
             selectedFiles: [],
             selectedFileIds: [],
             bearer_token: '',
@@ -75,26 +70,10 @@ class FileManagerScreen extends Component<Props, State> {
             downloadedFiles: [],
             resources: [],
         });
-        Orientation.unlockAllOrientations();
-        Orientation.addOrientationListener(this._orientationDidChange);
-        await LocalDbManager.get(Constant.fontColor, (err, color) => {
-            if (color !== null || color !== '') {
-                this.setState({ fontColor: color } as State);
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundPortraitImage: image!,
-                });
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundLandscapeImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundLandscapeImage: image!,
-                });
-            }
+        handleOrientationOfScreen((orientation) => {
+            this.setState({
+                orientation: orientation,
+            });
         });
         await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
             if (data) {
@@ -116,8 +95,6 @@ class FileManagerScreen extends Component<Props, State> {
                 ///
             }
         });
-
-
         await LocalDbManager.get<string>(Constant.token, async (err, token) => {
             if (token !== null && token !== '') {
                 await this.setState({
@@ -129,16 +106,8 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        Orientation.removeOrientationListener(this._orientationDidChange);
+        removeOrientationOfScreen();
         BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
-    }
-
-    public _orientationDidChange = (orientation: string) => {
-        if (orientation === Constant.landscape) {
-            this.setState({ orientation: Constant.landscape });
-        } else {
-            this.setState({ orientation: Constant.portrait });
-        }
     }
 
     public selectComponent(activePage: number) {
@@ -175,7 +144,7 @@ class FileManagerScreen extends Component<Props, State> {
                     onWillFocus={() => this.componentDidMount()}
                     onDidFocus={() => this.render()}
                 />
-                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.props.deviceTokenResponse.settings.PortraitImage : this.props.deviceTokenResponse.settings.LandscapeImage }} style={{ width, height }}>
                     <Container style={styles.containerColor}>
                         {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left>
@@ -184,7 +153,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={{ color: this.state.fontColor || '#fff' }}>Downloads Manager</Title>
+                                <Title style={{ color: this.props.deviceTokenResponse.settings.FontColor || '#fff' }}>Downloads Manager</Title>
                             </Body>
                             {Constant.platform === 'ios' ? <Right/> : null}
                         </Header>}
@@ -240,7 +209,7 @@ class FileManagerScreen extends Component<Props, State> {
                                     this.previewFile(item);
                                 }}>
                                     <View style={styles.downloadedContainer}>
-                                        <FileImages fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
+                                        <FileImageComponent fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
                                         <Text style={styles.textTitle}>{item.resourceName}</Text>
                                     </View>
                                     <View style={styles.separator} />
@@ -265,7 +234,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            <FileImages fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                             <Text style={styles.textTitle}>{item.ResourceName}</Text>
                                         </View>
                                     </TouchableOpacity>
@@ -450,6 +419,7 @@ class FileManagerScreen extends Component<Props, State> {
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
+    deviceTokenResponse: state.settings,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),

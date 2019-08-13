@@ -38,6 +38,7 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             if (!isNetworkFail) {
                 if (response) {
                     if (response.Success) {
+                        LocalDbManager.insert<ActivationAppResponse>(Constant.userDetailes, response.Data, (err) => {});
                         dispatch(loadUserSuccess(response.Data));
                     } else {
                         try {

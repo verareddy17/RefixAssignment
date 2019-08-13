@@ -146,20 +146,10 @@ class LoginScreen extends Component<Props, State> {
                     }
                 }
             });
-            await this.storeData<string>(Constant.token, this.props.userState.user.Token || '');
-            await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
-            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
-                // await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
-                // await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
-                // await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
-                // await this.storeData<string>(Constant.fontColor, this.props.deviceTokenResponse.settings.FontColor!);
-                // await this.storeData<string>(Constant.logoImage, this.props.deviceTokenResponse.settings.LogoImage!);
-                // await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
-                // await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
-                // await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
+            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {   
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
                     if (err === null) {
                         this.props.resetInputText();

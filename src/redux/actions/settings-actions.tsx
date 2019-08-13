@@ -33,15 +33,6 @@ export class SettingsResponse {
     public error: string = '';
 }
 
-export async function storeData<T>(key: string, value: T) {
-    await LocalDbManager.insert<T>(key, value, async (err) => {
-        if (err !== null) {
-            Alert.alert(Config.APP_NAME, err!.message);
-        } else {
-            console.log('value', value);
-        }
-    });
-}
 export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch) => Promise<void> {
     return async (dispatch: Dispatch) => {
         dispatch(loadSettingRequest());
@@ -49,14 +40,7 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
             if (!isNetworkFail) {
                 if (data) {
                     if (data.Success) {
-                        await storeData<string>(Constant.confirmationMessage, data.Data.Settings.ConfirmationMessage!);
-                        await storeData<string>(Constant.confirmationModifiedDate, data.Data.Settings.ConfirmationMessageModifiedDate!);
-                        await storeData<string>(Constant.headerColor, data.Data.Settings.HeaderColor!);
-                        await storeData<string>(Constant.fontColor, data.Data.Settings.FontColor!);
-                        await storeData<string>(Constant.logoImage, data.Data.Settings.LogoImage!);
-                        await storeData<string>(Constant.portrait, data.Data.Settings.PortraitImage!);
-                        await storeData<string>(Constant.landscape, data.Data.Settings.LandscapeImage!);
-                        await storeData<string>(Constant.versionNumber, data.Data.Settings.VersionNumber!);
+                        LocalDbManager.insert<CustomizeSettings>(Constant.customSettings, data.Data.Settings, (err) => { });
                         await dispatch(loadSettingSuccess(data.Data.Settings));
                     } else {
                         try {

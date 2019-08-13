@@ -51,6 +51,8 @@ export class Constant {
     public static swipeButtonBackgroundColor = '#d11a2a';
     public static noInternetConnction = 'Please check internet connection';
     public static searchPlaceholder = 'search file';
+    public static customSettings = 'settings';
+    public static userDetailes = 'userDetailes';
 }
 
 export enum FileType {
