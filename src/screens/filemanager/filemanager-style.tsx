@@ -67,6 +67,9 @@ const styles = StyleSheet.create({
             ios: {
                 backgroundColor: '#ffffff',
             },
+            android: {
+                backgroundColor: Config.PRIMARY_COLOR,
+            },
         }),
     },
     segmentButton: {

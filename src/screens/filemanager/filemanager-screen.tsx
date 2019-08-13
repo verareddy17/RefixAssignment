@@ -161,7 +161,7 @@ class FileManagerScreen extends Component<Props, State> {
                         onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                 </Segment>
                 {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
-                    <Icon name='download' style={{ marginRight: 10 }}></Icon>
+                    <Icon name='download' style={{ marginRight: 10, color: Config.PRIMARY_COLOR }}></Icon>
                 </TouchableOpacity> : <View />}
             </View>
         );
@@ -186,7 +186,7 @@ class FileManagerScreen extends Component<Props, State> {
                             <Body>
                                 <Title style={{ color: this.state.fontColor || '#fff' }}>Downloads Manager</Title>
                             </Body>
-                            <Right />
+                            {Constant.platform === 'ios' ? <Right/> : null}
                         </Header>}
                         {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>

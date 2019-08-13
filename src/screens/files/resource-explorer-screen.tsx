@@ -295,9 +295,9 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={{ color: this.state.fontColor || '#fff', marginLeft: Constant.platform === 'android' ? 15 : 0 }}>{item.ResourceName}</Title>
+                                <Title style={{color: this.state.fontColor || '#fff' }}>{item.ResourceName}</Title>
                             </Body>
-                            <Right />
+                            {Constant.platform === 'ios' ? <Right/> : null}
                         </Header>}
                         {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
                             <Breadcrumb
