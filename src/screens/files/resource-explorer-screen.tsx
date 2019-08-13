@@ -293,9 +293,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <Button transparent onPress={() => this.goToPreviousScreen()}>
                                     <Icon name='arrow-back' style={[styles.iconColor]} />
                                 </Button>
-                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                    <Icon name='menu' style={styles.iconColor} />
-                                </Button>
                             </Left>
                             <Body>
                                 <Title style={{ color: this.state.fontColor || '#fff', marginLeft: Constant.platform === 'android' ? 15 : 0 }}>{item.ResourceName}</Title>
