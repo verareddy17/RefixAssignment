@@ -7,6 +7,7 @@ export default function downloadReducer(state = initialState, action: { type: st
             return {
                 ...state,
                 isLoading: true,
+                cancelDownload: action.cancelDownload,
             };
         case DOWNLOAD_PROGRESS:
             return {

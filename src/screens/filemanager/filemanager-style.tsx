@@ -44,9 +44,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.8)',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     progressBarText: {
-        color: '#fff',
+        color: '#000000',
         textAlign: 'center',
     },
     progressBarWidth: {
@@ -65,6 +66,9 @@ const styles = StyleSheet.create({
         ...Platform.select({
             ios: {
                 backgroundColor: '#ffffff',
+            },
+            android: {
+                backgroundColor: Config.PRIMARY_COLOR,
             },
         }),
     },
@@ -86,9 +90,10 @@ const styles = StyleSheet.create({
     bodyContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        height: 75,
     },
     selectAll: {
-        color: '#00bbd1',
+        color: Config.PRIMARY_COLOR,
         marginLeft: 12,
     },
     containerColor: {
@@ -106,7 +111,23 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#ffffff',
     },
-    selectAllFilesContainer: {
+    swipeoutContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    swipeButtonIcon: {
+        color: '#fff',
+    },
+    separator: {
+        height: 1,
+        backgroundColor: '#ffffff',
+        width: '100%',
+    },
+    cancelButton: {
+        color: '#000000',
+    },
+    selectAllFilesConatiner: {
         flexDirection: 'row',
         marginLeft: 5,
     },

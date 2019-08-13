@@ -5,7 +5,7 @@ import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './preview-manager-style';
 import Video from 'react-native-video';
-import { FileType } from '../../constant';
+import { FileType, Constant } from '../../constant';
 import PreviewManager from '../../manager/preview-manager';
 
 interface Props {
@@ -41,15 +41,17 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileType = this.props.navigation.getParam('fileType') as string;
         const resourceId = this.props.navigation.getParam('resourceId') as number;
         await PreviewManager.previewZipOrVideoFile(dirPath, launcherFile, fileName, fileType, resourceId, async (path, isLoading, type) => {
-            if (fileType === FileType.video) {
+            if (type === FileType.video) {
                 this.setState({
                     isLoading: isLoading,
                     videoPath: path,
                     fileType: fileType,
                 });
             } else {
+                const htmlPath = Constant.platform === 'android' ? `file://${path}` : path;
+                console.log('html path', htmlPath);
                 this.setState({
-                    path: path,
+                    path: htmlPath,
                     isLoading: isLoading,
                     fileType: fileType,
                 });

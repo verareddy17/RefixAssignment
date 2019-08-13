@@ -38,15 +38,21 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             if (!isNetworkFail) {
                 if (response) {
                     if (response.Success) {
+                        LocalDbManager.insert<ActivationAppResponse>(Constant.userDetailes, response.Data, (err) => {});
                         dispatch(loadUserSuccess(response.Data));
                     } else {
-                        dispatch(loadUserFailed(response.Errors[0]));
+                        try {
+                            let error = response.Errors[0];
+                            await dispatch(loadUserFailed(Constant.validationPin));
+                        } catch {
+                            await dispatch(loadUserFailed(Constant.networkConnctionFailed));
+                        }
                     }
                 } else {
-                    await dispatch(loadUserFailed(err !== null ? err as string : ''));
+                    await dispatch(loadUserFailed(Constant.networkConnctionFailed));
                 }
             } else {
-                await dispatch(loadUserFailed('Please check internet connection'));
+                await dispatch(loadUserFailed(Constant.noInternetConnction));
             }
         });
     };

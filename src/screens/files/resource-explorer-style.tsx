@@ -134,9 +134,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     downloadingText: {
-        color: '#fff',
-        fontSize: 30,
-        fontWeight: '400',
+        color: '#000000',
+    },
+    breadscrumbContainer: {
+        width: '100%',
+        height: 30,
+        justifyContent: 'flex-start',
+    },
+    breadscrumbsView: {
+        backgroundColor: '#ffffff',
+        justifyContent: 'flex-start',
     },
 });
 

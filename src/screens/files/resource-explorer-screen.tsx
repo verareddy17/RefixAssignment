@@ -5,7 +5,7 @@ import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -19,18 +19,17 @@ import { DownloadResourceFileProgress } from '../../redux/actions/download-actio
 import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
 import { any } from 'prop-types';
 import Swipeout from 'react-native-swipeout';
-import imageCacheHoc from 'react-native-image-cache-hoc';
-import Orientation from 'react-native-orientation';
-import images from '../../assets/index';
-
-export const CacheableImage = imageCacheHoc(Image, {
-    validProtocols: ['http', 'https'],
-});
+import Breadcrumb from 'react-native-breadcrumb';
+import FileImageComponent from '../components/file-images';
+import { SettingsResponse } from '../../redux/actions/settings-actions';
+import FolderImageComponet from '../components/folder-images';
+import { removeOrientationOfScreen, handleOrientationOfScreen, getInitialScreenOrientation } from '../components/screen-orientation';
 
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
+    deviceTokenResponse: SettingsResponse;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
 }
@@ -44,10 +43,13 @@ interface State {
     marginLeft: number;
     isRowClosed: boolean;
     bearer_token: string;
-    backgroundPortraitImage: string;
-    backgroundLandscapeImage: string;
     orientation: string;
     fontColor?: string;
+    index: number;
+    content: string[];
+    breadscumbItemsCount: number;
+    backButton: boolean;
+    flowDepth: number;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -60,33 +62,33 @@ class ResourceExplorerScreen extends Component<Props, State> {
             marginLeft: 1,
             isRowClosed: false,
             bearer_token: '',
-            backgroundPortraitImage: '',
-            backgroundLandscapeImage: '',
-            orientation: Constant.portrait,
+            orientation: getInitialScreenOrientation(),
+            index: 0,
+            content: [],
+            breadscumbItemsCount: 0,
+            backButton: true,
+            flowDepth: 0,
+
         };
+        this.onBreadCrumbPress = this.onBreadCrumbPress.bind(this);
+        this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
     }
 
     public async componentDidMount() {
-        Orientation.unlockAllOrientations();
-        await LocalDbManager.get(Constant.fontColor, (err, color) => {
-            if (color !== null || color !== '') {
-                this.setState({ fontColor: color } as State);
-            }
+        let item = await this.props.navigation.getParam('item');
+        Constant.index = Constant.index + 1;
+        Constant.content = [...Constant.content, item.ResourceName];
+        Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            breadscumbItemsCount: Constant.content.length,
+            flowDepth: Constant.content.length - 1,
         });
-        Orientation.addOrientationListener(this._orientationDidChange);
-        await LocalDbManager.get<string>(Constant.backgroundPortraitImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundPortraitImage: image!,
-                });
-            }
-        });
-        await LocalDbManager.get<string>(Constant.backgroundLandscapeImage, (err, image) => {
-            if (image !== null && image !== '') {
-                this.setState({
-                    backgroundLandscapeImage: image!,
-                });
-            }
+        handleOrientationOfScreen((orientation) => {
+            this.setState({
+                orientation: orientation,
+            });
         });
         await LocalDbManager.get<Bookmarks[]>(Constant.bookmarks, (error, data) => {
             if (data) {
@@ -107,6 +109,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 });
             }
         });
+        BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
     public setColorIfFileIsBookmarked(resourceID: number) {
@@ -127,7 +130,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             bookmarkFiles.splice(index, 1); // unbookmarking
         } else {
             isRemoved = false;
-            bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.ResourceType }); // adding bookmark
+            bookmarkFiles.push({ resourceId: data.ResourceId, resourceName: data.ResourceName, resourceImage: data.ResourceImage, resourceType: data.FileExtension }); // adding bookmark
         }
         await LocalDbManager.insert<Bookmarks[]>(Constant.bookmarks, bookmarkFiles, (error) => {
             if (error !== null) {
@@ -139,46 +142,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 Toast.show({ text: isRemoved ? Constant.bookmarkDeleted : Constant.addedbookmarkTitle, type: 'success', position: 'bottom' });
             }
         });
-    }
-
-    public renderFolderImage(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            return (
-                <Image source={images.folder} style={styles.folderImage} />
-            );
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.folderImage} />
-            );
-        }
-    }
-
-    public renderFilesImages(rowData: SubResourceModel) {
-        if (rowData.ResourceImage === undefined || rowData.ResourceImage === '') {
-            if (rowData.FileExtension === FileType.video) {
-                return (
-                    <Image source={images.mp4} style={styles.fileImage} />
-                );
-            } else if (rowData.FileExtension === FileType.pdf || rowData.FileExtension === FileType.zip) {
-                return (
-                    <Image source={images.pdf} style={styles.fileImage} />
-                );
-            } else if (rowData.FileExtension === FileType.png || rowData.FileExtension === FileType.jpg) {
-                return (
-                    <Image source={images.png} style={styles.fileImage} />
-                );
-            } else {
-                if (rowData.FileExtension === FileType.pptx || rowData.FileExtension === FileType.xlsx || rowData.FileExtension === FileType.docx || rowData.FileExtension === FileType.ppt) {
-                    return (
-                        <Image source={images.ppt} style={styles.fileImage} />
-                    );
-                }
-            }
-        } else {
-            return (
-                <CacheableImage source={{ uri: rowData.ResourceImage }} style={styles.fileImage} />
-            );
-        }
     }
 
     public getBadgeNumber(data: SubResourceModel) {
@@ -227,7 +190,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             body={
                                 <TouchableOpacity style={styles.folderContainer} onPress={() => this.resourceDetails(data)}>
                                     <View style={[styles.folderImageContainer]}>
-                                        {this.renderFolderImage(data)}
+                                    <FolderImageComponet styles={styles.folderImage} folderImage={data.ResourceImage}/>
                                         {this.getBadgeNumber(data)}
                                     </View>
                                     <View style={styles.resourceContainer}>
@@ -259,7 +222,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </View>),
                             backgroundColor: '#d11a2a',
                             onPress: () => {
-                                this.deleteFileIfAlreadyDownloaded(data.ResourceId);
+                                this.deleteFileIfAlreadyDownloaded(data.ResourceId, data.ResourceName, data.FileExtension);
                             },
                         },
                     ]}
@@ -267,7 +230,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    {this.renderFilesImages(data)}
+                                    <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
                                 </View>
                                 <View style={styles.resourceContainer}>
                                     <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
@@ -289,22 +252,32 @@ class ResourceExplorerScreen extends Component<Props, State> {
         let item = this.props.navigation.getParam('item');
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
-                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.state.backgroundPortraitImage : this.state.backgroundLandscapeImage }} style={{ width, height }}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.props.deviceTokenResponse.settings.PortraitImage : this.props.deviceTokenResponse.settings.LandscapeImage }} style={{ width, height }}>
                     <Container style={styles.transparentColor}>
                         {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left style={{ flexDirection: 'row' }}>
-                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                    <Icon name='menu' style={styles.iconColor} />
-                                </Button>
-                                <Button transparent onPress={() => this.props.navigation.pop()}>
+                                <Button transparent onPress={() => this.goToPreviousScreen()}>
                                     <Icon name='arrow-back' style={[styles.iconColor]} />
                                 </Button>
                             </Left>
                             <Body>
-                                <Title style={{ color: this.state.fontColor || '#fff', marginLeft: Constant.platform === 'android' ? 15 : 0 }}>{item.ResourceName}</Title>
+                                <Title style={{ color: this.props.deviceTokenResponse.settings.FontColor || '#fff' }}>{item.ResourceName}</Title>
                             </Body>
-                            <Right />
+                            {Constant.platform === 'ios' ? <Right /> : null}
                         </Header>}
+                        {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
+                            <Breadcrumb
+                                entities={this.state.content}
+                                isTouchable={true}
+                                flowDepth={this.state.flowDepth}
+                                height={30}
+                                onCrumbPress={this.onBreadCrumbPress}
+                                borderRadius={5}
+                                crumbTextStyle={{ fontSize: 15 }}
+                                crumbsContainerStyle={[styles.breadscrumbsView]}
+                                activeCrumbStyle={{ backgroundColor: Config.PRIMARY_COLOR }}
+                            />
+                        </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
@@ -335,8 +308,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>Cancel</Text>
+                        <TouchableOpacity onPress={() => this.cancelDownload()}>
+                            <Text style={styles.downloadingText}>CANCEL</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -347,8 +320,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     <View style={styles.downloadContainer}>
                         <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
                         <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity style={{ backgroundColor: Config.PRIMARY_COLOR }} onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>Cancel</Text>
+                        <TouchableOpacity onPress={() => this.cancelDownload()}>
+                            <Text style={styles.downloadingText}>CANCEL</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -367,13 +340,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
             Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
         });
-        let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
-        console.log('download resource id', resourceId);
+        const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+        console.log('preview path', path);
         await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
-    public async deleteFileIfAlreadyDownloaded(resoureID: number) {
+    public async deleteFileIfAlreadyDownloaded(resoureID: number, resourceName: string, fileType: string) {
+        console.log('resource name', resourceName);
+        console.log('dir', Constant.documentDir);
         let newData = [...this.state.downloadedFiles];
         const index = newData.findIndex(resource => resource.resourceId === resoureID);
         if (index > -1) {
@@ -385,6 +360,8 @@ class ResourceExplorerScreen extends Component<Props, State> {
                 if (error !== null) {
                     Toast.show({ text: error!.message, type: 'warning', position: 'top' });
                 } else {
+                    const filename = fileType === FileType.zip ? `${resoureID}${fileType}` : fileType === FileType.video ? `${resoureID}${fileType}` : resourceName;
+                    LocalDbManager.unlinkFile(`${Constant.deleteFilePath}/${filename}`, fileType, `${Constant.deleteFilePath}/${resoureID}`);
                     Toast.show({ text: Constant.deleted, type: 'success', position: 'bottom' });
                 }
             });
@@ -409,7 +386,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                     await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
                     return;
                 }
-                let path: string = Platform.OS === 'ios' ? Constant.documentDir : `file://${Constant.documentDir}`;
+                const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
                 console.log('downloadedPath', path);
                 await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
                     await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
@@ -423,27 +400,69 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
         let isConnected = await NetworkCheckManager.isConnected();
         if (!isConnected) {
-            Toast.show({ text: 'Please check internet connection', type: 'danger', position: 'top' });
+            Toast.show({ text: Constant.noInternetConnction, type: 'danger', position: 'top' });
             return;
         }
         this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile);
     }
 
     public componentWillUnmount() {
-        Orientation.removeOrientationListener(this._orientationDidChange);
+        removeOrientationOfScreen();
+        BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
 
-    public _orientationDidChange = (orientation: string) => {
-        if (orientation === Constant.landscape) {
-            this.setState({ orientation: Constant.landscape });
-        } else {
-            this.setState({ orientation: Constant.portrait });
+    public handleAndroidBackButton() {
+        if (this.props.navigation.state.key === Constant.navigationKey[0]) {
+            Constant.navigationKey.pop();
+            Constant.content.pop();
+            Constant.index = Constant.index - 1;
+            const flowDepth = Constant.content.length > 0 ? Constant.content.length - 1 : Constant.content.length;
+            this.setState({
+                index: Constant.index,
+                content: Constant.content,
+                flowDepth: flowDepth,
+            });
         }
+        if (this.props.downloadState.progress !== 0) {
+            return true;
+        }
+    }
+
+    private goToPreviousScreen() {
+        Constant.navigationKey.pop();
+        Constant.content.pop();
+        Constant.index = Constant.index - 1;
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+            flowDepth: Constant.content.length - 1,
+        });
+        this.props.navigation.pop();
+    }
+
+    private onBreadCrumbPress(index: number) {
+        const key = Constant.navigationKey[index];
+        for (let i = Constant.navigationKey.length - 1; i >= 0; --i) {
+            if (Constant.navigationKey[i] === Constant.navigationKey[index]) {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+                break;
+            } else {
+                Constant.navigationKey.pop();
+                Constant.content.pop();
+            }
+        }
+        this.setState({
+            content: Constant.content,
+            flowDepth: index - 1,
+        });
+        this.props.navigation.goBack(key);
     }
 }
 
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
+    deviceTokenResponse: state.settings,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

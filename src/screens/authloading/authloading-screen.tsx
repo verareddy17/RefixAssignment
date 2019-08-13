@@ -29,7 +29,8 @@ export default class AuthLoadingScreen extends Component<Props> {
             console.log('userToken', userToken);
             const confirmationMessage = await AsyncStorage.getItem(Constant.confirmationMessage);
             if (confirmationMessage !== null) {
-                if (confirmationMessage.length > 0) {
+                console.log('config', confirmationMessage);
+                if (confirmationMessage.length > 5) {
                     LocalDbManager.showConfirmationAlert(confirmationMessage);
                 }
             }

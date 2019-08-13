@@ -3,7 +3,10 @@ import { unzip } from 'react-native-zip-archive';
 import OpenFile from 'react-native-doc-viewer';
 import { Toast } from 'native-base';
 import RNFetchBlob from 'rn-fetch-blob';
-
+import { SubResourceModel, ResourceModel } from '../models/resource-model';
+import Config from 'react-native-config';
+import { Alert} from 'react-native';
+let result: SubResourceModel[] = [];
 export default class PreviewManager {
 
     public static async extractFileName(fileName: string): Promise<string> {
@@ -25,6 +28,7 @@ export default class PreviewManager {
             })
                 .catch((error) => {
                     console.log('failed to unzip the file ', error);
+                    Alert.alert(Config.APP_NAME, 'Failed to extract the file');
                 });
         } else if (fileType === FileType.video) {
             let resourceName = await PreviewManager.extractFileName(fileName);
@@ -71,7 +75,7 @@ export default class PreviewManager {
                 return file === Constant.indexHtml;
             });
             if (htmlFile.length > 0) {
-                return `${folder}/${files[0]}`;
+                return `${folder}/${htmlFile[0]}`;
             } else {
                 let subFolder = await RNFetchBlob.fs.ls(`${folder}/${files[0]}`);
                 let subfolderHtmlFile = subFolder.filter((subfolderFile) => {
@@ -103,5 +107,24 @@ export default class PreviewManager {
             const videoPath = `${dirPath}/${resourceId}${fileType}`;
             callback(videoPath, false, fileType);
         }
+    }
+
+    public static async recurseSubFolders(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
+        if (children.Children === undefined || children.Children === null) {
+            await resultArray.push(children);
+            return;
+        }
+        for (let i = 0; i < children.Children.length; i++) {
+            await this.recurseSubFolders(children.Children[i], resultArray);
+        }
+        console.log('resultArray', result);
+    }
+
+    public static async getFilesFromAllFolders(json: ResourceModel[]) {
+        result = [];
+        for (let j = 0; j < json.length; j++) {
+            await this.recurseSubFolders(json[j], result);
+        }
+        return result;
     }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback, Alert, Platform, KeyboardAvoidingView, NetInfo } from 'react-native';
 import { Text, Item, Input, Icon, Header, Label, Spinner, Toast } from 'native-base';
 import styles from './login-style';
 import { connect } from 'react-redux';
@@ -7,10 +7,10 @@ import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { LoginResponse } from '../../redux/actions/user-action';
 import onchangeText, { ResetInputText } from '../../redux/actions/input-action';
-import { NavigationScreenProp, DrawerItems } from 'react-navigation';
+import { NavigationScreenProp } from 'react-navigation';
 import { AppState } from '../../redux/reducers/index';
 import loginApi from '../../redux/actions/user-action';
-import { Constant, FileType } from '../../constant';
+import { Constant } from '../../constant';
 import Config from 'react-native-config';
 import { ActionPayload } from '../../models/action-payload';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
@@ -78,7 +78,7 @@ class LoginScreen extends Component<Props, State> {
                                             autoCapitalize='none'
                                             secureTextEntry={this.state.isSecureText}
                                         />
-                                        <Icon active={this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? false : true} name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
+                                        <Icon style={{ color: this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? '#ffffff' : '#000000' }} name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
                                     </Item>
                                     {this.SpinnerLoading()}
                                     <View style={styles.buttonContainer}>
@@ -127,36 +127,29 @@ class LoginScreen extends Component<Props, State> {
         });
     }
     public async signInAsync() {
+        Keyboard.dismiss();
         if (this.props.inputText.length === 0) {
             Alert.alert(Config.APP_NAME, Constant.validationPin);
             return;
         }
         console.log('pin', this.props.inputText);
+        Constant.index = 0;
+        Constant.content = [];
+        Constant.navigationKey = [];
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
             await LocalDbManager.get<string>(Constant.username, async (error, userName) => {
                 if (userName !== null || userName !== '') {
                     if (userName !== this.props.userState.user.UserFullName) {
                         await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, [], async (err) => {
-                            Toast.show({ text: 'successfully removed all downloaded files', type: 'success', position: 'bottom' });
                         });
                     }
                 }
             });
-            await this.storeData<string>(Constant.token, this.props.userState.user.Token!);
-            await this.storeData<string>(Constant.username, this.props.userState.user.UserFullName || '');
             Constant.loginName = this.props.userState.user.UserFullName;
             const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
-            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
-                await this.storeData<string>(Constant.confirmationMessage, this.props.deviceTokenResponse.settings.ConfirmationMessage!);
-                await this.storeData<string>(Constant.confirmationModifiedDate, this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate!);
-                await this.storeData<string>(Constant.headerColor, this.props.deviceTokenResponse.settings.HeaderColor!);
-                await this.storeData<string>(Constant.fontColor, this.props.deviceTokenResponse.settings.FontColor!);
-                await this.storeData<string>(Constant.logoImage, this.props.deviceTokenResponse.settings.LogoImage!);
-                await this.storeData<string>(Constant.backgroundPortraitImage, this.props.deviceTokenResponse.settings.PortraitImage!);
-                await this.storeData<string>(Constant.backgroundLandscapeImage, this.props.deviceTokenResponse.settings.LandscapeImage!);
-                await this.storeData<string>(Constant.versionNumber, this.props.deviceTokenResponse.settings.VersionNumber!);
+            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {   
                 await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
                     if (err === null) {
                         this.props.resetInputText();
@@ -167,12 +160,7 @@ class LoginScreen extends Component<Props, State> {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
         } else {
-            if (this.props.userState.error !== '') {
-                Alert.alert(Config.APP_NAME, this.props.userState.error);
-
-            } else {
-                Alert.alert(Config.APP_NAME, Constant.validationPin);
-            }
+            Alert.alert(Config.APP_NAME, this.props.userState.error);
         }
     }
 }

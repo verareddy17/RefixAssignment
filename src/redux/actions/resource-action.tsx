@@ -1,12 +1,13 @@
 import { LOAD_RESOURCE_START, LOAD_RESOURCE_SUCCESS, LOAD_RESOURCE_FAIL } from './action-types';
 import { ApiResponse } from '../../models/response-model';
-import { ResourceModel } from '../../models/resource-model';
+import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import ApiManager from '../../manager/api-manager';
 import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch } from 'redux';
 import { Toast } from 'native-base';
 import { Constant } from '../../constant';
 import Config from 'react-native-config';
+import PreviewManager from '../../manager/preview-manager';
 
 export const loadResourceStart = () => {
     return {
@@ -52,18 +53,29 @@ export const fetchResources = (token: string) => {
                 dispatch(loadResourceStart());
                 await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
-                        console.log('resourcesResponse', data.Success);
-                        await LocalDbManager.insert('resources', data.Data, (err) => {
-                            console.log('Successfully inserted');
-                        });
-                        await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
-                            console.log('fetch data from local data base', data);
-                            if (data) {
-                                dispatch(loadResourceSuccess(data));
-                            } else {
-                                dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                        if (data.Success) {
+                            console.log('dataattt', data)
+                            await LocalDbManager.insert('resources', data.Data, (err) => {
+                                console.log('Successfully inserted');
+                            });
+                            await LocalDbManager.get<ResourceModel[]>('resources', async(err, data) => {
+                                console.log('fetch data from local data base', data);
+                                if (data) {
+                                    const allFiles = await PreviewManager.getFilesFromAllFolders(data);
+                                    await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, allFiles, (err) => {});
+                                    dispatch(loadResourceSuccess(data));
+                                } else {
+                                    dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
+                                }
+                            });
+                        } else {
+                            try {
+                                let error = data.Errors[0];
+                                await dispatch(loadResourceFail(error));
+                            } catch {
+                                await dispatch(loadResourceFail(Constant.networkConnctionFailed));
                             }
-                        });
+                        }
                     } else {
                         dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
                     }
@@ -86,22 +98,34 @@ export const updateResources = (token: string) => {
             }
             dispatch(loadResourceStart());
             if (data) {
-                await LocalDbManager.delete('resources', (err) => {
-                    console.log('successfully removed');
-                });
-                await LocalDbManager.insert('resources', data.Data, (err) => {
-                    console.log('Successfully insertedd');
-                });
+                console.log('resource response', data);
                 if (data.Success) {
-                    await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
+                    console.log('success');
+                    await LocalDbManager.delete('resources', (err) => {
+                        console.log('successfully removed');
+                    });
+                    await LocalDbManager.insert('resources', data.Data, (err) => {
+                        console.log('Successfully insertedd');
+                    });
+                    await LocalDbManager.get<ResourceModel[]>('resources', async (err, data) => {
                         if (data) {
+                            const allFiles = await PreviewManager.getFilesFromAllFolders(data);
+                            console.log('update', allFiles);
+                            await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, allFiles, async (err) => {});
                             dispatch(loadResourceSuccess(data));
                         } else {
                             dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
                         }
                     });
                 } else {
-                    dispatch(loadResourceFail(data.Errors[0]));
+                    console.log('faliure');
+
+                    try {
+                        let error = data.Errors[0];
+                        dispatch(loadResourceFail(error));
+                    } catch {
+                        dispatch(loadResourceFail(Constant.networkConnctionFailed));
+                    }
                 }
             } else {
                 dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));

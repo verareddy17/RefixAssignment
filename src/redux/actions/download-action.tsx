@@ -5,9 +5,10 @@ import Config from 'react-native-config';
 import { Constant, FileType } from '../../constant';
 
 let canceled: boolean;
-export const downloadResourceStart = () => {
+export const downloadResourceStart = (cancelDownload?: any) => {
     return {
         type: DOWNLOAD_START,
+        cancelDownload: cancelDownload,
     };
 };
 
@@ -41,9 +42,9 @@ export class DownloadResourceFileProgress {
 export function downloadCancel(): (dispatch: Dispatch, getState: Function) => Promise<void> {
     return async (dispatch: Dispatch, getState: Function) => {
         console.log('current state', getState().downloadProgress);
-        const cancelTask = getState().downloadProgress.task;
+        const cancelTask = getState().downloadProgress.cancelDownload;
         await cancelTask.cancel(async (error: Error) => {
-            canceled = true;
+            canceled = Constant.platform === 'android' ? true : false;
             await dispatch(downloadResourceFailure());
         });
     };
@@ -64,21 +65,27 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
             }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + bearer_token,
-            }, JSON.stringify(params)).progress(async (received, total) => {
+            }, JSON.stringify(params));
+            dispatch(downloadResourceStart(task));
+            task.progress(async (received, total) => {
                 let progress = (received / total);
                 await dispatch(downloadResourceProgress(progress, task));
             });
             await task.then(async (res: any) => {
+                console.log('then');
                 if (res.respInfo.status === 200) {
                     if (canceled) {
+                        console.log('caneled', canceled);
                         dispatch(downloadResourceFailure());
                         canceled = false;
                     } else {
                         dispatch(downloadResourceSuccess(0));
+                        console.log('success', canceled);
                     }
                 }
             });
         } catch (error) {
+            console.log('catch');
             dispatch(downloadResourceFailure());
         }
     };

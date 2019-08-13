@@ -1,6 +1,7 @@
-import { AsyncStorage, Alert } from 'react-native';
+import { AsyncStorage, Alert, Image, View } from 'react-native';
 import Config from 'react-native-config';
 import RNFetchBlob from 'rn-fetch-blob';
+import { FileType } from '../constant';
 
 export default class LocalDbManager {
 
@@ -36,5 +37,18 @@ export default class LocalDbManager {
 
     public static async showConfirmationAlert(confirmationMessage: string) {
         Alert.alert(Config.APP_NAME, confirmationMessage);
+    }
+
+    public static async unlinkFile(path: string, type: string, unzipPath: string) {
+        await RNFetchBlob.fs.unlink(path)
+            .then(async () => {
+                console.log('succesfully removed file from device');
+                if (type === FileType.zip) {
+                    await RNFetchBlob.fs.unlink(unzipPath)
+                        .then(() => { })
+                        .catch((err) => { console.log('file not deleted at physically', err); });
+                }
+            })
+            .catch((err) => { console.log('file not deleted at physically', err); });
     }
 }
