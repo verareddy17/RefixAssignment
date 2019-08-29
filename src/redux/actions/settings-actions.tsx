@@ -40,8 +40,18 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
             if (!isNetworkFail) {
                 if (data) {
                     if (data.Success) {
+                        Constant.index = 0;
+                        Constant.content = [];
+                        Constant.navigationKey = [];
+                        if (data.Data.Settings.PortraitImage !== '') {
+                            Constant.headerFontColor = data.Data.Settings.FontColor;
+                            Constant.portraitImagePath = data.Data.Settings.PortraitImage || '';
+                            Constant.landscapeImagePath = data.Data.Settings.LandscapeImage || '';
+                            Constant.headerFontColor = data.Data.Settings.FontColor;
+                        }
                         LocalDbManager.insert<CustomizeSettings>(Constant.customSettings, data.Data.Settings, (err) => { });
-                        await dispatch(loadSettingSuccess(data.Data.Settings));
+                        LocalDbManager.insert<string>(Constant.userToken, Constant.bearerToken, async (err) => { });
+                        dispatch(loadSettingSuccess(data.Data.Settings));
                     } else {
                         try {
                             let error = data.Errors[0];

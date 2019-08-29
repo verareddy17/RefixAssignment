@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import store from './src/redux/store';
+import { store, persistor } from './src/redux/store';
 import { Provider } from 'react-redux';
 import BaseNavigation from './src/navigation/router';
 import { Root } from 'native-base';
+import { PersistGate } from 'redux-persist/es/integration/react';
 
 interface Props { }
 
@@ -11,9 +12,11 @@ export default class App extends Component<Props> {
     console.disableYellowBox = true;
     return (
       <Provider store={store}>
-        <Root>
-          <BaseNavigation />
-        </Root>
+        <PersistGate loading={null} persistor={persistor}>
+          <Root>
+            <BaseNavigation />
+          </Root>
+        </PersistGate>
       </Provider>
     );
   }

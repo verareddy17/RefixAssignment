@@ -44,7 +44,7 @@ function closeDrawer(props: DrawerItemsProps) {
 }
 
 const logout = async (props: DrawerItemsProps) => {
-    await LocalDbManager.delete('userToken', async (err) => {
+    await LocalDbManager.delete(Constant.userToken, async (err) => {
         if (err == null) {
             props.navigation.navigate('Login');
         }

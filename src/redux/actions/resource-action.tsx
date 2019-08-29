@@ -1,13 +1,13 @@
 import { LOAD_RESOURCE_START, LOAD_RESOURCE_SUCCESS, LOAD_RESOURCE_FAIL } from './action-types';
 import { ApiResponse } from '../../models/response-model';
-import { ResourceModel, SubResourceModel } from '../../models/resource-model';
+import { ResourceModel } from '../../models/resource-model';
 import ApiManager from '../../manager/api-manager';
 import LocalDbManager from '../../manager/localdb-manager';
 import { Dispatch } from 'redux';
 import { Toast } from 'native-base';
 import { Constant } from '../../constant';
 import Config from 'react-native-config';
-import PreviewManager from '../../manager/preview-manager';
+import { CustomizeSettings } from '../../models/custom-settings';
 
 export const loadResourceStart = () => {
     return {
@@ -40,6 +40,13 @@ const endPoint: string = `${Config.BASE_URL}/${Constant.resourceUrl}`;
 export const fetchResources = (token: string) => {
     return async (dispatch: Dispatch) => {
         await ApiManager.checkNetworkConnection().then(async (networkType) => {
+            await LocalDbManager.get<CustomizeSettings>(Constant.customSettings, async (err, userSettings) => {
+                if (userSettings !== undefined) {
+                    Constant.portraitImagePath = userSettings.PortraitImage || '';
+                    Constant.landscapeImagePath = userSettings.LandscapeImage || '';
+                    Constant.headerFontColor = userSettings.FontColor;
+                }
+            });
             if (networkType === 'none') {
                 dispatch(loadResourceStart());
                 await LocalDbManager.get<ResourceModel[]>('resources', (err, data) => {
@@ -54,20 +61,10 @@ export const fetchResources = (token: string) => {
                 await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err) => {
                     if (data) {
                         if (data.Success) {
-                            console.log('dataattt', data)
                             await LocalDbManager.insert('resources', data.Data, (err) => {
                                 console.log('Successfully inserted');
                             });
-                            await LocalDbManager.get<ResourceModel[]>('resources', async(err, data) => {
-                                console.log('fetch data from local data base', data);
-                                if (data) {
-                                    const allFiles = await PreviewManager.getFilesFromAllFolders(data);
-                                    await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, allFiles, (err) => {});
-                                    dispatch(loadResourceSuccess(data));
-                                } else {
-                                    dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
-                                }
-                            });
+                            dispatch(loadResourceSuccess(data.Data));
                         } else {
                             try {
                                 let error = data.Errors[0];
@@ -87,39 +84,21 @@ export const fetchResources = (token: string) => {
 
 export const updateResources = (token: string) => {
     return async (dispatch: Dispatch) => {
+        dispatch(loadResourceStart());
         await ApiManager.get<ApiResponse<ResourceModel[]>>(endPoint, token, async (data, err, isnetwork) => {
             if (isnetwork) {
-                Toast.show({
-                    text: 'Please check internet connection',
-                    type: 'danger',
-                    position: 'top',
-                });
+                dispatch(loadResourceFail(Constant.noInternetConnction));
                 return;
             }
-            dispatch(loadResourceStart());
+            console.log('data', isnetwork);
             if (data) {
                 console.log('resource response', data);
                 if (data.Success) {
-                    console.log('success');
-                    await LocalDbManager.delete('resources', (err) => {
-                        console.log('successfully removed');
-                    });
                     await LocalDbManager.insert('resources', data.Data, (err) => {
                         console.log('Successfully insertedd');
                     });
-                    await LocalDbManager.get<ResourceModel[]>('resources', async (err, data) => {
-                        if (data) {
-                            const allFiles = await PreviewManager.getFilesFromAllFolders(data);
-                            console.log('update', allFiles);
-                            await LocalDbManager.insert<SubResourceModel[]>(Constant.allFiles, allFiles, async (err) => {});
-                            dispatch(loadResourceSuccess(data));
-                        } else {
-                            dispatch(loadResourceFail(err !== null ? 'unknown error' : ''));
-                        }
-                    });
+                    dispatch(loadResourceSuccess(data.Data));
                 } else {
-                    console.log('faliure');
-
                     try {
                         let error = data.Errors[0];
                         dispatch(loadResourceFail(error));

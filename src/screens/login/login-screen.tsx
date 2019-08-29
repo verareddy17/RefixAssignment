@@ -18,6 +18,7 @@ import deviceTokenApi from '../../redux/actions/settings-actions';
 import images from '../../assets/index';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import { isEnabled } from 'appcenter-crashes';
+import { ActivationAppResponse } from '../../models/login-model';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -133,29 +134,14 @@ class LoginScreen extends Component<Props, State> {
             return;
         }
         console.log('pin', this.props.inputText);
-        Constant.index = 0;
-        Constant.content = [];
-        Constant.navigationKey = [];
         await this.props.requestLoginApi(this.props.inputText);
         if (this.props.userState.error === '' && this.props.userState.user !== null) {
-            await LocalDbManager.get<string>(Constant.username, async (error, userName) => {
-                if (userName !== null || userName !== '') {
-                    if (userName !== this.props.userState.user.UserFullName) {
-                        await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, [], async (err) => {
-                        });
-                    }
-                }
-            });
             Constant.loginName = this.props.userState.user.UserFullName;
-            const deviceOs: number = Platform.OS === 'ios' ? 1 : 0;
-            await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, deviceOs, this.props.userState.user.Token!);
-            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {   
-                await LocalDbManager.insert<string>('userToken', 'abc', async (err) => {
-                    if (err === null) {
-                        this.props.resetInputText();
-                        this.props.navigation.navigate('Home', { 'isFromLogin': true });
-                    }
-                });
+            Constant.bearerToken = this.props.userState.user.Token || '';
+            await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, Constant.deviceOS, this.props.userState.user.Token!);
+            if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
+                this.props.resetInputText();
+                this.props.navigation.navigate('Home', {'isFromLogin': true});
             } else {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }

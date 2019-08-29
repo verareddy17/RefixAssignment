@@ -1,6 +1,7 @@
 import RNFetchBlob from 'rn-fetch-blob';
 const dirs = RNFetchBlob.fs.dirs.DocumentDir;
 import { Platform } from 'react-native';
+import { SubResourceModel } from './models/resource-model';
 
 export class Constant {
     public static activateAppURL = 'login';
@@ -50,9 +51,19 @@ export class Constant {
     public static timeout = 60 * 1000;
     public static swipeButtonBackgroundColor = '#d11a2a';
     public static noInternetConnction = 'Please check internet connection';
-    public static searchPlaceholder = 'search file';
+    public static searchPlaceholder = 'Search file';
     public static customSettings = 'settings';
     public static userDetailes = 'userDetailes';
+    public static userToken = 'userToken';
+    public static portraitImagePath = '';
+    public static landscapeImagePath = '';
+    public static bearerToken = '';
+    public static headerFontColor?: string;
+    public static deviceOS = Platform.OS === 'ios' ? 1 : 0;
+    public static fetchAllFiles: SubResourceModel[] = [];
+    public static whiteColor = '#ffffff';
+    public static transparentColor = 'transparent';
+    public static successfullyDownloaded = 'Successfully downloaded';
 }
 
 export enum FileType {

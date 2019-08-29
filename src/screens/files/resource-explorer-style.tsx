@@ -32,12 +32,12 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         marginLeft: 10,
-        marginTop: 5,
+        marginTop: 10,
         marginBottom: 5,
     },
     folderImage: {
         marginLeft: 10,
-        marginTop: 5,
+        marginTop: 1,
         marginBottom: 5,
         height: 50,
         width: 50,
@@ -144,6 +144,14 @@ const styles = StyleSheet.create({
     breadscrumbsView: {
         backgroundColor: '#ffffff',
         justifyContent: 'flex-start',
+    },
+    headerContainer: {
+        marginTop: 10,
+        marginLeft: 20,
+    },
+    headerLeft: {
+        flex: 1,
+        flexDirection: 'row',
     },
 });
 

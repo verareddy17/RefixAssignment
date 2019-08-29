@@ -7,7 +7,7 @@ import styles from './preview-manager-style';
 import Video from 'react-native-video';
 import { FileType, Constant } from '../../constant';
 import PreviewManager from '../../manager/preview-manager';
-
+import VideoPlayer from 'react-native-video-controls';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -62,10 +62,10 @@ export default class PreviewManagerScreen extends Component<Props, State> {
     public renderVideoOrHtmlFile(fileType: string) {
         if (fileType === FileType.video) {
             return (
-                <Video
+                <VideoPlayer
                     source={{ uri: this.state.videoPath }}
-                    resizeMode='cover'
                     style={StyleSheet.absoluteFill}
+                    navigator={this.props.navigation}
                 />
             );
         } else {
@@ -73,6 +73,9 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                 <WebView
                     originWhitelist={['*']}
                     allowFileAccess={true}
+                    domStorageEnabled={true}
+                    javaScriptEnabled={true}
+                    mediaPlaybackRequiresUserAction={false}
                     source={{ uri: this.state.path }}
                 />
             );
@@ -81,7 +84,7 @@ export default class PreviewManagerScreen extends Component<Props, State> {
     public renderIndicator() {
         return (
             <View style={styles.container}>
-                <Spinner style={styles.spinnerConatiner} size={'large'} color='#000' />
+                <Spinner style={styles.spinnerConatiner} size={'large'} color={Constant.blackColor} />
             </View>
         );
     }

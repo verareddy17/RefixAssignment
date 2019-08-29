@@ -7,6 +7,7 @@ import Config from 'react-native-config';
 import { Constant } from '../../constant';
 import LocalDbManager from '../../manager/localdb-manager';
 import { Alert } from 'react-native';
+import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 
 export const loadUserRequest = () => {
     return {
@@ -38,7 +39,10 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             if (!isNetworkFail) {
                 if (response) {
                     if (response.Success) {
-                        LocalDbManager.insert<ActivationAppResponse>(Constant.userDetailes, response.Data, (err) => {});
+                        if (Constant.username !== response.Data.UserFullName) {
+                            LocalDbManager.delete(Constant.downloadFile, (error) => { });
+                        }
+                        LocalDbManager.insert<ActivationAppResponse>(Constant.userDetailes, response.Data, (err) => { });
                         dispatch(loadUserSuccess(response.Data));
                     } else {
                         try {

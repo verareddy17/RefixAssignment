@@ -20,7 +20,7 @@ export default class AuthLoadingScreen extends Component<Props> {
 
     // Fetch the token from storage then navigate to our appropriate place
     public _bootstrapAsync = async () => {
-        const userToken = await AsyncStorage.getItem('userToken');
+        const userToken = await AsyncStorage.getItem(Constant.userToken);
         // This will switch to the App screen or Auth screen and this loading
         // screen will be unmounted and thrown away.
         this.props.navigation.navigate(userToken ? 'Home' : 'Login');

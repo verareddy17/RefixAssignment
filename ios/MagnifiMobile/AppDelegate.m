@@ -63,4 +63,13 @@
   return YES;
 }
 
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+  UIApplication *app = [UIApplication sharedApplication];
+  UIBackgroundTaskIdentifier bgTask = 0;
+  bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+    [app endBackgroundTask:bgTask];
+  }];
+}
+
 @end

@@ -131,6 +131,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginLeft: 5,
     },
+    headerContainer: {
+        marginTop: 10,
+        marginLeft: 20,
+    },
+    headerLeft: {
+        flex: 1,
+        flexDirection: 'row',
+    },
 });
 
 export default styles;

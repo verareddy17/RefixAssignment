@@ -94,6 +94,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    headerContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    },
 });
 
 export default styles;

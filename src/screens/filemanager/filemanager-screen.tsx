@@ -17,16 +17,21 @@ import { AppState } from '../../redux/reducers/index';
 import downloadFile, { downloadCancel } from '../../redux/actions/download-action';
 import NetworkCheckManager from '../../manager/networkcheck-manager';
 import FileImageComponent from '../components/file-images';
-import { SettingsResponse } from '../../redux/actions/settings-actions';
-import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen } from '../components/screen-orientation';
+import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen, handleScreenDimensions, removeScreenDimensionsListner } from '../components/screen-orientation';
+import Orientation from 'react-native-orientation';
+import { ActivationAppResponse } from '../../models/login-model';
+import { RemoveItem, DownloadedResources, AddItem } from '../../redux/actions/downloaded-file-action';
+import CheckBoxComponent from '../components/handle-check-box';
 
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
-    deviceTokenResponse: SettingsResponse;
+    downloadedFiles: DownloadedResources;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
+    removeDownloadedFile(resourceId: number): (dispatch: Dispatch, getState: Function) => Promise<void>;
+    addownloadedFile(downloadedFile: DownloadedFilesModel): (dispatch: Dispatch, getState: Function) => Promise<void>;
 }
 
 interface State {
@@ -42,7 +47,8 @@ interface State {
     bearer_token: string;
     isSelectAll: boolean;
     allFiles: Array<SubResourceModel>;
-    fontColor?: string;
+    width: number;
+    height: number;
 }
 class FileManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -60,47 +66,29 @@ class FileManagerScreen extends Component<Props, State> {
             bearer_token: '',
             isSelectAll: false,
             allFiles: [],
+            width: Dimensions.get('window').width,
+            height: Dimensions.get('window').height,
         };
         this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
+        Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
     }
 
     public async componentDidMount() {
-        this.setState({
-            isLoading: true,
-            downloadedFiles: [],
-            resources: [],
-        });
+        console.log('downloaded files', this.props.downloadedFiles);
+        this.setState({isLoading: true, downloadedFiles: [], resources: []});
         handleOrientationOfScreen((orientation) => {
             this.setState({
                 orientation: orientation,
             });
         });
-        await LocalDbManager.get<Array<DownloadedFilesModel>>(Constant.downloadedFiles, (err, data) => {
-            if (data) {
-                this.setState({ downloadedFiles: data });
-            }
+        handleScreenDimensions((width, height) => {
+            this.setState({
+                width: width,
+                height: height,
+            });
         });
-        await LocalDbManager.get<Array<SubResourceModel>>(Constant.allFiles, (err, data) => {
-            if (data) {
-                this.setState({
-                    resources: data,
-                    allFiles: data,
-                });
-            }
-        });
-        let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-        this.setState({ resources: downloadFiles, isLoading: false });
-        await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', downloadFiles, async (error) => {
-            if (error === null || error === undefined) {
-                ///
-            }
-        });
-        await LocalDbManager.get<string>(Constant.token, async (err, token) => {
-            if (token !== null && token !== '') {
-                await this.setState({
-                    bearer_token: token!,
-                });
-            }
+        LocalDbManager.getDownloadFiles((downloadFiles, isLoading, downloadedFiles) => {
+            this.setState({ resources: downloadFiles, isLoading: isLoading, downloadedFiles: downloadedFiles });
         });
         BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBackButton);
     }
@@ -108,6 +96,7 @@ class FileManagerScreen extends Component<Props, State> {
     public componentWillUnmount() {
         removeOrientationOfScreen();
         BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBackButton);
+        removeScreenDimensionsListner();
     }
 
     public selectComponent(activePage: number) {
@@ -137,25 +126,21 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public render() {
-        let { height, width } = Dimensions.get('window');
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
                 <NavigationEvents
                     onWillFocus={() => this.componentDidMount()}
                     onDidFocus={() => this.render()}
                 />
-                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? this.props.deviceTokenResponse.settings.PortraitImage : this.props.deviceTokenResponse.settings.LandscapeImage }} style={{ width, height }}>
+                <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
                     <Container style={styles.containerColor}>
                         {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                            <Left>
+                            <Left style={styles.headerLeft}>
                                 <Button transparent onPress={() => this.props.navigation.openDrawer()}>
                                     <Icon name='menu' style={styles.iconColor}></Icon>
                                 </Button>
+                                <Title style={[styles.headerContainer, { color: Constant.headerFontColor || Constant.whiteColor }]}>Download Manager</Title>
                             </Left>
-                            <Body>
-                                <Title style={{ color: this.props.deviceTokenResponse.settings.FontColor || '#fff' }}>Downloads Manager</Title>
-                            </Body>
-                            {Constant.platform === 'ios' ? <Right/> : null}
                         </Header>}
                         {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
@@ -169,30 +154,16 @@ class FileManagerScreen extends Component<Props, State> {
         );
     }
 
-    public async deleteFile(data: DownloadedFilesModel) {
-        let downloadFile = [...this.state.downloadedFiles];
-        const index = downloadFile.findIndex(resource => resource.resourceId === data.resourceId);
-        if (index > -1) {
-            downloadFile.splice(index, 1); // unbookmarking
-            await this.setState({
-                downloadedFiles: downloadFile,
-            });
-            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
-                if (error !== null) {
-                    Alert.alert(error!.message);
-                }
-            });
-        }
-    }
     public renderComponent() {
+        console.log('props downloaded files', this.props.downloadedFiles.downloadedfiles);
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.state.activePage === 1) {
             return (
                 <View style={styles.container}>
                     <FlatList
-                        data={this.state.downloadedFiles}
+                        data={this.props.downloadedFiles.downloadedfiles}
                         renderItem={({ item }) =>
-                            <Swipeout autoClose={true} style={{ backgroundColor: 'transparent' }} right={[
+                            <Swipeout autoClose={true} style={{ backgroundColor: Constant.transparentColor }} right={[
                                 {
                                     component: (<View style={styles.swipeoutContainer}>
                                         <Icon style={styles.swipeButtonIcon} name='trash' />
@@ -253,7 +224,6 @@ class FileManagerScreen extends Component<Props, State> {
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
-
     }
 
     public progress() {
@@ -287,47 +257,15 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public onCheckBoxPress(id: number, rowId: any) {
-        let tmp = this.state.selectedFileIds;
-        let newData = this.state.selectedFiles;
-        if (tmp.includes(id)) {
-            tmp.splice(tmp.indexOf(id), 1);
-            let index = newData.findIndex(item => item.ResourceId === id);
-            if (index > -1) {
-                newData.splice(index, 1);
-            }
-        } else {
-            tmp.push(id);
-            let file = this.state.resources[rowId];
-            newData.push(file);
-        }
-        this.setState({
-            selectedFileIds: tmp,
-            selectedFiles: newData,
+        CheckBoxComponent.getSelectedFiles(id, rowId, this.state.selectedFileIds, this.state.selectedFiles, this.state.resources, (selectedIds, selectedFiles) => {
+            this.setState({ selectedFileIds: selectedIds, selectedFiles: selectedFiles });
         });
     }
 
     public async onPressedSelectAll() {
-        this.setState({ isSelectAll: !this.state.isSelectAll });
-        let allIds = await this.state.resources.map(item => {
-            return item.ResourceId;
+        CheckBoxComponent.selectAllFiles(this.state.isSelectAll, this.state.resources, (isSelected, selectedIds, selectedFiles) => {
+            this.setState({ isSelectAll: isSelected, selectedFileIds: selectedIds, selectedFiles: selectedFiles });
         });
-        let selectedFiles: Array<SubResourceModel> = [];
-        if (this.state.isSelectAll) {
-            await LocalDbManager.get<Array<SubResourceModel>>('downloadFiles', async (err, data) => {
-                if (data !== null || data !== undefined) {
-                    selectedFiles = data!;
-                }
-            });
-            this.setState({
-                selectedFileIds: allIds,
-                selectedFiles: selectedFiles,
-            });
-        } else {
-            this.setState({
-                selectedFileIds: [],
-                selectedFiles: [],
-            });
-        }
     }
 
     public async isSelectedFiles(selectedFiles: Array<SubResourceModel>) {
@@ -347,63 +285,25 @@ class FileManagerScreen extends Component<Props, State> {
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
-            await this.props.requestDownloadFile(this.state.bearer_token, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
+            await this.props.requestDownloadFile(Constant.bearerToken, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
             if (this.props.downloadState.error !== '') {
                 Alert.alert(Config.APP_NAME, this.props.downloadState.error);
             } else {
-                await this.state.downloadedFiles.push({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
-                console.log('files are pushed', this.state.downloadedFiles);
-                let downloadFiles = await this.state.resources.filter(item => !this.state.downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-                this.setState({
-                    resources: downloadFiles,
+                await this.props.addownloadedFile({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+                CheckBoxComponent.unzipFile(this.props.downloadedFiles.downloadedfiles, this.state.resources, this.state.selectedFiles[i], (resources) => {
+                    this.setState({resources: resources});
                 });
-                await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, async (err) => {
-                    Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
-                });
-                await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (err) => {
-                });
-                const path: string = Platform.OS === 'ios' ? Constant.documentDir : FileExtension === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
-                console.log('download resource id', ResourceId);
-                if (FileExtension === FileType.zip) {
-                    await PreviewManager.unzipFile(path, ResourceName, FileExtension, ResourceId, LauncherFile);
-                }
             }
         }
-
-        this.setState({
-            selectedFiles: [],
-            selectedFileIds: [],
-            isSelectAll: false,
-        });
+        this.setState({selectedFiles: [], selectedFileIds: [], isSelectAll: false});
     }
 
     public async removeFileFromLocalDB(data: DownloadedFilesModel) {
-        let newData = [...this.state.downloadedFiles];
-        const index = newData.findIndex(resource => resource.resourceId === data.resourceId);
-        if (index > -1) {
-            newData.splice(index, 1); // unbookmarking
-            await LocalDbManager.get<Array<SubResourceModel>>(Constant.allFiles, async (err, data) => {
-                if (data) {
-                    let downloadFiles = await data.filter(item1 => !newData.some(item2 => item1.ResourceId === item2.resourceId));
-                    this.setState({
-                        resources: downloadFiles,
-                        downloadedFiles: newData,
-                    });
-                }
-            });
-            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.state.downloadedFiles, (error) => {
-                if (error !== null) {
-                    Alert.alert(error!.message);
-                }
-            });
-            await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', this.state.resources, async (error) => {
-                if (error !== null) {
-                    Alert.alert(error!.message);
-                }
-            });
-        }
-        const filename = data.resourceType === FileType.zip ? `${data.resourceId}${data.resourceType}` : data.resourceType === FileType.video ? `${data.resourceId}${data.resourceType}` : data.resourceName;
-        await LocalDbManager.unlinkFile(`${Constant.deleteFilePath}/${filename}`, data.resourceType, `${Constant.deleteFilePath}/${data.resourceId}`);
+        await this.props.removeDownloadedFile(data.resourceId);
+        console.log('all files', Constant.fetchAllFiles);
+        CheckBoxComponent.removeFile(data, this.props.downloadedFiles.downloadedfiles, (resources) => {
+            this.setState({ resources: resources });
+        });
     }
 
     public cancelDownloadFile = async () => {
@@ -419,10 +319,12 @@ class FileManagerScreen extends Component<Props, State> {
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
-    deviceTokenResponse: state.settings,
+    downloadedFiles: state.downloadedFilesData,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
     requestDownloadCancel: bindActionCreators(downloadCancel, dispatch),
+    removeDownloadedFile: bindActionCreators(RemoveItem, dispatch),
+    addownloadedFile: bindActionCreators(AddItem, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);

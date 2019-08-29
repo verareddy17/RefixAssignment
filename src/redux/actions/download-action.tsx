@@ -61,6 +61,8 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
         dispatch(downloadResourceStart());
         try {
             let task = RNFetchBlob.config({
+                // IOSDownloadTask: true,
+                IOSBackgroundTask: true,
                 path: path,
             }).fetch('POST', `${Config.BASE_URL}/${Constant.downloadFile}`, {
                 'Content-Type': 'application/json',
@@ -71,19 +73,18 @@ export default function downloadFile(bearer_token: string, AppUserResourceID: nu
                 let progress = (received / total);
                 await dispatch(downloadResourceProgress(progress, task));
             });
-            await task.then(async (res: any) => {
-                console.log('then');
-                if (res.respInfo.status === 200) {
-                    if (canceled) {
-                        console.log('caneled', canceled);
-                        dispatch(downloadResourceFailure());
-                        canceled = false;
-                    } else {
-                        dispatch(downloadResourceSuccess(0));
-                        console.log('success', canceled);
-                    }
+            const res = await task;
+            if (res.respInfo.status === 200) {
+                if (canceled) {
+                    console.log('download canceld');
+                    canceled = false;
+                    dispatch(downloadResourceFailure());
+                    return;
                 }
-            });
+                dispatch(downloadResourceSuccess(0));
+                return;
+            }
+            dispatch(downloadResourceFailure());
         } catch (error) {
             console.log('catch');
             dispatch(downloadResourceFailure());

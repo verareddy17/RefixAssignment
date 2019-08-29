@@ -5,3 +5,7 @@ export default class Bookmarks {
    public resourceType?: string;
 }
 
+export interface BookmarkState {
+   bookmarkfiles: Bookmarks[];
+}
+
