@@ -78,8 +78,10 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     refreshContainer: {
-        width: 75,
-        height: 75,
+        height: 150,
+        width: 300,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     spinnerContainer: {
         flex: 1,

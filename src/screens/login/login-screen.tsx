@@ -110,7 +110,9 @@ class LoginScreen extends Component<Props, State> {
         if (this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading) {
             return (
                 <View style={styles.spinnerContainer}>
-                    <Spinner style={styles.refreshContainer} size={'large'} color={Config.PRIMARY_COLOR} />
+                    <View style={styles.refreshContainer}>
+                        <Spinner size={'large'} color={Config.PRIMARY_COLOR}/>
+                    </View>
                 </View>
             );
         } else {
@@ -141,7 +143,7 @@ class LoginScreen extends Component<Props, State> {
             await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, Constant.deviceOS, this.props.userState.user.Token!);
             if (this.props.deviceTokenResponse.error === '' && this.props.deviceTokenResponse.settings !== null) {
                 this.props.resetInputText();
-                this.props.navigation.navigate('Home', {'isFromLogin': true});
+                this.props.navigation.navigate('Home', { 'isFromLogin': true });
             } else {
                 Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
             }
