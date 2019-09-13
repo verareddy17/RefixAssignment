@@ -5,6 +5,8 @@ export class DownloadedFilesModel {
     public resourceType: string = '';
     public resourceImage: string = '';
     public launcherFile: string = '';
+    public resourceFileSize: string = '';
+    public downloadedDate?: string;
 }
 export interface FileState {
     downloadedfiles: DownloadedFilesModel[];

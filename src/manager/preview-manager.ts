@@ -5,7 +5,7 @@ import { Toast } from 'native-base';
 import RNFetchBlob from 'rn-fetch-blob';
 import { SubResourceModel, ResourceModel } from '../models/resource-model';
 import Config from 'react-native-config';
-import { Alert} from 'react-native';
+import { Alert } from 'react-native';
 let result: SubResourceModel[] = [];
 export default class PreviewManager {
 
@@ -16,13 +16,17 @@ export default class PreviewManager {
         return resourceName;
     }
 
-    public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string, resourceId: number) => void) {
+    public static async openPreview(dir: string, fileName: string, fileType: string, resourceId: number, launcherFile: string, isunzip: boolean, callback: (rootPath: string, launcherFile: string, fileName: string, fileType: string, resourceId: number) => void) {
         if (fileType === FileType.zip) {
             let resourceName = await PreviewManager.extractFileName(fileName);
             const sourcePath = `${dir}/${resourceId}${fileType}`;
             const targetPath = `${dir}/${resourceId}/${resourceName}`;
             console.log('source path', sourcePath);
             console.log('targetedPath', targetPath);
+            if (isunzip) {
+                callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType, resourceId);
+                return;
+            }
             await unzip(sourcePath, targetPath).then(() => {
                 callback(`${dir}/${resourceId}`, launcherFile, resourceName, fileType, resourceId);
             })

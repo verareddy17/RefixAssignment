@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import styles from './home-style';
-import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem, Toast } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
-import { ListView, Image, TouchableOpacity, Alert, FlatList, ImageBackground, Dimensions, Platform, Keyboard, WebView } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, FlatList, ImageBackground, Dimensions, Platform, Keyboard, WebView, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
 import { AppState } from '../../redux/reducers/index';
 import Config from 'react-native-config';
 import LocalDbManager from '../../manager/localdb-manager';
-import { Constant } from '../../constant';
+import { Constant, FileType } from '../../constant';
 import { SettingsResponse } from '../../redux/actions/settings-actions';
 import deviceTokenApi from '../../redux/actions/settings-actions';
 import Crashes from 'appcenter-crashes';
@@ -25,10 +25,12 @@ import Orientation from 'react-native-orientation';
 import { CustomizeSettings } from '../../models/custom-settings';
 import separatorComponent from '../components/separator-component';
 import PreviewManager from '../../manager/preview-manager';
-import downloadFile from '../../redux/actions/download-action';
-import { DownloadedResources, FetchAllDownloadedFiles } from '../../redux/actions/downloaded-file-action';
+import downloadFile, { DownloadResourceFileProgress, downloadCancel } from '../../redux/actions/download-action';
+import { DownloadedResources, FetchAllDownloadedFiles, AddItem } from '../../redux/actions/downloaded-file-action';
+import NetworkCheckManager from '../../manager/networkcheck-manager';
+import DownloadProgressComponent from '../components/download-progress';
+import searchFilter, { SearchFilterArray } from '../../redux/actions/search-action';
 import badgeNumber from '../components/badge-number';
-import searchFilter from '../../search-filter';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -36,27 +38,32 @@ interface Props {
     deviceTokenResponse: SettingsResponse;
     userState: LoginResponse;
     downloadedFiles: DownloadedResources;
+    downloadState: DownloadResourceFileProgress;
+    searchState: SearchFilterArray;
     getresources(token: string): object;
     getresourcesfromdb(): object;
     updateresource(token: string): object;
     requestLoginApi(pin: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDeviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     fetchdownloadedFiles(files: DownloadedFilesModel[]): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
+    addDownloadedFile(downloadedFile: DownloadedFilesModel): (dispatch: Dispatch, getState: Function) => Promise<void>;
+    searchFilter(text: string, allFiles: SubResourceModel[]): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
     token: '';
     isFromLogin: boolean;
     resourceFiles: ResourceModel[];
-    isSearch: boolean;
     filterArray: SubResourceModel[];
     orientation: string;
     barierToken: string;
     downloadedFiles: Array<DownloadedFilesModel>;
     searchText: string;
-    searchArray: SubResourceModel[];
     width: number;
     height: number;
+    isLoading: boolean;
 }
 
 class HomeScreen extends Component<Props, State> {
@@ -66,20 +73,21 @@ class HomeScreen extends Component<Props, State> {
             token: '',
             isFromLogin: false,
             resourceFiles: [],
-            isSearch: false,
             filterArray: [],
             orientation: getInitialScreenOrientation(),
             barierToken: '',
             downloadedFiles: [],
             searchText: '',
-            searchArray: [],
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
+            isLoading: false,
         };
         Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
     }
 
     public async componentWillMount() {
+        const value = '25.555555';
+        console.log('round of two decimals', parseFloat(value).toFixed(2));
         this.setState({ downloadedFiles: [] });
         await LocalDbManager.getDownloadedFiles(async (downloadedFiles) => {
             await this.props.fetchdownloadedFiles(downloadedFiles);
@@ -89,6 +97,7 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
+        this.setState({isLoading: true});
         handleOrientationOfScreen((orientation) => { this.setState({ orientation: orientation }); });
         handleScreenDimensions((width, height) => { this.setState({ width: width, height: height }); });
         await LocalDbManager.get<ActivationAppResponse>(Constant.userDetailes, async (err, data) => {
@@ -97,6 +106,7 @@ class HomeScreen extends Component<Props, State> {
                 Constant.bearerToken = data.Token || '';
             }
         });
+        this.setState({isLoading: false});
         await this.props.getresources(Constant.bearerToken);
         const isFromLogin = this.props.navigation.getParam('isFromLogin');
         if (isFromLogin === true) {
@@ -108,7 +118,7 @@ class HomeScreen extends Component<Props, State> {
             console.log('didmount', downloadedFiles);
             console.log('allfiles...', allFiles);
             Constant.fetchAllFiles = allFiles;
-            this.setState({ downloadedFiles: downloadedFiles, searchArray: allFiles });
+            this.setState({ downloadedFiles: downloadedFiles });
         });
     }
 
@@ -126,10 +136,10 @@ class HomeScreen extends Component<Props, State> {
         }
         console.log('updated resources', this.props.resourceState);
         await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
-            console.log('update files', downloadedFiles);
+            console.log('updated files', downloadedFiles);
             console.log('allfiles...', allFiles);
             Constant.fetchAllFiles = allFiles;
-            this.setState({ downloadedFiles: downloadedFiles, searchArray: allFiles });
+            this.setState({ downloadedFiles: downloadedFiles });
         });
     }
 
@@ -140,27 +150,22 @@ class HomeScreen extends Component<Props, State> {
 
     public async searchFilterFunction(textData: string) {
         this.setState({ searchText: textData });
-        await searchFilter(textData, this.state.searchArray, (filterArray, isSearch) => {
-            console.log('callback data search', filterArray, isSearch);
-            this.setState({ filterArray: filterArray, isSearch: isSearch });
-        });
-
+        await this.props.searchFilter(textData, Constant.fetchAllFiles);
     }
 
     public renderResourceList() {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.props.resourceState.resources.length > 0) {
-            if (this.state.isSearch) {
-                if (this.state.filterArray.length > 0) {
+            if (this.props.searchState.isSearch) {
+                if (this.props.searchState.searchArray.length > 0) {
                     return (
                         <View style={styles.resourceListContainer}>
                             <FlatList
-                                data={this.state.filterArray}
+                                data={this.props.searchState.searchArray}
                                 renderItem={({ item }) =>
                                     <View style={styles.searchContainer}>
                                         <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                        <TouchableOpacity onPress={() =>
-                                            console.log('get detailes on item files', item)}>
+                                        <TouchableOpacity onPress={() => this.resourceDetails(item)}>
                                             <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -177,7 +182,7 @@ class HomeScreen extends Component<Props, State> {
                     );
                 }
             } else {
-                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading) {
+                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading) {
                     return (
                         <View style={styles.loadingContainer}>
                             <Spinner color={Config.PRIMARY_COLOR}></Spinner>
@@ -214,12 +219,9 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
-    public closeSearch() {
-        this.setState({
-            searchText: '',
-            isSearch: false,
-            filterArray: [],
-        });
+    public async closeSearch() {
+        this.setState({ searchText: '' });
+        await this.props.searchFilter('', Constant.fetchAllFiles);
         Keyboard.dismiss();
     }
 
@@ -232,7 +234,7 @@ class HomeScreen extends Component<Props, State> {
                 />
                 <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
                     <Container style={styles.containerColor}>
-                        <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
+                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
                             <Left style={styles.headerContainer}>
                                 <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
                                     <Icon name='menu' style={styles.iconColor}></Icon>
@@ -245,8 +247,8 @@ class HomeScreen extends Component<Props, State> {
                                     <Icon name='refresh' style={styles.iconColor}></Icon>
                                 </TouchableOpacity>
                             </Right>
-                        </Header>
-                        <Header noShadow searchBar rounded style={styles.searchBarHeader}>
+                        </Header>}
+                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow searchBar rounded style={styles.searchBarHeader}>
                             <Item>
                                 <Icon name='search' />
                                 <Input placeholder={Constant.searchPlaceholder}
@@ -256,16 +258,71 @@ class HomeScreen extends Component<Props, State> {
                                 />
                                 <Icon name='close' onPress={() => this.closeSearch()} />
                             </Item>
-                        </Header>
+                        </Header>}
                         <Content contentContainerStyle={[styles.containerColor, Constant.platform === 'android' ? { paddingBottom: 30 } : { paddingBottom: 0 }]}>
                             <View style={styles.container}>
-                                {this.renderResourceList()}
+                                {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload} /> : this.renderResourceList()}
                             </View>
                         </Content>
                     </Container>
                 </ImageBackground>
             </SafeAreaView>
         );
+    }
+
+    public async resourceDetails(data: SubResourceModel) {
+        this.loadResourceAsync(data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile, data.ResourceSizeInKB);
+    }
+
+    public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string, fileSize?: string) {
+        if (!(resourceId && resourceName)) {
+            return;
+        }
+        if (this.props.downloadedFiles.downloadedfiles.length > 0) {
+            console.log('file has downloaded', this.props.downloadedFiles.downloadedfiles);
+            const file = this.props.downloadedFiles.downloadedfiles.find(i => i.resourceId === resourceId);
+            if (!file) {
+                await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '', fileSize!);
+                return;
+            }
+            const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+            console.log('downloadedPath', path);
+            await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', true, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+                await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
+            });
+        } else {
+            await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '', fileSize!);
+            return;
+        }
+    }
+
+    public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string, fileSize: string) {
+        let isConnected = await NetworkCheckManager.isConnected();
+        if (!isConnected) {
+            Toast.show({ text: Constant.noInternetConnction, type: 'danger', position: 'top' });
+            return;
+        }
+        this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile, fileSize);
+    }
+
+    public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string, resourceFileSize: string) {
+        const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
+        await this.props.requestDownloadFile(Constant.bearerToken, resourceId, filename, resourceType);
+        if (this.props.downloadState.error !== '') {
+            Alert.alert(Config.APP_NAME, Constant.cancelDownload);
+            return;
+        }
+        await this.props.addDownloadedFile({ resourceName, resourceId, resourceType, resourceImage, launcherFile, resourceFileSize});
+        console.log('downloaded files', this.props.downloadedFiles.downloadedfiles);
+        const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
+        console.log('preview path', path);
+        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, false, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
+        });
+    }
+
+    public cancelDownload = async () => {
+        await this.props.requestDownloadCancel();
     }
 }
 
@@ -274,6 +331,8 @@ const mapStateToProps = (state: AppState) => ({
     deviceTokenResponse: state.settings,
     userState: state.loginData,
     downloadedFiles: state.downloadedFilesData,
+    downloadState: state.downloadProgress,
+    searchState: state.searchData,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -281,6 +340,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     updateresource: bindActionCreators(updateResources, dispatch),
     requestDeviceTokenApi: bindActionCreators(deviceTokenApi, dispatch),
     fetchdownloadedFiles: bindActionCreators(FetchAllDownloadedFiles, dispatch),
+    requestDownloadCancel: bindActionCreators(downloadCancel, dispatch),
+    addDownloadedFile: bindActionCreators(AddItem, dispatch),
+    requestDownloadFile: bindActionCreators(downloadFile, dispatch),
+    searchFilter: bindActionCreators(searchFilter, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

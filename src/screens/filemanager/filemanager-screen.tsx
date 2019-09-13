@@ -6,7 +6,7 @@ import Config from 'react-native-config';
 import Swipeout from 'react-native-swipeout';
 import { TouchableOpacity, FlatList, Image, ImageBackground, Dimensions, Alert, ListView, Platform, ProgressBarAndroid, ProgressViewIOS, BackHandler } from 'react-native';
 import { FileType, Constant } from '../../constant';
-import { SubResourceModel, ResourceModel } from '../../models/resource-model';
+import { SubResourceModel } from '../../models/resource-model';
 import LocalDbManager from '../../manager/localdb-manager';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import PreviewManager from '../../manager/preview-manager';
@@ -19,7 +19,7 @@ import NetworkCheckManager from '../../manager/networkcheck-manager';
 import FileImageComponent from '../components/file-images';
 import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen, handleScreenDimensions, removeScreenDimensionsListner } from '../components/screen-orientation';
 import Orientation from 'react-native-orientation';
-import { ActivationAppResponse } from '../../models/login-model';
+import DownloadProgressComponent from '../components/download-progress';
 import { RemoveItem, DownloadedResources, AddItem } from '../../redux/actions/downloaded-file-action';
 import CheckBoxComponent from '../components/handle-check-box';
 
@@ -75,7 +75,7 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async componentDidMount() {
         console.log('downloaded files', this.props.downloadedFiles);
-        this.setState({isLoading: true, downloadedFiles: [], resources: []});
+        this.setState({ isLoading: true, downloadedFiles: [], resources: [] });
         handleOrientationOfScreen((orientation) => {
             this.setState({
                 orientation: orientation,
@@ -145,7 +145,7 @@ class FileManagerScreen extends Component<Props, State> {
                         {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
-                                {this.props.downloadState.isLoading ? this.progress() : this.renderComponent()}
+                                {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload} /> : this.renderComponent()}
                             </View>
                         </Content>
                     </Container>
@@ -181,7 +181,11 @@ class FileManagerScreen extends Component<Props, State> {
                                 }}>
                                     <View style={styles.downloadedContainer}>
                                         <FileImageComponent fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
-                                        <Text style={styles.textTitle}>{item.resourceName}</Text>
+                                        <View style={styles.fileConatiner}>
+                                            <Text style={styles.fileTitle}>{item.resourceName}</Text>
+                                            <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
+                                            <Text style={styles.fileTitle}>{`Date: ${item.downloadedDate}`}</Text>
+                                        </View>
                                     </View>
                                     <View style={styles.separator} />
                                 </TouchableOpacity>
@@ -206,7 +210,10 @@ class FileManagerScreen extends Component<Props, State> {
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
                                             <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                            <Text style={styles.textTitle}>{item.ResourceName}</Text>
+                                            <View style={styles.fileConatiner}>
+                                                <Text style={styles.fileTitle}>{item.ResourceName}</Text>
+                                                <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.ResourceSizeInKB).toFixed(2)} MB`}</Text>
+                                            </View>
                                         </View>
                                     </TouchableOpacity>
                                 </Body>
@@ -221,39 +228,9 @@ class FileManagerScreen extends Component<Props, State> {
 
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? Constant.documentDir : data.resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
-        await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+        await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', true, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
-    }
-
-    public progress() {
-        const downloadProgress = Math.floor(this.props.downloadState.progress * 100);
-        if (Platform.OS === 'ios') {
-            return (
-                <View style={styles.progressBarConainer}>
-                    <View style={styles.downloadContainer}>
-                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                        <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity onPress={() => this.cancelDownloadFile()}>
-                            <Text style={styles.cancelButton}>CANCEL</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            );
-        } else {
-            return (
-                <View style={styles.progressBarConainer}>
-                    <View style={styles.downloadContainer}>
-                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                        <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity onPress={() => this.cancelDownloadFile()}>
-                            <Text style={styles.cancelButton}>CANCEL</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-            );
-        }
     }
 
     public onCheckBoxPress(id: number, rowId: any) {
@@ -283,19 +260,19 @@ class FileManagerScreen extends Component<Props, State> {
         }
         await this.isSelectedFiles(this.state.selectedFiles);
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
-            const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile } = this.state.selectedFiles[i];
+            const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile, ResourceSizeInKB } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(Constant.bearerToken, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
             if (this.props.downloadState.error !== '') {
                 Alert.alert(Config.APP_NAME, this.props.downloadState.error);
             } else {
-                await this.props.addownloadedFile({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile });
+                await this.props.addownloadedFile({ resourceName: ResourceName, resourceId: ResourceId, resourceType: FileExtension, resourceImage: ResourceImage || '', launcherFile: LauncherFile, resourceFileSize: ResourceSizeInKB });
                 CheckBoxComponent.unzipFile(this.props.downloadedFiles.downloadedfiles, this.state.resources, this.state.selectedFiles[i], (resources) => {
-                    this.setState({resources: resources});
+                    this.setState({ resources: resources });
                 });
             }
         }
-        this.setState({selectedFiles: [], selectedFileIds: [], isSelectAll: false});
+        this.setState({ selectedFiles: [], selectedFileIds: [], isSelectAll: false });
     }
 
     public async removeFileFromLocalDB(data: DownloadedFilesModel) {
@@ -306,7 +283,7 @@ class FileManagerScreen extends Component<Props, State> {
         });
     }
 
-    public cancelDownloadFile = async () => {
+    public cancelDownload = async () => {
         await this.props.requestDownloadCancel();
     }
 

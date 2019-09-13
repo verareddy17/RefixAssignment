@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const badgeNumber = (data: SubResourceModel | ResourceModel, downloadedFiles: DownloadedFilesModel[]) : ReactElement | undefined => {
+const badgeNumber = (data: SubResourceModel | ResourceModel, downloadedFiles: DownloadedFilesModel[]): ReactElement | undefined => {
     if (data !== undefined && data.Children !== undefined) {
         let files = data.Children.filter((item) => {
             return item.ResourceType !== 0;

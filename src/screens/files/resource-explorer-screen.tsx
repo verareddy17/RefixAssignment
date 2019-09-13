@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast, List, ListItem } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast, List, ListItem, Spinner } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './resource-explorer-style';
@@ -26,6 +26,7 @@ import { LoginResponse } from '../../redux/actions/user-action';
 import Orientation from 'react-native-orientation';
 import BreadsCrumb from '../components/breadscrumb/breads-crumb';
 import { AddItem, RemoveItem, DownloadedResources, FetchAllDownloadedFiles } from '../../redux/actions/downloaded-file-action';
+import DownloadProgressComponent from '../components/download-progress';
 import badgeNumber from '../components/badge-number';
 interface Props {
     // tslint:disable-next-line:no-any
@@ -54,6 +55,7 @@ interface State {
     backButton: boolean;
     width: number;
     height: number;
+    isLoding: boolean;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -71,6 +73,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             backButton: true,
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
+            isLoding: false,
         };
         this.onBreadCrumbPress = this.onBreadCrumbPress.bind(this);
         this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
@@ -172,13 +175,14 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         },
                     ]}
                         autoClose={true} style={[styles.swipeContainer]}>
-                        <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile)}>
+                        <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile, data.ResourceSizeInKB)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
                                     <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
                                 </View>
-                                <View style={styles.resourceContainer}>
-                                    <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
+                                <View style={styles.fileConatiner}>
+                                    <Text style={styles.fileTitle}>{data.ResourceName}</Text>
+                                    <Text style={styles.fileTitle}>{`File Size: ${parseFloat(data.ResourceSizeInKB).toFixed(2)} MB`}</Text>
                                 </View>
                                 <View style={styles.bookmarkIconContainer}>
                                     <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceId) }} name='' />
@@ -217,7 +221,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0, paddingTop: this.props.downloadState.isLoading ? 0 : 5 }]}>
                             <View style={styles.container}>
-                                {this.props.downloadState.isLoading ? this.progress() : this.resourceList()}
+                                {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload}/> : this.resourceList()}
                             </View>
                         </Content>
                     </Container>
@@ -226,63 +230,29 @@ class ResourceExplorerScreen extends Component<Props, State> {
         );
     }
 
-    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
+    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string, fileSize?: string ) {
         if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
         }
-        this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile);
+        this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile, fileSize);
     }
 
-    public async cancelDownload() {
+    public cancelDownload = async() => {
         await this.props.requestDownloadCancel();
     }
 
-    public progress() {
-        const downloadProgress = Math.floor(this.props.downloadState.progress * 100);
-        if (Platform.OS === 'ios') {
-            return (
-                <View style={styles.progressBarConainer}>
-                    <View style={styles.downloadContainer}>
-                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                        <ProgressViewIOS style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>CANCEL</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            );
-        } else {
-            return (
-                <View style={styles.progressBarConainer}>
-                    <View style={styles.downloadContainer}>
-                        <Text style={styles.progressBarText}>{`Downloading(${downloadProgress}%)`}</Text>
-                        <ProgressBarAndroid styleAttr='Horizontal' style={styles.progressBarWidth} progress={this.props.downloadState.progress} />
-                        <TouchableOpacity onPress={() => this.cancelDownload()}>
-                            <Text style={styles.downloadingText}>CANCEL</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            );
-        }
-    }
-
-    public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
+    public async downloadResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string, resourceFileSize: string) {
         const filename = resourceType === FileType.zip ? `${resourceId}${resourceType}` : resourceType === FileType.video ? resourceName.split(' ').join('') : resourceName;
         await this.props.requestDownloadFile(Constant.bearerToken, resourceId, filename, resourceType);
         if (this.props.downloadState.error !== '') {
             Alert.alert(Config.APP_NAME, Constant.cancelDownload);
             return;
         }
-        await this.props.addDownloadedFile({ resourceName, resourceId, resourceType, resourceImage, launcherFile });
-        if (this.props.downloadedFiles.error === '') {
-            await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, this.props.downloadedFiles.downloadedfiles, async (err) => {
-                Toast.show({ text: 'successfully added downloads', type: 'success', position: 'bottom' });
-            });
-        }
+        await this.props.addDownloadedFile({ resourceName, resourceId, resourceType, resourceImage, launcherFile, resourceFileSize });
         console.log('this', this.props.downloadedFiles.downloadedfiles);
         const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
         console.log('preview path', path);
-        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+        await PreviewManager.openPreview(path, resourceName, resourceType, resourceId, launcherFile, false, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
             await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
@@ -301,34 +271,34 @@ class ResourceExplorerScreen extends Component<Props, State> {
         }
     }
 
-    public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string) {
+    public async loadResourceAsync(resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string, filesize?: string) {
         if (!(resourceId && resourceName)) {
             return;
         }
         if (this.props.downloadedFiles.downloadedfiles.length > 0) {
             const file = this.props.downloadedFiles.downloadedfiles.find(i => i.resourceId === resourceId)
             if (!file) {
-                await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
+                await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '', filesize!);
                 return;
             }
             const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
             console.log('downloadedPath', path);
-            await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', async (rootPath, launcherFile, fileName, fileType, resourceId) => {
+            await PreviewManager.openPreview(path, file.resourceName, file.resourceType, resourceId, launcherFile || '', true, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
                 await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
             });
         } else {
-            await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '');
+            await this.downloadAndSaveResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile || '', filesize!);
             return;
         }
     }
 
-    public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string) {
+    public async downloadAndSaveResource(resourceId: number, resourceName: string, resourceType: string, resourceImage: string, launcherFile: string, fileSize: string) {
         let isConnected = await NetworkCheckManager.isConnected();
         if (!isConnected) {
             Toast.show({ text: Constant.noInternetConnction, type: 'danger', position: 'top' });
             return;
         }
-        this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile);
+        this.downloadResource(resourceId!, resourceName!, resourceType!, resourceImage!, launcherFile, fileSize);
     }
 
     public componentWillUnmount() {

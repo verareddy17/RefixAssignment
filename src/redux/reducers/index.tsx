@@ -5,6 +5,7 @@ import resourceReducer from './resource-reducer';
 import settingsReducer from './settings-reducer';
 import downloadReducer from './download-reducer';
 import downloadedFile from './downloaded-file-reducer';
+import searchReducer from './search-reducer';
 const rootReducer = combineReducers({
     inputText: inputReducer,
     loginData: loginReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
     settings: settingsReducer,
     downloadProgress: downloadReducer,
     downloadedFilesData: downloadedFile,
+    searchData: searchReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

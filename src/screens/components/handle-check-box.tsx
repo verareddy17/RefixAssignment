@@ -53,9 +53,6 @@ export default class CheckBoxComponent {
 
     public static async unzipFile(downloadedFiles: DownloadedFilesModel[], resources: SubResourceModel[], selectedFile: SubResourceModel, callBack: (resources: SubResourceModel[]) => void) {
         let downloadFiles = await resources.filter(item => !downloadedFiles.some(downloadedItem => item.ResourceId === downloadedItem.resourceId));
-        await LocalDbManager.insert<Array<DownloadedFilesModel>>(Constant.downloadedFiles, downloadedFiles, async (err) => {
-            Toast.show({ text: Constant.successfullyDownloaded, type: 'success', position: 'bottom' });
-        });
         await LocalDbManager.insert<Array<SubResourceModel>>('downloadFiles', resources, async (err) => {
         });
         const path: string = Platform.OS === 'ios' ? Constant.documentDir : selectedFile.FileExtension === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;

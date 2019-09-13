@@ -139,6 +139,16 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
     },
+    fileConatiner: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignSelf: 'center',
+
+    },
+    fileTitle: {
+        marginLeft: 10,
+    },
 });
 
 export default styles;

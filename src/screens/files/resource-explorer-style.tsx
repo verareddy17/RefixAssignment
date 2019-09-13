@@ -103,13 +103,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         opacity: 0.8,
     },
-    progressBarWidth: {
-        width: '100%',
-    },
-    progressBarText: {
-        color: '#000',
-        textAlign: 'center',
-    },
     fileSeparator: {
         width: '100%',
         height: 1,
@@ -152,6 +145,15 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
+    },
+    fileConatiner: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignSelf: 'center',
+    },
+    fileTitle: {
+        marginLeft: 10,
     },
 });
 

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
@@ -78,14 +78,14 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     refreshContainer: {
-        height: 150,
+        height: 200,
         width: 300,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'transparent',
     },
     spinnerContainer: {
         flex: 1,
-        backgroundColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
@@ -93,6 +93,14 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 2,
+        ...Platform.select({
+            android: {
+                position: 'absolute',
+            },
+            ios: {
+                backgroundColor: '#000',
+            },
+        }),
     },
     keyboardAvoidContainer: {
         flex: 1,
