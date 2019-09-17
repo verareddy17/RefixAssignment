@@ -8,6 +8,7 @@ import Config from 'react-native-config';
 import LocalDbManager from '../../manager/localdb-manager';
 import { string } from 'prop-types';
 import { Constant } from '../../constant';
+import { CustomizeSettings } from '../../models/custom-settings';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -18,23 +19,20 @@ export default class AuthLoadingScreen extends Component<Props> {
         this._bootstrapAsync();
     }
 
+    public componentDidMount() {
+        LocalDbManager.get<CustomizeSettings>(Constant.customSettings, (err, data) => {
+            if (data) {
+                Constant.confirmationMessageText = data.ConfirmationMessage || '';
+                Constant.confirmationMessageModifiedDate = data.ConfirmationMessageModifiedDate || '';
+            }
+        });
+    }
     // Fetch the token from storage then navigate to our appropriate place
     public _bootstrapAsync = async () => {
         const userToken = await AsyncStorage.getItem(Constant.userToken);
         // This will switch to the App screen or Auth screen and this loading
         // screen will be unmounted and thrown away.
         this.props.navigation.navigate(userToken ? 'Home' : 'Login');
-        // if user aleredy logining  in the app
-        if (userToken || ''.length > 0) {
-            console.log('userToken', userToken);
-            const confirmationMessage = await AsyncStorage.getItem(Constant.confirmationMessage);
-            if (confirmationMessage !== null) {
-                console.log('config', confirmationMessage);
-                if (confirmationMessage.length > 5) {
-                    LocalDbManager.showConfirmationAlert(confirmationMessage);
-                }
-            }
-        }
     }
 
     // Render any loading content that you like here

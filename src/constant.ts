@@ -64,6 +64,8 @@ export class Constant {
     public static whiteColor = '#ffffff';
     public static transparentColor = 'transparent';
     public static successfullyDownloaded = 'Successfully downloaded';
+    public static confirmationMessageText = '';
+    public static confirmationMessageModifiedDate = '';
 }
 
 export enum FileType {

@@ -31,6 +31,7 @@ import NetworkCheckManager from '../../manager/networkcheck-manager';
 import DownloadProgressComponent from '../components/download-progress';
 import searchFilter, { SearchFilterArray } from '../../redux/actions/search-action';
 import badgeNumber from '../components/badge-number';
+import Popup from '../components/popup';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -64,6 +65,7 @@ interface State {
     width: number;
     height: number;
     isLoading: boolean;
+    showPopup: boolean;
 }
 
 class HomeScreen extends Component<Props, State> {
@@ -81,13 +83,12 @@ class HomeScreen extends Component<Props, State> {
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
             isLoading: false,
+            showPopup: false,
         };
         Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
     }
 
     public async componentWillMount() {
-        const value = '25.555555';
-        console.log('round of two decimals', parseFloat(value).toFixed(2));
         this.setState({ downloadedFiles: [] });
         await LocalDbManager.getDownloadedFiles(async (downloadedFiles) => {
             await this.props.fetchdownloadedFiles(downloadedFiles);
@@ -108,18 +109,15 @@ class HomeScreen extends Component<Props, State> {
         });
         this.setState({ isLoading: false });
         await this.props.getresources(Constant.bearerToken);
-        const isFromLogin = this.props.navigation.getParam('isFromLogin');
-        if (isFromLogin === true) {
-            if (this.props.deviceTokenResponse.settings.ConfirmationMessage || ''.length > 5) {
-                LocalDbManager.showConfirmationAlert(this.props.deviceTokenResponse.settings.ConfirmationMessage!);
-            }
-        }
         await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
             console.log('didmount', downloadedFiles);
             console.log('allfiles...', allFiles);
             Constant.fetchAllFiles = allFiles;
             this.setState({ downloadedFiles: downloadedFiles });
         });
+        if (Constant.confirmationMessageText.length > 5) {
+            this.setState({ showPopup: true });
+        }
     }
 
     public async updateResouces() {
@@ -141,6 +139,9 @@ class HomeScreen extends Component<Props, State> {
             Constant.fetchAllFiles = allFiles;
             this.setState({ downloadedFiles: downloadedFiles });
         });
+        if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
+            this.setState({ showPopup: true });
+        }
     }
 
     public componentWillUnmount() {
@@ -264,10 +265,17 @@ class HomeScreen extends Component<Props, State> {
                                 {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload} /> : this.renderResourceList()}
                             </View>
                         </Content>
+                        {this.state.showPopup ? <Popup togglePopUp={this.togglePopup} message={Constant.confirmationMessageText || ''} /> : null}
                     </Container>
                 </ImageBackground>
             </SafeAreaView>
         );
+    }
+
+    public togglePopup = async () => {
+        this.setState({
+            showPopup: false,
+        });
     }
 
     public async resourceDetails(data: SubResourceModel) {

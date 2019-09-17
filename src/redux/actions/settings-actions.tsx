@@ -48,6 +48,8 @@ export default function deviceTokenApi(DeviceToken: string, ThemeVersion: number
                             Constant.portraitImagePath = data.Data.Settings.PortraitImage || '';
                             Constant.landscapeImagePath = data.Data.Settings.LandscapeImage || '';
                             Constant.headerFontColor = data.Data.Settings.FontColor;
+                            Constant.confirmationMessageText = data.Data.Settings.ConfirmationMessage || '';
+                            Constant.confirmationMessageModifiedDate = data.Data.Settings.ConfirmationMessageModifiedDate || '';
                         }
                         LocalDbManager.insert<CustomizeSettings>(Constant.customSettings, data.Data.Settings, (err) => { });
                         LocalDbManager.insert<string>(Constant.userToken, Constant.bearerToken, async (err) => { });

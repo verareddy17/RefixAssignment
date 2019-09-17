@@ -2,6 +2,7 @@ import { NetInfo, Alert } from 'react-native';
 import Config from 'react-native-config';
 import axios from 'axios';
 import { Constant } from '../constant';
+import badgeNumber from '../screens/components/badge-number';
 
 export default class ApiManager {
 
