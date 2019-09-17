@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     },
     breadscrumbContainer: {
         width: '100%',
-        height: 30,
+        height: 35,
         justifyContent: 'flex-start',
     },
     breadscrumbsView: {

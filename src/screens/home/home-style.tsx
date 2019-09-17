@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         height: 75,
+        width: '90%'
     },
     renderSeparator: {
         height: 1,

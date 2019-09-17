@@ -49,6 +49,7 @@ export function AddItem(item: DownloadedFilesModel): (dispatch: Dispatch, getSta
     return async (dispatch: Dispatch, getState: Function) => {
         dispatch(startLoading());
         item.downloadedDate = getTime();
+        console.log('date', item.downloadedDate);
         const downloadedFiles: Array<DownloadedFilesModel> = [...getState().downloadedFilesData.downloadedfiles];
         const newData = [...downloadedFiles, item];
         console.log('..new data', newData);

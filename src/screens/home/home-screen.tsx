@@ -97,7 +97,7 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
         handleOrientationOfScreen((orientation) => { this.setState({ orientation: orientation }); });
         handleScreenDimensions((width, height) => { this.setState({ width: width, height: height }); });
         await LocalDbManager.get<ActivationAppResponse>(Constant.userDetailes, async (err, data) => {
@@ -106,7 +106,7 @@ class HomeScreen extends Component<Props, State> {
                 Constant.bearerToken = data.Token || '';
             }
         });
-        this.setState({isLoading: false});
+        this.setState({ isLoading: false });
         await this.props.getresources(Constant.bearerToken);
         const isFromLogin = this.props.navigation.getParam('isFromLogin');
         if (isFromLogin === true) {
@@ -163,12 +163,12 @@ class HomeScreen extends Component<Props, State> {
                             <FlatList
                                 data={this.props.searchState.searchArray}
                                 renderItem={({ item }) =>
-                                    <View style={styles.searchContainer}>
-                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                        <TouchableOpacity onPress={() => this.resourceDetails(item)}>
+                                    <TouchableOpacity onPress={() => this.resourceDetails(item)}>
+                                        <View style={styles.searchContainer}>
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                             <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                        </View>
+                                    </TouchableOpacity>
                                 }
                                 ItemSeparatorComponent={separatorComponent}
                             />
@@ -312,7 +312,7 @@ class HomeScreen extends Component<Props, State> {
             Alert.alert(Config.APP_NAME, Constant.cancelDownload);
             return;
         }
-        await this.props.addDownloadedFile({ resourceName, resourceId, resourceType, resourceImage, launcherFile, resourceFileSize});
+        await this.props.addDownloadedFile({ resourceName, resourceId, resourceType, resourceImage, launcherFile, resourceFileSize });
         console.log('downloaded files', this.props.downloadedFiles.downloadedfiles);
         const path: string = Platform.OS === 'ios' ? Constant.documentDir : resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
         console.log('preview path', path);
