@@ -15,14 +15,14 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0, 0.4)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
     },
     inner: {
         position: 'absolute',
         left: '20%',
         right: '20%',
         top: '40%',
-        height: '20%',
+        height: '30%',
         bottom: 25,
         backgroundColor: '#fff',
     },
@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontSize: 20,
         fontWeight: 'bold',
+        color: '#000',
     },
     buttonConatiner: {
         alignItems: 'center',
@@ -43,6 +44,12 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontSize: 15,
         fontWeight: 'bold',
+        color: '#000',
+    },
+    webviewContainer: {
+        overflow: 'hidden',
+        width: '100%',
+        height: '50%',
     },
 });
 class Popup extends Component<Props> {
@@ -56,10 +63,9 @@ class Popup extends Component<Props> {
                     <View style={styles.titleContainer}>
                         <Text style={styles.title}>Advisory Notice</Text>
                     </View>
-                    <WebView
-                        originWhitelist={['*']}
-                        source={{ html: this.props.message }}
-                    />
+                    <View style={styles.webviewContainer}>
+                        <WebView source={{ html: this.props.message }} />
+                    </View>
                     <TouchableOpacity style={styles.buttonConatiner} onPress={() => this.props.togglePopUp()}>
                         <Text style={styles.buttonTitle}>ACCEPT</Text>
                     </TouchableOpacity>

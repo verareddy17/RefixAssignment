@@ -182,7 +182,7 @@ class FileManagerScreen extends Component<Props, State> {
                                     <View style={styles.downloadedContainer}>
                                         <FileImageComponent fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
                                         <View style={styles.fileConatiner}>
-                                            <Text style={styles.fileTitle}>{item.resourceName}</Text>
+                                            <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.resourceName}</Text>
                                             <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
                                             <Text style={styles.fileTitle}>{`Date: ${item.downloadedDate}`}</Text>
                                         </View>
@@ -211,7 +211,7 @@ class FileManagerScreen extends Component<Props, State> {
                                         <View style={styles.bodyContainer}>
                                             <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
                                             <View style={styles.fileConatiner}>
-                                                <Text style={styles.fileTitle}>{item.ResourceName}</Text>
+                                                <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.ResourceName}</Text>
                                                 <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.ResourceSizeInKB).toFixed(2)} MB`}</Text>
                                             </View>
                                         </View>

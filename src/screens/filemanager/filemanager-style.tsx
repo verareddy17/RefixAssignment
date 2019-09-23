@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        height: 'auto',
+        height: 75,
     },
     textTitle: {
         padding: 10,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     bodyContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 'auto',
+        height: 75,
     },
     selectAll: {
         color: Config.PRIMARY_COLOR,

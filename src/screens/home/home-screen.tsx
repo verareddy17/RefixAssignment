@@ -139,9 +139,9 @@ class HomeScreen extends Component<Props, State> {
             Constant.fetchAllFiles = allFiles;
             this.setState({ downloadedFiles: downloadedFiles });
         });
-        if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
+        // if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
             this.setState({ showPopup: true });
-        }
+        // }
     }
 
     public componentWillUnmount() {
@@ -161,7 +161,7 @@ class HomeScreen extends Component<Props, State> {
                 if (this.props.searchState.searchArray.length > 0) {
                     return (
                         <View style={styles.resourceListContainer}>
-                            <FlatList
+                            <FlatList ref='listRef'
                                 data={this.props.searchState.searchArray}
                                 renderItem={({ item }) =>
                                     <TouchableOpacity onPress={() => this.resourceDetails(item)}>
@@ -190,9 +190,10 @@ class HomeScreen extends Component<Props, State> {
                         </View>
                     );
                 } else {
+
                     return (
                         <View style={styles.resourceListContainer}>
-                            <ListView contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
+                            <ListView removeClippedSubviews={false} contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
                                 dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                                 renderRow={(rowData: ResourceModel) =>
                                     <View>

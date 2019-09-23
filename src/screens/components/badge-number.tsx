@@ -5,6 +5,7 @@ import { SubResourceModel, ResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import { StyleSheet, View, Platform } from 'react-native';
 import Config from 'react-native-config';
+let result: SubResourceModel[] = [];
 
 const styles = StyleSheet.create({
     badgeText: {
@@ -24,15 +25,31 @@ const styles = StyleSheet.create({
         right: -10,
     },
 });
+function recurseSubFolders(children: { Children: SubResourceModel[] | undefined; }, resultArray: any[]) {
+    if (children.Children === undefined || children.Children === null) {
+        resultArray.push(children);
+        return;
+    }
+    for (let i = 0; i < children.Children.length; i++) {
+        recurseSubFolders(children.Children[i], resultArray);
+    }
+    console.log('resultArray', result);
+}
 
+function getFilesFromAllFolders(json: ResourceModel[]) {
+    result = [];
+    for (let j = 0; j < json.length; j++) {
+        recurseSubFolders(json[j], result);
+    }
+    return result;
+}
 const badgeNumber = (data: SubResourceModel | ResourceModel, downloadedFiles: DownloadedFilesModel[]): ReactElement | undefined => {
     if (data !== undefined && data.Children !== undefined) {
-        let files = data.Children.filter((item) => {
-            return item.ResourceType !== 0;
-        });
-        if (files.length > 0) {
-            let newDownloadedFiles = downloadedFiles.filter(downloadFile => files.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
-            let badgeNumber = data.Children.length - newDownloadedFiles.length;
+        result = [];
+        getFilesFromAllFolders(data.Children);
+        if (result.length > 0) {
+            let newDownloadedFiles = downloadedFiles.filter(downloadFile => result.some(updatedFiles => downloadFile.resourceId === updatedFiles.ResourceId));
+            let badgeNumber = result.length - newDownloadedFiles.length;
             if (badgeNumber === 0) {
                 return;
             }
@@ -42,12 +59,12 @@ const badgeNumber = (data: SubResourceModel | ResourceModel, downloadedFiles: Do
                 </Badge>
             );
         }
-        if (data.Children.length === 0) {
+        if (result.length === 0) {
             return;
         }
         return (
             <Badge style={styles.badge} >
-                <Text style={styles.badgeText}>{data.Children.length}</Text>
+                <Text style={styles.badgeText}>{result.length}</Text>
             </Badge>
         );
 

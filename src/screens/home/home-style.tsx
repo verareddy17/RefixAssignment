@@ -3,6 +3,7 @@ import Config from 'react-native-config';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+      
     },
     headerBg: {
         backgroundColor: Config.PRIMARY_COLOR,
