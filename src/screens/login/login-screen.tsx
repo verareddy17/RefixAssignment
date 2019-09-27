@@ -79,7 +79,7 @@ class LoginScreen extends Component<Props, State> {
                                             autoCapitalize='none'
                                             secureTextEntry={this.state.isSecureText}
                                         />
-                                        <Icon style={{ color: this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? '#ffffff' : '#000000' }} name={this.state.isSecureText ? 'eye' : 'eye-off'} color='#fff' onPress={() => this.showPassword()} />
+                                        <Icon style={{ color: this.props.userState.isLoading || this.props.deviceTokenResponse.isLoading ? '#ffffff' : '#000000' }} name={this.state.isSecureText ? 'eye-off' : 'eye'} color='#fff' onPress={() => this.showPassword()} />
                                     </Item>
                                     {this.SpinnerLoading()}
                                     <View style={styles.buttonContainer}>

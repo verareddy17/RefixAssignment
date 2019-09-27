@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         left: '20%',
         right: '20%',
         top: '40%',
-        height: '30%',
+        height: 150,
         bottom: 25,
         backgroundColor: '#fff',
     },
