@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, TouchableOpacity, StyleSheet, WebView, Dimensions } from 'react-native';
+import { View, Text, Button, TouchableOpacity, StyleSheet, WebView, Dimensions, Platform } from 'react-native';
 interface Props {
     message: string;
     togglePopUp(): Promise<void>;
@@ -19,8 +19,8 @@ const styles = StyleSheet.create({
     },
     inner: {
         position: 'absolute',
-        left: '20%',
-        right: '20%',
+        left: '10%',
+        right: '10%',
         top: '40%',
         height: 150,
         bottom: 25,
@@ -39,17 +39,19 @@ const styles = StyleSheet.create({
     buttonConatiner: {
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 10
     },
     buttonTitle: {
-        marginBottom: 5,
         fontSize: 15,
         fontWeight: 'bold',
         color: '#000',
     },
     webviewContainer: {
+        flex: 0,
         overflow: 'hidden',
         width: '100%',
-        height: '50%',
+        height: '52%',
+        backgroundColor: 'red'
     },
 });
 class Popup extends Component<Props> {
@@ -64,7 +66,10 @@ class Popup extends Component<Props> {
                         <Text style={styles.title}>Advisory Notice</Text>
                     </View>
                     <View style={styles.webviewContainer}>
-                        <WebView source={{ html: this.props.message }} />
+                        <WebView automaticallyAdjustContentInsets={true}
+                            scalesPageToFit={(Platform.OS === 'ios') ? false : true}
+                            source={{ html: this.props.message }}
+                        />
                     </View>
                     <TouchableOpacity style={styles.buttonConatiner} onPress={() => this.props.togglePopUp()}>
                         <Text style={styles.buttonTitle}>ACCEPT</Text>

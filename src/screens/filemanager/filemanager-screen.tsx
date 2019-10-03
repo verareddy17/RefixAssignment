@@ -57,7 +57,7 @@ class FileManagerScreen extends Component<Props, State> {
             resources: [],
             downloadedFiles: [],
             isLoading: false,
-            activePage: 1,
+            activePage: 2,
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
             orientation: getInitialScreenOrientation(),
@@ -184,10 +184,8 @@ class FileManagerScreen extends Component<Props, State> {
                                         <View style={styles.fileConatiner}>
                                             <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.resourceName}</Text>
                                             <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
-                                            <Text style={styles.fileTitle}>{`Date: ${item.downloadedDate}`}</Text>
                                         </View>
                                     </View>
-                                    <View style={styles.separator} />
                                 </TouchableOpacity>
                             </Swipeout>
                         }
@@ -209,7 +207,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={0} isFromDownloadManager={true} styles={styles.resourceImage} />
                                             <View style={styles.fileConatiner}>
                                                 <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.ResourceName}</Text>
                                                 <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.ResourceSizeInKB).toFixed(2)} MB`}</Text>
@@ -218,7 +216,6 @@ class FileManagerScreen extends Component<Props, State> {
                                     </TouchableOpacity>
                                 </Body>
                             </ListItem>
-                            <View style={styles.separator} />
                         </View>
                     }
                 />

@@ -142,15 +142,15 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                         {badgeNumber(data, this.props.downloadedFiles.downloadedfiles)}
                                     </View>
                                     <View style={styles.resourceContainer}>
-                                        <Text style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
                                     </View>
                                 </TouchableOpacity>
                             }
                         />
-                        <View style={styles.fileSeparator} />
                     </View>
                 );
             } else {
+                console.log('resourceID...', data.ResourceId);
                 return (
                     <Swipeout key={index} right={[
                         // {
@@ -178,7 +178,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile, data.ResourceSizeInKB)}>
                             <View style={styles.fileContainer}>
                                 <View style={styles.folderImageContainer}>
-                                    <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} styles={styles.fileImage} />
+                                    <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={data.ResourceId} isFromDownloadManager={false} styles={styles.fileImage} />
                                 </View>
                                 <View style={styles.fileConatiner}>
                                     <Text style={styles.fileTitle}>{data.ResourceName}</Text>
@@ -188,7 +188,6 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                     <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceId) }} name='' />
                                 </View>
                             </View>
-                            <View style={styles.fileSeparator} />
                         </TouchableOpacity>
                     </Swipeout>
                 );
@@ -221,7 +220,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0, paddingTop: this.props.downloadState.isLoading ? 0 : 5 }]}>
                             <View style={styles.container}>
-                                {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload}/> : this.resourceList()}
+                                {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload} /> : this.resourceList()}
                             </View>
                         </Content>
                     </Container>
@@ -230,14 +229,14 @@ class ResourceExplorerScreen extends Component<Props, State> {
         );
     }
 
-    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string, fileSize?: string ) {
+    public async resourceDetails(data: ResourceModel, resourceId?: number, resourceName?: string, resourceType?: string, resourceImage?: string, launcherFile?: string, fileSize?: string) {
         if (data.ResourceType === 0) {
             this.props.navigation.push('File', { 'item': data });
         }
         this.loadResourceAsync(resourceId, resourceName, resourceType, resourceImage, launcherFile, fileSize);
     }
 
-    public cancelDownload = async() => {
+    public cancelDownload = async () => {
         await this.props.requestDownloadCancel();
     }
 

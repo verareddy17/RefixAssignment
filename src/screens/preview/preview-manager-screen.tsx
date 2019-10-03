@@ -20,6 +20,7 @@ interface State {
     resourceId: number;
     fileType: string;
     videoPath: string;
+    isEnterFullScreen: boolean;
 }
 export default class PreviewManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -31,6 +32,7 @@ export default class PreviewManagerScreen extends Component<Props, State> {
             resourceId: 0,
             fileType: '',
             videoPath: '',
+            isEnterFullScreen: false,
         };
     }
 
@@ -63,10 +65,16 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         if (fileType === FileType.video) {
             return (
                 <VideoPlayer
-                    source={{ uri: this.state.videoPath }}
-                    style={StyleSheet.absoluteFill}
-                    navigator={this.props.navigation}
-                />
+                source={{ uri: this.state.videoPath }}
+                style={StyleSheet.absoluteFill}
+                navigator={this.props.navigation}
+                onEnterFullscreen={() => {
+                    this.setState({isEnterFullScreen: true})
+                }}
+                onExitFullscreen={() => {
+                    this.setState({isEnterFullScreen: false})
+                }}
+            />                
             );
         } else {
             return (
@@ -93,17 +101,17 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
-                    <Header noShadow style={styles.headerContainer} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
+                    {this.state.isEnterFullScreen ? null : <Header noShadow style={styles.headerContainer} androidStatusBarColor={Constant.blackColor} iosBarStyle={'light-content'}> 
+                         <Left>
                             <Button transparent onPress={() => this.props.navigation.pop()}>
-                                <Icon name='arrow-back' style={styles.iconColor} />
+                                <Icon name= 'arrow-back' style={styles.iconColor} />
                             </Button>
                         </Left>
                         <Body>
                             <Text>{fileName}</Text>
                         </Body>
                         <Right />
-                    </Header>
+                    </Header>}
                     <Content contentContainerStyle={styles.contentContainer}>
                         {this.state.isLoading ? this.renderIndicator()
                             : <View style={styles.contentContainer}>

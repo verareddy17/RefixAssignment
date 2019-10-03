@@ -39,8 +39,8 @@ export default function loginApi(pin: string): (dispatch: Dispatch) => Promise<v
             if (!isNetworkFail) {
                 if (response) {
                     if (response.Success) {
-                        if (Constant.username !== response.Data.UserFullName) {
-                            LocalDbManager.delete(Constant.downloadFile, (error) => { });
+                        if (Constant.loginName !== response.Data.UserFullName) {
+                            LocalDbManager.delete(Constant.downloadedFiles, (error) => { });
                         }
                         LocalDbManager.insert<ActivationAppResponse>(Constant.userDetailes, response.Data, (err) => { });
                         dispatch(loadUserSuccess(response.Data));

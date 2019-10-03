@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 10,
         marginBottom: 5,
+        borderRadius: 5
     },
     folderImage: {
         marginLeft: 10,
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         height: 50,
         width: 50,
+        borderRadius: 5
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,

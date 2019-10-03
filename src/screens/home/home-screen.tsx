@@ -107,7 +107,6 @@ class HomeScreen extends Component<Props, State> {
                 Constant.bearerToken = data.Token || '';
             }
         });
-        this.setState({ isLoading: false });
         await this.props.getresources(Constant.bearerToken);
         await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
             console.log('didmount', downloadedFiles);
@@ -115,6 +114,7 @@ class HomeScreen extends Component<Props, State> {
             Constant.fetchAllFiles = allFiles;
             this.setState({ downloadedFiles: downloadedFiles });
         });
+        this.setState({ isLoading: false });
         if (Constant.confirmationMessageText.length > 5) {
             this.setState({ showPopup: true });
         }
@@ -139,9 +139,9 @@ class HomeScreen extends Component<Props, State> {
             Constant.fetchAllFiles = allFiles;
             this.setState({ downloadedFiles: downloadedFiles });
         });
-        // if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
+        if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
             this.setState({ showPopup: true });
-        // }
+        }
     }
 
     public componentWillUnmount() {
@@ -155,42 +155,48 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public renderResourceList() {
+        console.log('length', this.props.resourceState.resources.length)
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        if (this.props.resourceState.resources.length > 0) {
-            if (this.props.searchState.isSearch) {
-                if (this.props.searchState.searchArray.length > 0) {
-                    return (
-                        <View style={styles.resourceListContainer}>
-                            <FlatList ref='listRef'
-                                data={this.props.searchState.searchArray}
-                                renderItem={({ item }) =>
-                                    <TouchableOpacity onPress={() => this.resourceDetails(item)}>
-                                        <View style={styles.searchContainer}>
-                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                            <Text style={{ padding: 10 }}>{item.ResourceName}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                }
-                                ItemSeparatorComponent={separatorComponent}
-                            />
-                        </View>
-                    );
-                } else {
+        // if (this.props.resourceState.resources.length >= 0) {
+        if (this.props.searchState.isSearch) {
+            if (this.props.searchState.searchArray.length > 0) {
+                return (
+                    <View style={styles.resourceListContainer}>
+                        <FlatList
+                            data={this.props.searchState.searchArray}
+                            renderItem={({ item }) =>
+                                <TouchableOpacity onPress={() => this.resourceDetails(item)}>
+                                    <View style={styles.searchContainer}>
+                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ padding: 10 }}>{item.ResourceName}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            }
+                        />
+                    </View>
+                );
+            } else {
+                return (
+                    <View style={styles.noDataContainer}>
+                        <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
+                    </View>
+                );
+            }
+        } else {
+            if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading) {
+                return (
+                    <View style={styles.loadingContainer}>
+                        <Spinner color={Config.PRIMARY_COLOR}></Spinner>
+                    </View>
+                );
+            } else {
+                if (this.props.resourceState.resources.length === 0 || this.props.resourceState.resources.length === undefined) {
                     return (
                         <View style={styles.noDataContainer}>
                             <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
                         </View>
                     );
-                }
-            } else {
-                if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading) {
-                    return (
-                        <View style={styles.loadingContainer}>
-                            <Spinner color={Config.PRIMARY_COLOR}></Spinner>
-                        </View>
-                    );
                 } else {
-
                     return (
                         <View style={styles.resourceListContainer}>
                             <ListView removeClippedSubviews={false} contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
@@ -202,9 +208,8 @@ class HomeScreen extends Component<Props, State> {
                                                 <FolderImageComponet styles={styles.resourceImage} folderImage={rowData.ResourceImage} />
                                                 {badgeNumber(rowData, this.state.downloadedFiles)}
                                             </View>
-                                            <Text style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
+                                            <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
                                         </TouchableOpacity>
-                                        <View style={styles.renderSeparator} />
                                     </View>
                                 }
                             />
@@ -212,13 +217,14 @@ class HomeScreen extends Component<Props, State> {
                     );
                 }
             }
-        } else {
-            return (
-                <View style={styles.noDataContainer}>
-                    <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
-                </View>
-            );
         }
+        // } else {
+        //     return (
+        //         <View style={styles.noDataContainer}>
+        //             <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
+        //         </View>
+        //     );
+        // }
     }
 
     public async closeSearch() {

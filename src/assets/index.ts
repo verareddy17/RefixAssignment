@@ -7,6 +7,7 @@ const images = {
     ppt: require('./images/ppt.png'),
     folder: require('./images/folder.png'),
     loginButton: require('./images/login_button.png'),
+    downloadFile: require('./images/download.png'),
 };
 
 export default images;

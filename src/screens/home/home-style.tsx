@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         marginLeft: 10,
+        borderRadius: 5
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
