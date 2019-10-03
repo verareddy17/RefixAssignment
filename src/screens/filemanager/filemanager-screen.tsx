@@ -22,6 +22,8 @@ import Orientation from 'react-native-orientation';
 import DownloadProgressComponent from '../components/download-progress';
 import { RemoveItem, DownloadedResources, AddItem } from '../../redux/actions/downloaded-file-action';
 import CheckBoxComponent from '../components/handle-check-box';
+import images from '../../assets/index';
+
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -118,8 +120,8 @@ class FileManagerScreen extends Component<Props, State> {
                     <Button active={this.state.activePage === 2}
                         onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                 </Segment>
-                {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
-                    <Icon name='download' style={{ marginRight: 10, color: Config.PRIMARY_COLOR }}></Icon>
+                {this.state.activePage === 2 ? <TouchableOpacity style={styles.downloadIconContainer} onPress={() => this.downloadSelectedFiles()}>
+                    <Image source={images.downloadIcon} style={styles.downloadIcon}/>
                 </TouchableOpacity> : <View />}
             </View>
         );

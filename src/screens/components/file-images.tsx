@@ -54,7 +54,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.mp4} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 45 }} />
                     </View>
                 );
             } else if (fileType === FileType.pdf || fileType === FileType.zip) {
@@ -115,7 +115,7 @@ export default class FileImageComponent extends Component<Props> {
             return (
                 <View>
                     <CacheableImage source={{ uri: fileImage }} style={[styles, { marginLeft: 10 }]} />
-                    <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                    <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 41, marginLeft: 41 }} />
                 </View>
             )
 

@@ -150,6 +150,14 @@ const styles = StyleSheet.create({
     fileTitle: {
         marginLeft: 10,
     },
+    downloadIconContainer: {
+        backgroundColor: Config.PRIMARY_COLOR,
+        marginRight: 10
+    },
+    downloadIcon: {
+        height: 25, 
+        width: 25
+    },
 });
 
 export default styles;
