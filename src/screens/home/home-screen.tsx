@@ -157,7 +157,6 @@ class HomeScreen extends Component<Props, State> {
     public renderResourceList() {
         console.log('length', this.props.resourceState.resources.length)
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        // if (this.props.resourceState.resources.length >= 0) {
         if (this.props.searchState.isSearch) {
             if (this.props.searchState.searchArray.length > 0) {
                 return (
@@ -218,13 +217,6 @@ class HomeScreen extends Component<Props, State> {
                 }
             }
         }
-        // } else {
-        //     return (
-        //         <View style={styles.noDataContainer}>
-        //             <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
-        //         </View>
-        //     );
-        // }
     }
 
     public async closeSearch() {

@@ -5,7 +5,6 @@ import Constant from '../../constant';
 const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: Config.PRIMARY_COLOR,
-        height: 55
     },
     iconColor: {
         color: '#fff',

@@ -1,5 +1,5 @@
 import { FileType } from '../../constant';
-import { Image, View } from 'react-native';
+import { Image, View, StyleSheet } from 'react-native';
 import images from '../../assets/index';
 import imageCacheHoc from 'react-native-image-cache-hoc';
 import React, { Component } from 'react';
@@ -19,7 +19,6 @@ interface Props {
     ResourceId: number;
     isFromDownloadManager: boolean;
 }
-
 export default class FileImageComponent extends Component<Props> {
     constructor(props: Props) {
         super(props);
@@ -40,7 +39,7 @@ export default class FileImageComponent extends Component<Props> {
     private renderFileImages(fileType: string, styles: object, filesDownloaded: [DownloadedFilesModel], ResourceId: number, isFromDownloadManager: boolean, fileImage?: string) {
         let temp: boolean = false;
         if (isFromDownloadManager === true || isFromDownloadManager === undefined) {
-           temp = true
+            temp = true
         } else {
             temp = false;
         }
@@ -59,7 +58,6 @@ export default class FileImageComponent extends Component<Props> {
                     </View>
                 );
             } else if (fileType === FileType.pdf || fileType === FileType.zip) {
-                console.log('hello', isFileDownloaded);
                 if (isFileDownloaded) {
                     return (
                         <Image source={images.pdf} style={styles} />
@@ -123,5 +121,4 @@ export default class FileImageComponent extends Component<Props> {
 
         }
     }
-
 }
