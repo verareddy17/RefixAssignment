@@ -25,7 +25,10 @@ const HomeStackNavigator = createStackNavigator(
     {
         initialRouteName: 'Home',
         headerMode: 'none',
-    }
+        defaultNavigationOptions:{
+            gesturesEnabled: false,
+        }
+    },
 );
 
 const AppDrawerNavigator = createDrawerNavigator(

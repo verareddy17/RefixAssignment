@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Right, Spinner } from 'native-base';
-import { WebView, StyleSheet } from 'react-native';
+import { WebView, StyleSheet, Dimensions } from 'react-native';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './preview-manager-style';
@@ -8,6 +8,8 @@ import Video from 'react-native-video';
 import { FileType, Constant } from '../../constant';
 import PreviewManager from '../../manager/preview-manager';
 import VideoPlayer from 'react-native-video-controls';
+import Orientation from 'react-native-orientation';
+import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen } from '../components/screen-orientation';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -20,6 +22,10 @@ interface State {
     resourceId: number;
     fileType: string;
     videoPath: string;
+    isEnterFullScreen: boolean;
+    width: number;
+    height: number;
+    orientation: string;
 }
 export default class PreviewManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -31,10 +37,20 @@ export default class PreviewManagerScreen extends Component<Props, State> {
             resourceId: 0,
             fileType: '',
             videoPath: '',
+            isEnterFullScreen: false,
+            width: Dimensions.get('window').width,
+            height: Dimensions.get('window').height,
+            orientation: getInitialScreenOrientation(),
         };
+        Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
     }
 
     public async componentDidMount() {
+        handleOrientationOfScreen((orientation) => {
+            this.setState({
+                orientation: orientation,
+            });
+        });
         const dirPath = this.props.navigation.getParam('dir');
         const launcherFile = this.props.navigation.getParam('launcherFile') as string;
         const fileName = this.props.navigation.getParam('fileName') as string;
@@ -66,6 +82,12 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                     source={{ uri: this.state.videoPath }}
                     style={StyleSheet.absoluteFill}
                     navigator={this.props.navigation}
+                    onEnterFullscreen={() => {
+                        this.setState({ isEnterFullScreen: true })
+                    }}
+                    onExitFullscreen={() => {
+                        this.setState({ isEnterFullScreen: false })
+                    }}
                 />
             );
         } else {
@@ -93,17 +115,20 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
                 <Container>
-                    <Header noShadow style={styles.headerContainer} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                        <Left>
+                    {this.state.isEnterFullScreen ? null : <Header noShadow style={{
+                        backgroundColor: Config.PRIMARY_COLOR,
+                        height: this.state.orientation === Constant.landscape ? 30 : 60
+                    }} androidStatusBarColor={Constant.blackColor} iosBarStyle={'light-content'}>
+                        <Left style={{ marginTop: this.state.orientation === Constant.landscape ? -20 : 0 }}>
                             <Button transparent onPress={() => this.props.navigation.pop()}>
                                 <Icon name='arrow-back' style={styles.iconColor} />
                             </Button>
                         </Left>
-                        <Body>
+                        <Body style={{ marginTop: this.state.orientation === Constant.landscape ? -20 : 0 }}>
                             <Text>{fileName}</Text>
                         </Body>
                         <Right />
-                    </Header>
+                    </Header>}
                     <Content contentContainerStyle={styles.contentContainer}>
                         {this.state.isLoading ? this.renderIndicator()
                             : <View style={styles.contentContainer}>
@@ -114,5 +139,8 @@ export default class PreviewManagerScreen extends Component<Props, State> {
                 </Container>
             </SafeAreaView>
         );
+    }
+    public componentWillUnmount() {
+        removeOrientationOfScreen();
     }
 }

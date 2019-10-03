@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         marginLeft: 10,
+        borderRadius: 5,        
     },
     downloadFileContainer: {
         height: 70,
@@ -148,6 +149,14 @@ const styles = StyleSheet.create({
     },
     fileTitle: {
         marginLeft: 10,
+    },
+    downloadIconContainer: {
+        backgroundColor: Config.PRIMARY_COLOR,
+        marginRight: 10
+    },
+    downloadIcon: {
+        height: 25, 
+        width: 25
     },
 });
 

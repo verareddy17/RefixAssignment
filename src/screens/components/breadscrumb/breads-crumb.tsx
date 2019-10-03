@@ -62,7 +62,7 @@ class BreadsCrumb extends Component<Props, State> {
                         ]} >
                         <View style={styles.itemContainer}>
                             <Icon
-                                name= { index === 0 ? '' : 'arrow-back'} color={Constant.blackColor} style={styles.icon} />
+                                name= { index === 0 ? '' : 'arrow-forward'} color={Constant.blackColor} style={styles.icon} />
                             <Text style={styles.title}>{item}</Text>
                         </View>
                     </TouchableOpacity>;

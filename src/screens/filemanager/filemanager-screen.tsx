@@ -22,6 +22,8 @@ import Orientation from 'react-native-orientation';
 import DownloadProgressComponent from '../components/download-progress';
 import { RemoveItem, DownloadedResources, AddItem } from '../../redux/actions/downloaded-file-action';
 import CheckBoxComponent from '../components/handle-check-box';
+import images from '../../assets/index';
+
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -57,7 +59,7 @@ class FileManagerScreen extends Component<Props, State> {
             resources: [],
             downloadedFiles: [],
             isLoading: false,
-            activePage: 1,
+            activePage: 2,
             backgroundPortraitImage: '',
             backgroundLandscapeImage: '',
             orientation: getInitialScreenOrientation(),
@@ -118,8 +120,8 @@ class FileManagerScreen extends Component<Props, State> {
                     <Button active={this.state.activePage === 2}
                         onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                 </Segment>
-                {this.state.activePage === 2 ? <TouchableOpacity onPress={() => this.downloadSelectedFiles()}>
-                    <Icon name='download' style={{ marginRight: 10, color: Config.PRIMARY_COLOR }}></Icon>
+                {this.state.activePage === 2 ? <TouchableOpacity style={styles.downloadIconContainer} onPress={() => this.downloadSelectedFiles()}>
+                    <Image source={images.downloadIcon} style={styles.downloadIcon}/>
                 </TouchableOpacity> : <View />}
             </View>
         );
@@ -184,10 +186,8 @@ class FileManagerScreen extends Component<Props, State> {
                                         <View style={styles.fileConatiner}>
                                             <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.resourceName}</Text>
                                             <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
-                                            <Text style={styles.fileTitle}>{`Date: ${item.downloadedDate}`}</Text>
                                         </View>
                                     </View>
-                                    <View style={styles.separator} />
                                 </TouchableOpacity>
                             </Swipeout>
                         }
@@ -209,7 +209,7 @@ class FileManagerScreen extends Component<Props, State> {
                                 <Body>
                                     <TouchableOpacity onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}>
                                         <View style={styles.bodyContainer}>
-                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={0} isFromDownloadManager={true} styles={styles.resourceImage} />
                                             <View style={styles.fileConatiner}>
                                                 <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.ResourceName}</Text>
                                                 <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.ResourceSizeInKB).toFixed(2)} MB`}</Text>
@@ -218,7 +218,6 @@ class FileManagerScreen extends Component<Props, State> {
                                     </TouchableOpacity>
                                 </Body>
                             </ListItem>
-                            <View style={styles.separator} />
                         </View>
                     }
                 />
