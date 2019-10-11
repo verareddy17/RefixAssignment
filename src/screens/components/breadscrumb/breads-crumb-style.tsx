@@ -2,15 +2,13 @@ import { StyleSheet, Platform } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-        height: 35,
+        height: 40,
     },
     breadscrumbContainer: {
-        height: 35,
+        height: 40,
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        backgroundColor: '#ffffff',
-        borderBottomWidth: 0.3,
-        borderTopWidth: 0.3,
+        backgroundColor: 'transparent',
     },
     itemContainer: {
         flexDirection: 'row',
@@ -26,8 +24,9 @@ const styles = StyleSheet.create({
     },
     title: {
         marginLeft: 5,
-        fontSize: 15,
+        fontSize: 20,
         color: '#000000',
+        fontWeight: 'bold'
     },
 });
 export default styles;

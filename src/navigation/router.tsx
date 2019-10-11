@@ -21,6 +21,9 @@ const HomeStackNavigator = createStackNavigator(
         Preview: {
             screen: PreviewManagerScreen,
         },
+        DownloadManager: {
+            screen: FileManagerScreen,
+        },
     },
     {
         initialRouteName: 'Home',
@@ -74,7 +77,7 @@ const AuthStack = createStackNavigator({ Login: LoginScreen });
 const BaseNavigation = createAppContainer(createSwitchNavigator(
     {
         AuthLoading: AuthLoadingScreen,
-        App: AppDrawerNavigator,
+        App: HomeStackNavigator,
         Auth: AuthStack,
     },
     {

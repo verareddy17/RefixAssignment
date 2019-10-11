@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Right, Spinner } from 'native-base';
-import { WebView, StyleSheet, Dimensions } from 'react-native';
+import { WebView, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { NavigationScreenProp, SafeAreaView } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './preview-manager-style';
@@ -10,6 +10,8 @@ import PreviewManager from '../../manager/preview-manager';
 import VideoPlayer from 'react-native-video-controls';
 import Orientation from 'react-native-orientation';
 import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen } from '../components/screen-orientation';
+import images from '../../assets/index';
+
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -114,21 +116,17 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileName = this.props.navigation.getParam('fileName') as string;
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
+                <View style={styles.headerContainer}>
+                    <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
+                    </TouchableOpacity>
+                </View>
                 <Container>
-                    {this.state.isEnterFullScreen ? null : <Header noShadow style={{
-                        backgroundColor: Config.PRIMARY_COLOR,
-                        height: this.state.orientation === Constant.landscape ? 30 : 60
-                    }} androidStatusBarColor={Constant.blackColor} iosBarStyle={'light-content'}>
-                        <Left style={{ marginTop: this.state.orientation === Constant.landscape ? -20 : 0 }}>
-                            <Button transparent onPress={() => this.props.navigation.pop()}>
-                                <Icon name='arrow-back' style={styles.iconColor} />
-                            </Button>
-                        </Left>
-                        <Body style={{ marginTop: this.state.orientation === Constant.landscape ? -20 : 0 }}>
-                            <Text>{fileName}</Text>
-                        </Body>
-                        <Right />
-                    </Header>}
+                    <View style={styles.backArrowContainer}>
+                        <Button transparent onPress={() => this.props.navigation.pop()}>
+                            <Image source={images.backArrow} style={styles.backArrow} />
+                        </Button>
+                    </View>
                     <Content contentContainerStyle={styles.contentContainer}>
                         {this.state.isLoading ? this.renderIndicator()
                             : <View style={styles.contentContainer}>

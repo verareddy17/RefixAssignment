@@ -66,6 +66,7 @@ export class Constant {
     public static successfullyDownloaded = 'Successfully downloaded';
     public static confirmationMessageText = '';
     public static confirmationMessageModifiedDate = '';
+    public static headerImage = '';
 }
 
 export enum FileType {

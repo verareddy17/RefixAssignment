@@ -109,7 +109,7 @@ class FileManagerScreen extends Component<Props, State> {
         return (
             <View style={styles.contentConatiner}>
                 {this.state.activePage === 2 ? <View style={styles.selectAllFilesConatiner}>
-                    <CheckBox color={Config.PRIMARY_COLOR} checked={this.state.isSelectAll}
+                    <CheckBox color={'black'} checked={this.state.isSelectAll}
                         onPress={() => { this.onPressedSelectAll(); }}
                     />
                     <Text style={styles.selectAll}>Select All</Text>
@@ -120,9 +120,7 @@ class FileManagerScreen extends Component<Props, State> {
                     <Button active={this.state.activePage === 2}
                         onPress={() => this.selectComponent(2)}><Text>{Constant.addTitle}</Text></Button>
                 </Segment>
-                {this.state.activePage === 2 ? <TouchableOpacity style={styles.downloadIconContainer} onPress={() => this.downloadSelectedFiles()}>
-                    <Image source={images.downloadIcon} style={styles.downloadIcon}/>
-                </TouchableOpacity> : <View />}
+                <View />
             </View>
         );
     }
@@ -135,15 +133,24 @@ class FileManagerScreen extends Component<Props, State> {
                     onDidFocus={() => this.render()}
                 />
                 <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
+                    {this.props.downloadState.isLoading ? <View /> : <Header style={styles.headerContainer}>
+                        <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.props.navigation.pop()}>
+                            <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
+                        </TouchableOpacity>
+                    </Header>}
                     <Container style={styles.containerColor}>
-                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                            <Left style={styles.headerLeft}>
-                                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
-                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                        {this.props.downloadState.isLoading ? <View /> : <View style={styles.backArrowContainer}>
+                            <View style={styles.headerTitleContainer}>
+                                <Button transparent onPress={() => this.props.navigation.pop()}>
+                                    <Image source={images.backArrow} style={styles.backArrow} />
                                 </Button>
-                                <Title style={[styles.headerContainer, { color: Constant.headerFontColor || Constant.whiteColor }]}>Download Manager</Title>
-                            </Left>
-                        </Header>}
+                                <Text style={styles.title}>Download Manager</Text>
+                            </View>
+                            {this.state.activePage === 2 ?
+                                <View style={styles.downloadManagerContainer}><TouchableOpacity style={styles.downloadIconContainer} onPress={() => this.downloadSelectedFiles()}>
+                                    <Image source={images.downloadManager} style={styles.downloadIcon} />
+                                </TouchableOpacity></View> : <View />}
+                        </View>}
                         {this.props.downloadState.isLoading ? <View /> : this.renderHeader()}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0 }]}>
                             <View style={styles.container}>
@@ -165,31 +172,22 @@ class FileManagerScreen extends Component<Props, State> {
                     <FlatList
                         data={this.props.downloadedFiles.downloadedfiles}
                         renderItem={({ item }) =>
-                            <Swipeout autoClose={true} style={{ backgroundColor: Constant.transparentColor }} right={[
-                                {
-                                    component: (<View style={styles.swipeoutContainer}>
-                                        <Icon style={styles.swipeButtonIcon} name='trash' />
-                                        <Text style={styles.swipeButtonIcon}>Delete</Text>
-                                    </View>),
-                                    backgroundColor: Constant.swipeButtonBackgroundColor,
-                                    onPress: () => {
-                                        this.removeFileFromLocalDB(item);
-                                    },
-                                },
-                            ]}
-                            >
-                                <TouchableOpacity onPress={() => {
-                                    this.previewFile(item);
-                                }}>
-                                    <View style={styles.downloadedContainer}>
-                                        <FileImageComponent fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
-                                        <View style={styles.fileConatiner}>
-                                            <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.resourceName}</Text>
-                                            <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
-                                        </View>
+                            <TouchableOpacity onPress={() => {
+                                this.previewFile(item);
+                            }}>
+                                <View style={styles.downloadedContainer}>
+                                    <FileImageComponent fileImage={item.resourceImage || ''} fileType={item.resourceType} styles={styles.resourceImage} />
+                                    <View style={styles.titleContainer}>
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.fileTitle}>{item.resourceName}</Text>
+                                        <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.resourceFileSize).toFixed(2)} MB`}</Text>
                                     </View>
-                                </TouchableOpacity>
-                            </Swipeout>
+                                    <View style={styles.deleteContainer}>
+                                        <TouchableOpacity onPress={() => { this.removeFileFromLocalDB(item) }}>
+                                            <Image source={images.delete} style={styles.delete} />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
                         }
                     />
                 </View>
@@ -202,7 +200,7 @@ class FileManagerScreen extends Component<Props, State> {
                     renderRow={(item: SubResourceModel, secId, rowId) =>
                         <View>
                             <ListItem style={styles.filesContainer}>
-                                <CheckBox color={Config.PRIMARY_COLOR}
+                                <CheckBox color={Constant.blackColor}
                                     checked={this.state.selectedFileIds.includes(item.ResourceId) ? true : false}
                                     onPress={() => this.onCheckBoxPress(item.ResourceId, rowId)}
                                 />
@@ -228,7 +226,7 @@ class FileManagerScreen extends Component<Props, State> {
     public async previewFile(data: DownloadedFilesModel) {
         let path: string = Platform.OS === 'ios' ? Constant.documentDir : data.resourceType === FileType.zip ? Constant.documentDir : `file://${Constant.documentDir}`;
         await PreviewManager.openPreview(path, data.resourceName, data.resourceType, data.resourceId, data.launcherFile || '', true, async (rootPath, launcherFile, fileName, fileType, resourceId) => {
-            await this.props.navigation.navigate('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
+            await this.props.navigation.push('Preview', { 'dir': rootPath, 'launcherFile': launcherFile, 'fileName': fileName, 'fileType': fileType, 'resourceId': resourceId });
         });
     }
 

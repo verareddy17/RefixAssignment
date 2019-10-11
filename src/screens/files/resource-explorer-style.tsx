@@ -11,26 +11,28 @@ const styles = StyleSheet.create({
     folderContainer: {
         flex: 1,
         flexDirection: 'row',
-        height: 50,
+        height: 100,
         backgroundColor: 'transparent',
     },
     folderImageContainer: {
         position: 'relative',
     },
     fileContainer: {
-        flex: 1,
+        // flex: 1,
         flexDirection: 'row',
-        height: 70,
-        justifyContent: 'center',
+        height: 75,
+        // justifyContent: 'center',
         backgroundColor: 'transparent',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
     },
     image: {
         width: 65,
         height: 65,
     },
     fileImage: {
-        width: 50,
-        height: 50,
+        width: 75,
+        height: 75,
         marginLeft: 10,
         marginTop: 10,
         marginBottom: 5,
@@ -40,8 +42,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 1,
         marginBottom: 5,
-        height: 50,
-        width: 50,
+        height: 75,
+        width: 75,
         borderRadius: 5
     },
     badge: {
@@ -58,18 +60,21 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     resourceContainer: {
-        flex: 1,
+        flex: 0.95,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
+        marginBottom: 25,
     },
     resourceText: {
         flex: 1,
     },
-    swipeContainer: {
-        paddingRight: 0,
-        paddingLeft: 0,
+    rootFileContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        margin: 1,
         backgroundColor: 'transparent',
+        height: 100
     },
     bookmarkIconContainer: {
         justifyContent: 'center',
@@ -132,24 +137,22 @@ const styles = StyleSheet.create({
         color: '#000000',
     },
     breadscrumbContainer: {
+        flexDirection: 'row',
         width: '100%',
-        height: 35,
+        height: 45,
         justifyContent: 'flex-start',
+        backgroundColor: '#F5F5F5',
     },
     breadscrumbsView: {
         backgroundColor: '#ffffff',
         justifyContent: 'flex-start',
-    },
-    headerContainer: {
-        marginTop: 10,
-        marginLeft: 20,
     },
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
     },
     fileConatiner: {
-        flex: 1,
+        flex: 0.95,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignSelf: 'center',
@@ -157,6 +160,47 @@ const styles = StyleSheet.create({
     fileTitle: {
         marginLeft: 10,
     },
+    rootFolderContainer: {
+        marginTop: 15,
+        flex: 1,
+        flexDirection: 'column',
+        margin: 1,
+        backgroundColor: 'transparent',
+    },
+    headerContainer: {
+        backgroundColor: '#08B6CE',
+        width: '100%',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        flexDirection: 'row'
+    },
+    headerLogoContainer: {
+        width: '30%',
+        height: 40,
+        marginLeft: 10,
+        marginBottom: 1
+    },
+    headerImage: {
+        width: '100%',
+        height: 40,
+        resizeMode: 'stretch',
+        marginLeft: 10,
+        marginBottom: 1,
+        borderRadius: 5
+    },
+    backArrow: {
+        width: 30,
+        height: 30,
+        marginLeft: 10,
+        marginRight: 2
+    },
+    downloadFile: {
+        height: 30, 
+        width: 30, 
+        position: 'absolute', 
+        marginTop: 55, 
+        marginLeft: 55 
+    }
 });
 
 export default styles;

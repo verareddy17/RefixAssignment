@@ -18,6 +18,7 @@ interface Props {
     filesDownloaded: [DownloadedFilesModel];
     ResourceId: number;
     isFromDownloadManager: boolean;
+    downloadFile: object;
 }
 export default class FileImageComponent extends Component<Props> {
     constructor(props: Props) {
@@ -25,9 +26,10 @@ export default class FileImageComponent extends Component<Props> {
     }
 
     public render() {
+        console.log('file image render');
         return (
             <View>
-                {this.renderFileImages(this.props.fileType, this.props.styles, this.props.filesDownloaded, this.props.ResourceId, this.props.isFromDownloadManager, this.props.fileImage)}
+                {this.renderFileImages(this.props.fileType, this.props.styles, this.props.filesDownloaded, this.props.ResourceId, this.props.isFromDownloadManager, this.props.downloadFile ,this.props.fileImage)}
             </View>
         );
     }
@@ -36,7 +38,7 @@ export default class FileImageComponent extends Component<Props> {
             return file.resourceId === id;
         });
     }
-    private renderFileImages(fileType: string, styles: object, filesDownloaded: [DownloadedFilesModel], ResourceId: number, isFromDownloadManager: boolean, fileImage?: string) {
+    private renderFileImages(fileType: string, styles: object, filesDownloaded: [DownloadedFilesModel], ResourceId: number, isFromDownloadManager: boolean, downloadFile: object, fileImage?: string) {
         let temp: boolean = false;
         if (isFromDownloadManager === true || isFromDownloadManager === undefined) {
             temp = true
@@ -54,7 +56,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.mp4} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 45 }} />
+                        <Image source={images.downloadFile} style={downloadFile} />
                     </View>
                 );
             } else if (fileType === FileType.pdf || fileType === FileType.zip) {
@@ -66,7 +68,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.pdf} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                        <Image source={images.downloadFile} style={downloadFile} />
                     </View>
                 );
             } else if (fileType === FileType.png || fileType === FileType.jpg) {
@@ -78,7 +80,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.png} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                        <Image source={images.downloadFile} style={downloadFile} />
                     </View>
                 );
             } else if (fileType === FileType.pptx || fileType === FileType.xlsx || fileType === FileType.docx || fileType === FileType.ppt || fileType === FileType.doc || fileType === FileType.xls) {
@@ -90,7 +92,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.ppt} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                        <Image source={images.downloadFile} style={downloadFile} />
                     </View>
                 );
             } else {
@@ -102,7 +104,7 @@ export default class FileImageComponent extends Component<Props> {
                 return (
                     <View>
                         <Image source={images.png} style={styles} />
-                        <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 40, marginLeft: 40 }} />
+                        <Image source={images.downloadFile} style={downloadFile} />
                     </View>
                 );
             }
@@ -115,7 +117,7 @@ export default class FileImageComponent extends Component<Props> {
             return (
                 <View>
                     <CacheableImage source={{ uri: fileImage }} style={[styles, { marginLeft: 10 }]} />
-                    <Image source={images.downloadFile} style={{ height: 20, width: 20, position: 'absolute', marginTop: 41, marginLeft: 41 }} />
+                    <Image source={images.downloadFile} style={downloadFile} />
                 </View>
             )
 

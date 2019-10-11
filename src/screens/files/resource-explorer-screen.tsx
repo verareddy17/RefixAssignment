@@ -5,7 +5,7 @@ import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler, StatusBar } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -28,6 +28,10 @@ import BreadsCrumb from '../components/breadscrumb/breads-crumb';
 import { AddItem, RemoveItem, DownloadedResources, FetchAllDownloadedFiles } from '../../redux/actions/downloaded-file-action';
 import DownloadProgressComponent from '../components/download-progress';
 import badgeNumber from '../components/badge-number';
+import { FlatList } from 'react-native';
+const Device = require('react-native-device-detection');
+import images from '../../assets/index';
+
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -81,7 +85,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        let item = await this.props.navigation.getParam('item');
+        let item = this.props.navigation.state.params.item;
         Constant.index = Constant.index + 1;
         Constant.content = [...Constant.content, item.ResourceName];
         Constant.navigationKey = [...Constant.navigationKey, this.props.navigation.state.key];
@@ -128,94 +132,71 @@ class ResourceExplorerScreen extends Component<Props, State> {
     public resourceList() {
         let item = this.props.navigation.getParam('item');
         console.log('items', item);
-        return item.Children.map((data: SubResourceModel, index: number) => {
-            if (data.ResourceType === 0) {
-                return (
-                    <View key={index}>
-                        <SwipeRow style={styles.transparentColor}
-                            disableLeftSwipe={true}
-                            disableRightSwipe={true}
-                            body={
-                                <TouchableOpacity style={styles.folderContainer} onPress={() => this.resourceDetails(data)}>
+        return (
+            <FlatList
+                data={item.Children}
+                numColumns={this.state.orientation === Constant.portrait ? Device.isPhone ? 1 : 2 : Device.isTablet ? 3 : 2}
+                key={this.state.orientation}
+                extraData={this.props}
+                renderItem={({ item }) => {
+                    if (item.ResourceType === 0) {
+                        return (
+                            <View style={styles.rootFolderContainer}>
+                                <TouchableOpacity style={styles.folderContainer} onPress={() => this.resourceDetails(item)}>
                                     <View style={[styles.folderImageContainer]}>
-                                        <FolderImageComponet styles={styles.folderImage} folderImage={data.ResourceImage} />
-                                        {badgeNumber(data, this.props.downloadedFiles.downloadedfiles)}
+                                        <FolderImageComponet styles={styles.folderImage} folderImage={item.ResourceImage} />
+                                        {badgeNumber(item, this.props.downloadedFiles.downloadedfiles)}
                                     </View>
                                     <View style={styles.resourceContainer}>
-                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{data.ResourceName}</Text>
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{item.ResourceName}</Text>
                                     </View>
                                 </TouchableOpacity>
-                            }
-                        />
-                    </View>
-                );
-            } else {
-                console.log('resourceID...', data.ResourceId);
-                return (
-                    <Swipeout key={index} right={[
-                        // {
-                        //     component: (<View style={styles.swipeoutContainer}>
-                        //         <Icon style={styles.swipeButtonIcon} name='star' />
-                        //         <Text style={styles.swipeButtonIcon}>Bookmark</Text>
-                        //     </View>),
-                        //     backgroundColor: '#ffae42',
-                        //     onPress: () => {
-                        //         this.onBookmarkButtonPressed(data);
-                        //     },
-                        // },
-                        {
-                            component: (<View style={styles.swipeoutContainer}>
-                                <Icon style={styles.swipeButtonIcon} name='trash' />
-                                <Text style={styles.swipeButtonIcon}>Delete</Text>
-                            </View>),
-                            backgroundColor: '#d11a2a',
-                            onPress: () => {
-                                this.deleteFileIfAlreadyDownloaded(data.ResourceId, data.ResourceName, data.FileExtension);
-                            },
-                        },
-                    ]}
-                        autoClose={true} style={[styles.swipeContainer]}>
-                        <TouchableOpacity onPress={() => this.resourceDetails(data, data.ResourceId, data.ResourceName, data.FileExtension, data.ResourceImage, data.LauncherFile, data.ResourceSizeInKB)}>
-                            <View style={styles.fileContainer}>
-                                <View style={styles.folderImageContainer}>
-                                    <FileImageComponent fileImage={data.ResourceImage || ''} fileType={data.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={data.ResourceId} isFromDownloadManager={false} styles={styles.fileImage} />
-                                </View>
-                                <View style={styles.fileConatiner}>
-                                    <Text style={styles.fileTitle}>{data.ResourceName}</Text>
-                                    <Text style={styles.fileTitle}>{`File Size: ${parseFloat(data.ResourceSizeInKB).toFixed(2)} MB`}</Text>
-                                </View>
-                                <View style={styles.bookmarkIconContainer}>
-                                    <Icon style={{ color: this.setColorIfFileIsBookmarked(data.ResourceId) }} name='' />
-                                </View>
                             </View>
-                        </TouchableOpacity>
-                    </Swipeout>
-                );
-            }
-        });
+                        );
+                    } else {
+                        return (
+                            <View style={styles.rootFileContainer}>
+                                <TouchableOpacity onPress={() => this.resourceDetails(item, item.ResourceId, item.ResourceName, item.FileExtension, item.ResourceImage, item.LauncherFile, item.ResourceSizeInKB)}>
+                                    <View style={styles.fileContainer}>
+                                        <View style={styles.folderImageContainer}>
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false} styles={styles.fileImage} downloadFile={styles.downloadFile}/>
+                                        </View>
+                                        <View style={styles.fileConatiner}>
+                                            <Text style={styles.fileTitle}>{item.ResourceName}</Text>
+                                            <Text style={styles.fileTitle}>{`File Size: ${parseFloat(item.ResourceSizeInKB).toFixed(2)} MB`}</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    }
+                }}
+            />
+        )
     }
 
     public render() {
         let item = this.props.navigation.getParam('item');
+        console.log("this state", this.state.items);
         console.log('render', this.state.orientation);
         return (
             <SafeAreaView style={styles.container} forceInset={{ top: 'never', left: 'never' }}>
                 <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
+                    {this.props.downloadState.isLoading ? <View /> : <Header style={styles.headerContainer}>
+                        <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.onTapHeaderLog()}>
+                            <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
+                        </TouchableOpacity>
+                    </Header>}
                     <Container style={styles.transparentColor}>
-                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                            <Left style={styles.headerLeft}>
-                                <Button transparent onPress={() => this.goToPreviousScreen()}>
-                                    <Icon name='arrow-back' style={[styles.iconColor]} />
-                                </Button>
-                                <Title style={[styles.headerContainer, { color: Constant.headerFontColor || Constant.whiteColor }]}>{item.ResourceName}</Title>
-                            </Left>
-                        </Header>}
                         {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
+                            <Button transparent onPress={() => this.goToPreviousScreen()}>
+                                <Image source={images.backArrow} style={styles.backArrow} />
+                            </Button>
                             <BreadsCrumb
                                 data={this.state.content}
                                 onPress={this.onBreadCrumbPress}
-                                activeTintColor={Constant.whiteColor}
-                                inactiveTintColor={Constant.whiteColor}
+                                activeTintColor={'transparent'}
+                                inactiveTintColor={'transparent'}
                             />
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0, paddingTop: this.props.downloadState.isLoading ? 0 : 5 }]}>
@@ -319,6 +300,17 @@ class ResourceExplorerScreen extends Component<Props, State> {
         if (this.props.downloadState.progress !== 0) {
             return true;
         }
+    }
+
+    public onTapHeaderLog() {
+        Constant.navigationKey = [];
+        Constant.content = []
+        Constant.index = 0;
+        this.setState({
+            index: Constant.index,
+            content: Constant.content,
+        })
+        this.props.navigation.navigate('Home')
     }
 
     private goToPreviousScreen() {

@@ -24,10 +24,10 @@ const styles = StyleSheet.create({
         }),
     },
     resourceImage: {
-        width: 50,
-        height: 50,
+        width: 75,
+        height: 75,
         marginLeft: 10,
-        borderRadius: 5,        
+        borderRadius: 5,
     },
     downloadFileContainer: {
         height: 70,
@@ -80,13 +80,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        height: 75,
+        height: 100,
     },
     textTitle: {
         padding: 10,
     },
     filesContainer: {
-        height: 75,
+        height: 100,
     },
     bodyContainer: {
         flexDirection: 'row',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
         height: 75,
     },
     selectAll: {
-        color: Config.PRIMARY_COLOR,
+        color: '#08B6CE',
         marginLeft: 12,
     },
     containerColor: {
@@ -133,8 +133,11 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     headerContainer: {
-        marginTop: 10,
-        marginLeft: 20,
+        backgroundColor: '#08B6CE',
+        width: '100%',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        flexDirection: 'row'
     },
     headerLeft: {
         flex: 1,
@@ -145,19 +148,78 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignSelf: 'center',
-
     },
     fileTitle: {
         marginLeft: 10,
     },
     downloadIconContainer: {
-        backgroundColor: Config.PRIMARY_COLOR,
-        marginRight: 10
+        // marginRight: 15
     },
     downloadIcon: {
-        height: 25, 
+        height: 25,
         width: 25
     },
+    headerLogoContainer: {
+        width: '30%',
+        height: 40,
+        marginLeft: 10,
+        marginBottom: 1
+    },
+    headerImage: {
+        width: '100%',
+        height: 40,
+        resizeMode: 'stretch',
+        marginLeft: 10,
+        marginBottom: 1,
+        borderRadius: 5
+    },
+    backArrowContainer: {
+        width: '100%',
+        height: 50,
+        backgroundColor: '#F5F5F5',
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+    },
+    backArrow: {
+        width: 30,
+        height: 30,
+        marginLeft: 10
+    },
+    titleContainer: {
+        flex: 2.5,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignSelf: 'center',
+
+    },
+    deleteContainer: {
+        flex: 0.5,
+        backgroundColor: 'transparent',
+        height: 55,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    delete: {
+        width: 40,
+        height: 40,
+        resizeMode: 'center',
+    },
+    headerTitleContainer: {
+        flex: 0.75,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flexDirection: 'row'
+    },
+    title: {
+        marginLeft: 10,
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    downloadManagerContainer: {
+        flex: 0.25,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 });
 
 export default styles;

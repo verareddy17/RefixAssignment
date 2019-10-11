@@ -5,9 +5,11 @@ import {
     View,
     TouchableOpacity,
     Text,
+    Dimensions,
 } from 'react-native';
 import styles from './breads-crumb-style';
 import { Constant } from '../../../constant';
+const { width } = Dimensions.get('window');
 
 interface Props {
     data: string[];
@@ -53,16 +55,17 @@ class BreadsCrumb extends Component<Props, State> {
     }
     public renderItem() {
         return <View style={styles.itemContainer}>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} bounces={false}>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} bounces={false} pagingEnabled snapToInterval={width}>
                 {this.props.data.map((item, index) => {
                     return <TouchableOpacity key={index}
                         onPress={() => this.onPressBreadscrumItem(index, item)}
                         style={[styles.buttonContainer, {
-                            backgroundColor: this.state.status[index] !== 'visible' ? this.props.activeTintColor : this.props.inactiveTintColor}
+                            backgroundColor: this.state.status[index] !== 'visible' ? this.props.activeTintColor : this.props.inactiveTintColor
+                        }
                         ]} >
                         <View style={styles.itemContainer}>
                             <Icon
-                                name= { index === 0 ? '' : 'arrow-forward'} color={Constant.blackColor} style={styles.icon} />
+                                name={index === 0 ? '' : 'arrow-forward'} color={Constant.blackColor} style={styles.icon} />
                             <Text style={styles.title}>{item}</Text>
                         </View>
                     </TouchableOpacity>;

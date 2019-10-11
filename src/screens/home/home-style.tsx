@@ -1,12 +1,12 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
 import Config from 'react-native-config';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-      
+
     },
     headerBg: {
-        backgroundColor: Config.PRIMARY_COLOR,
+        backgroundColor: 'transparent',
     },
     menuIcon: {
         paddingLeft: 5,
@@ -18,16 +18,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     loadingContainer: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        width: '100%',
+        height: '100%'
     },
     listItem: {
-        paddingTop: 12,
-        paddingBottom: 12,
-        paddingLeft: 5,
-        paddingRight: 5,
-        flex: 1,
+        height: 100,
         flexDirection: 'row',
         borderColor: '#c9c9c9',
         borderBottomWidth: 0.33,
@@ -38,8 +35,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     resourceImage: {
-        width: 50,
-        height: 50,
+        width: 75,
+        height: 75,
         marginLeft: 10,
         borderRadius: 5
     },
@@ -64,19 +61,13 @@ const styles = StyleSheet.create({
     },
     searchBarHeader: {
         backgroundColor: '#999',
-        ...Platform.select({
-            ios: {
-                height: 40,
-                paddingTop: 0,
-            },
-        }),
     },
     searchContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        height: 75,
-        width: '90%'
+        height: 100,
+        // width: '90%'
     },
     renderSeparator: {
         height: 1,
@@ -98,9 +89,91 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerContainer: {
-        flex: 1,
-        flexDirection: 'row',
+        backgroundColor: '#08B6CE',
+        width: '100%',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        flexDirection: 'row'
     },
+    imageLogo: {
+        width: '30%',
+        height: 40,
+        resizeMode: 'stretch',
+        marginLeft: 10,
+        marginBottom: 1,
+        borderRadius: 5
+    },
+    subHeaderContainer: {
+        backgroundColor: '#F5F5F5',
+        width: '100%',
+        height: 50,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        padding: 10
+    },
+    refreshContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    refreshImage: {
+        width: 30,
+        height: 30
+    },
+    downloadManagerContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    searchBarContainer: {
+        backgroundColor: 'lightgray',
+        flex: 1,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+        marginLeft: 20,
+        marginRight: 5,
+        marginBottom: 1,        
+    },
+    popup: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    inner: {
+        position: 'absolute',
+        left: '10%',
+        right: '10%',
+        top: '40%',
+        height: 150,
+        bottom: 25,
+        backgroundColor: '#fff',
+        borderRadius: 20
+    },
+    refreshTitle: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    downloadFile: {
+        height: 30,
+        width: 30,
+        position: 'absolute',
+        marginTop: 45,
+        marginLeft: 55
+    },
+    searchTitle: {
+        padding: 10,
+        width: '50%'
+    }
 });
 
 export default styles;

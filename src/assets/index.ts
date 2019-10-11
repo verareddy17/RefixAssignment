@@ -9,7 +9,10 @@ const images = {
     loginButton: require('./images/login_button.png'),
     downloadFile: require('./images/download.png'),
     downloadIcon: require('./images/downloadIcon.png'),
-    
+    downloadManager: require('./images/download-manager.png'),
+    refresh: require('./images/refresh.png'),
+    backArrow: require('./images/blue-back-arrow.png'),
+    delete: require('./images/recycle.png'),
 };
 
 export default images;

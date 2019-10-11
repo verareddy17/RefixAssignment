@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styles from './home-style';
 import { View, Text, Button, Container, Content, Header, Left, Right, Icon, Body, Title, Item, Input, Spinner, Badge, List, ListItem, Toast } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
-import { ListView, Image, TouchableOpacity, Alert, FlatList, ImageBackground, Dimensions, Platform, Keyboard, WebView, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
+import { ListView, Image, TouchableOpacity, Alert, FlatList, ImageBackground, Dimensions, Platform, Keyboard, WebView, ProgressViewIOS, ProgressBarAndroid, StatusBar } from 'react-native';
 import { fetchResources, updateResources, ResourceResponse } from '../../redux/actions/resource-action';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, AnyAction } from 'redux';
@@ -32,6 +32,8 @@ import DownloadProgressComponent from '../components/download-progress';
 import searchFilter, { SearchFilterArray } from '../../redux/actions/search-action';
 import badgeNumber from '../components/badge-number';
 import Popup from '../components/popup';
+const Device = require('react-native-device-detection');
+import images from '../../assets/index';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -98,6 +100,9 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
+        Dimensions.addEventListener('change', () => {
+            StatusBar.setHidden(false);
+       })
         this.setState({ isLoading: true });
         handleOrientationOfScreen((orientation) => { this.setState({ orientation: orientation }); });
         handleScreenDimensions((width, height) => { this.setState({ width: width, height: height }); });
@@ -106,6 +111,12 @@ class HomeScreen extends Component<Props, State> {
                 Constant.loginName = data.UserFullName;
                 Constant.bearerToken = data.Token || '';
             }
+        });
+        await LocalDbManager.get<CustomizeSettings>(Constant.customSettings, async (err, settings) => {
+            if (settings) {
+                Constant.headerImage = settings.LogoImage || '';
+            }
+            console.log('header image', Constant.headerImage);
         });
         await this.props.getresources(Constant.bearerToken);
         await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
@@ -118,6 +129,7 @@ class HomeScreen extends Component<Props, State> {
         if (Constant.confirmationMessageText.length > 5) {
             this.setState({ showPopup: true });
         }
+        console.log('logo image', Constant.headerImage);
     }
 
     public async updateResouces() {
@@ -162,14 +174,19 @@ class HomeScreen extends Component<Props, State> {
                 return (
                     <View style={styles.resourceListContainer}>
                         <FlatList
+                            numColumns={this.state.orientation === Constant.portrait ? Device.isPhone ? 1 : 2 : Device.isTablet ? 3 : 2}
+                            key={this.state.orientation}
+                            extraData={this.props}
                             data={this.props.searchState.searchArray}
                             renderItem={({ item }) =>
+                            <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
                                 <TouchableOpacity onPress={() => this.resourceDetails(item)}>
                                     <View style={styles.searchContainer}>
-                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} />
-                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ padding: 10 }}>{item.ResourceName}</Text>
+                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} downloadFile={styles.downloadFile} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false}/>
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.searchTitle}>{item.ResourceName}</Text>
                                     </View>
                                 </TouchableOpacity>
+                                </View>
                             }
                         />
                     </View>
@@ -184,8 +201,13 @@ class HomeScreen extends Component<Props, State> {
         } else {
             if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading) {
                 return (
-                    <View style={styles.loadingContainer}>
-                        <Spinner color={Config.PRIMARY_COLOR}></Spinner>
+                    <View style={styles.popup}>
+                        <View style={styles.inner}>
+                            <View style={styles.loadingContainer}>
+                                <Text style={styles.refreshTitle}>Refreshing Resources...</Text>
+                                <Spinner color={Config.PRIMARY_COLOR}></Spinner>
+                            </View>
+                        </View>
                     </View>
                 );
             } else {
@@ -198,10 +220,13 @@ class HomeScreen extends Component<Props, State> {
                 } else {
                     return (
                         <View style={styles.resourceListContainer}>
-                            <ListView removeClippedSubviews={false} contentContainerStyle={{ paddingBottom: Constant.platform === 'android' ? 30 : 0 }}
+                            <ListView removeClippedSubviews={false} contentContainerStyle={{
+                                paddingBottom: Constant.platform === 'android' ? 30 : 0, flexDirection: 'row',
+                                flexWrap: 'wrap'
+                            }}
                                 dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
                                 renderRow={(rowData: ResourceModel) =>
-                                    <View>
+                                    <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
                                         <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
                                             <View style={styles.resourceImageConatiner}>
                                                 <FolderImageComponet styles={styles.resourceImage} folderImage={rowData.ResourceImage} />
@@ -219,6 +244,7 @@ class HomeScreen extends Component<Props, State> {
         }
     }
 
+
     public async closeSearch() {
         this.setState({ searchText: '' });
         await this.props.searchFilter('', Constant.fetchAllFiles);
@@ -233,32 +259,34 @@ class HomeScreen extends Component<Props, State> {
                     onDidFocus={() => this.render()}
                 />
                 <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
+                    {this.props.downloadState.isLoading || this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading ? <View /> : <Header style={styles.headerContainer} >
+                        <Image source={{ uri: Constant.headerImage }} style={styles.imageLogo} />
+                        <View style={styles.searchBarContainer}>
+                                <Item>
+                                    <Icon name='search' />
+                                    <Input placeholder={Constant.searchPlaceholder}
+                                        autoCorrect={false}
+                                        onChangeText={text => this.searchFilterFunction(text)}
+                                        value={this.state.searchText}
+                                    />
+                                    <Icon name={this.state.searchText.length >= 1 ? 'close' : ''} onPress={() => this.closeSearch()} />
+                                </Item>
+                            </View>
+                    </Header>}
                     <Container style={styles.containerColor}>
-                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow style={styles.headerBg} androidStatusBarColor={Config.PRIMARY_COLOR} iosBarStyle={'light-content'}>
-                            <Left style={styles.headerContainer}>
-                                <TouchableOpacity onPress={() => this.props.navigation.openDrawer()} style={styles.menuIcon}>
-                                    <Icon name='menu' style={styles.iconColor}></Icon>
+                        {this.props.downloadState.isLoading || this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading ? <View /> : <View style={styles.subHeaderContainer}>
+                            <View style={styles.refreshContainer}>
+                                <TouchableOpacity onPress={() => this.updateResouces()}>
+                                    <Image source={images.refresh} style={styles.refreshImage} />
                                 </TouchableOpacity>
-                                <Title style={{ color: Constant.headerFontColor || Constant.whiteColor, marginLeft: 20, marginTop: Constant.platform === 'android' ? 0 : 3 }}>Home</Title>
-                            </Left>
-                            <Body />
-                            <Right>
-                                <TouchableOpacity onPress={() => this.updateResouces()} style={styles.refreshIcon}>
-                                    <Icon name='refresh' style={styles.iconColor}></Icon>
+                            </View>
+                            <View style={styles.downloadManagerContainer}>
+                                <TouchableOpacity onPress={() => this.props.navigation.push('DownloadManager')} style={styles.menuIcon}>
+                                    <Image source={images.downloadManager} style={styles.refreshImage} />
                                 </TouchableOpacity>
-                            </Right>
-                        </Header>}
-                        {this.props.downloadState.isLoading ? <View /> : <Header noShadow searchBar rounded style={styles.searchBarHeader}>
-                            <Item>
-                                <Icon name='search' />
-                                <Input placeholder={Constant.searchPlaceholder}
-                                    autoCorrect={false}
-                                    onChangeText={text => this.searchFilterFunction(text)}
-                                    value={this.state.searchText}
-                                />
-                                <Icon name='close' onPress={() => this.closeSearch()} />
-                            </Item>
-                        </Header>}
+                            </View>
+                            
+                        </View>}
                         <Content contentContainerStyle={[styles.containerColor, Constant.platform === 'android' ? { paddingBottom: 30 } : { paddingBottom: 0 }]}>
                             <View style={styles.container}>
                                 {this.props.downloadState.isLoading ? <DownloadProgressComponent downloadingProgress={this.props.downloadState.progress} cancelDownload={this.cancelDownload} /> : this.renderResourceList()}
