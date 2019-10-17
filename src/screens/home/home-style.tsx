@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
         width: 75,
         height: 75,
         marginLeft: 10,
-        borderRadius: 5
+        borderRadius: 15
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -157,7 +157,8 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,
+        marginLeft: 5
     }
 
 });

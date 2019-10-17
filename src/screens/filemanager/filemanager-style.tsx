@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
         width: 75,
         height: 75,
         marginLeft: 10,
-        borderRadius: 5,
+        borderRadius: 15,
     },
     downloadFileContainer: {
         height: 70,
@@ -156,8 +156,9 @@ const styles = StyleSheet.create({
         // marginRight: 15
     },
     downloadIcon: {
-        height: 25,
-        width: 25
+        height: 30,
+        width: 30,
+        marginRight: 10,
     },
     headerLogoContainer: {
         width: '30%',
@@ -217,8 +218,9 @@ const styles = StyleSheet.create({
     },
     downloadManagerContainer: {
         flex: 0.25,
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        flexDirection: 'row'
     },
     searchBarContainer: {
         backgroundColor: '#fff',

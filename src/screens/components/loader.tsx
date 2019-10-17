@@ -15,12 +15,12 @@ const styles = StyleSheet.create({
     },
     inner: {
         position: 'absolute',
-        left: '20%',
-        right: '20%',
+        justifyContent: 'center',
+        alignSelf: 'center',
         top: '40%',
         height: 150,
         bottom: 25,
-        width: 150,
+        width: 300,
         backgroundColor: '#fff',
         borderRadius: 20
     },

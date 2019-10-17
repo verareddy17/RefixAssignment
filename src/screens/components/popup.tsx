@@ -19,12 +19,13 @@ const styles = StyleSheet.create({
     },
     inner: {
         position: 'absolute',
-        left: '10%',
-        right: '10%',
-        top: '40%',
+        width: 300,
+        alignSelf: 'center',
+        top: '35%',
         height: 150,
         bottom: 25,
         backgroundColor: '#fff',
+        borderRadius: 20        
     },
     titleContainer: {
         alignItems: 'center',

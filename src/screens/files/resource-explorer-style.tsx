@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 10,
         marginBottom: 5,
-        borderRadius: 5
+        borderRadius: 15
     },
     folderImage: {
         marginLeft: 10,
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         height: 75,
         width: 75,
-        borderRadius: 5
+        borderRadius: 15
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -215,7 +215,8 @@ const styles = StyleSheet.create({
         width: 40,
         height: 50,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginRight: 10
     },
     searchBarContainer: {
         backgroundColor: '#fff',
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
     refreshHeader: {
         flex: 0.2,
         flexDirection: 'row',
-        justifyContent: 'space-evenly'
+        justifyContent: 'flex-end',
     }
 });
 
