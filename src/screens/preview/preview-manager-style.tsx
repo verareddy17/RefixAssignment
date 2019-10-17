@@ -5,8 +5,6 @@ import Constant from '../../constant';
 const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: '#08B6CE',
-        height: 60,
-        width: '100%',
         justifyContent: 'flex-start',
         alignItems: 'flex-end',
         flexDirection: 'row'
@@ -16,6 +14,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
+        backgroundColor: 'black'
     },
     spinnerConatiner: {
         position: 'absolute',
@@ -49,12 +48,18 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 50,
         backgroundColor: '#F5F5F5',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     backArrow: {
         width: 30,
         height: 30,
         marginLeft: 10
+    },
+    fileName: {
+        marginLeft: 10,
+        fontWeight: 'bold'
     }
 });
 

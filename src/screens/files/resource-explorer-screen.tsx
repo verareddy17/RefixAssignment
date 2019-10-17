@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast, List, ListItem, Spinner } from 'native-base';
+import { View, Text, Button, Container, Content, Header, Left, Icon, Body, Title, Right, Badge, SwipeRow, Toast, List, ListItem, Spinner, Input, Item } from 'native-base';
 import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navigation';
 import Config from 'react-native-config';
 import styles from './resource-explorer-style';
 import LocalDbManager from '../../manager/localdb-manager';
 import Bookmarks from '../../models/bookmark-model';
-import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler, StatusBar } from 'react-native';
+import { Alert, Image, TouchableOpacity, Platform, ProgressBarAndroid, ProgressViewIOS, ImageBackground, Dimensions, BackHandler, StatusBar, Keyboard } from 'react-native';
 import { ResourceModel, SubResourceModel } from '../../models/resource-model';
 import { DownloadedFilesModel } from '../../models/downloadedfile-model';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -31,18 +31,28 @@ import badgeNumber from '../components/badge-number';
 import { FlatList } from 'react-native';
 const Device = require('react-native-device-detection');
 import images from '../../assets/index';
-
+import deviceTokenApi from '../../redux/actions/settings-actions';
+import { updateResources, ResourceResponse } from '../../redux/actions/resource-action';
+import { SettingsResponse } from '../../redux/actions/settings-actions';
+import Loader from '../components/loader';
+import searchFilter, { SearchFilterArray } from '../../redux/actions/search-action';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
     userState: LoginResponse;
     downloadedFiles: DownloadedResources;
+    deviceTokenResponse: SettingsResponse;
+    resourceState: ResourceResponse;
+    searchState: SearchFilterArray;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
     addDownloadedFile(downloadedFile: DownloadedFilesModel): (dispatch: Dispatch, getState: Function) => Promise<void>;
     removeDownloadedFile(resourceId: number): (dispatch: Dispatch, getState: Function) => Promise<void>;
     fetchdownloadedFiles(files: DownloadedFilesModel[]): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    updateresource(token: string): object;
+    requestDeviceTokenApi(DeviceToken: string, ThemeVersion: number, DeviceOs: number, token: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
+    searchFilter(text: string, allFiles: SubResourceModel[]): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -60,6 +70,11 @@ interface State {
     width: number;
     height: number;
     isLoding: boolean;
+    isResourcesUpdating: boolean;
+    isSearchEnable: boolean;
+    searchArray: Array<SubResourceModel>;
+    searchText: string;
+    isSearch: boolean;
 }
 
 class ResourceExplorerScreen extends Component<Props, State> {
@@ -78,6 +93,11 @@ class ResourceExplorerScreen extends Component<Props, State> {
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
             isLoding: false,
+            isResourcesUpdating: false,
+            isSearchEnable: false,
+            searchArray: [],
+            searchText: '',
+            isSearch: false,
         };
         this.onBreadCrumbPress = this.onBreadCrumbPress.bind(this);
         this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
@@ -134,7 +154,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
         console.log('items', item);
         return (
             <FlatList
-                data={item.Children}
+                data={this.props.searchState.isSearch ? this.props.searchState.searchArray : item.Children}
                 numColumns={this.state.orientation === Constant.portrait ? Device.isPhone ? 1 : 2 : Device.isTablet ? 3 : 2}
                 key={this.state.orientation}
                 extraData={this.props}
@@ -159,7 +179,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                                 <TouchableOpacity onPress={() => this.resourceDetails(item, item.ResourceId, item.ResourceName, item.FileExtension, item.ResourceImage, item.LauncherFile, item.ResourceSizeInKB)}>
                                     <View style={styles.fileContainer}>
                                         <View style={styles.folderImageContainer}>
-                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false} styles={styles.fileImage} downloadFile={styles.downloadFile}/>
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false} styles={styles.fileImage} downloadFile={styles.downloadFile} />
                                         </View>
                                         <View style={styles.fileConatiner}>
                                             <Text style={styles.fileTitle}>{item.ResourceName}</Text>
@@ -186,18 +206,48 @@ class ResourceExplorerScreen extends Component<Props, State> {
                         <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.onTapHeaderLog()}>
                             <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
                         </TouchableOpacity>
+                        {this.state.isSearchEnable ? <View style={styles.searchBarContainer}>
+                            <Item>
+                                <Icon name='search' style={{ marginLeft: 10 }} />
+                                <Input placeholder={Constant.searchPlaceholder}
+                                    autoCorrect={false}
+                                    onChangeText={text => this.searchFilterFunction(text)}
+                                    value={this.state.searchText}
+                                />
+                                <Icon name='close' style={{ fontSize: 30 }} onPress={() => this.closeSearch()} />
+                            </Item>
+                        </View> : null}
+                        {this.state.isSearchEnable ? null : <View style={styles.searchButtonContainer}>
+                            <Icon name='search' style={styles.searchIcon} onPress={() => {
+                                this.setState({ isSearchEnable: true })
+                            }} />
+                        </View>}
                     </Header>}
                     <Container style={styles.transparentColor}>
                         {this.props.downloadState.isLoading ? null : <View style={styles.breadscrumbContainer}>
                             <Button transparent onPress={() => this.goToPreviousScreen()}>
                                 <Image source={images.backArrow} style={styles.backArrow} />
                             </Button>
-                            <BreadsCrumb
-                                data={this.state.content}
-                                onPress={this.onBreadCrumbPress}
-                                activeTintColor={'transparent'}
-                                inactiveTintColor={'transparent'}
-                            />
+                            <View style={{ flex: 0.8 }}>
+                                <BreadsCrumb
+                                    data={this.state.content}
+                                    onPress={this.onBreadCrumbPress}
+                                    activeTintColor={'transparent'}
+                                    inactiveTintColor={'transparent'}
+                                />
+                            </View>
+                            <View style={styles.refreshHeader}>
+                                <View style={styles.refreshContainer}>
+                                    <TouchableOpacity onPress={() => this.updateResouces()}>
+                                        <Image source={images.refresh} style={styles.refreshImage} />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.downloadManagerContainer}>
+                                    <TouchableOpacity onPress={() => this.props.navigation.push('DownloadManager')} style={styles.menuIcon}>
+                                        <Image source={images.downloadManager} style={styles.refreshImage} />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>}
                         <Content contentContainerStyle={[styles.container, { paddingBottom: Constant.platform === 'android' ? 30 : 0, paddingTop: this.props.downloadState.isLoading ? 0 : 5 }]}>
                             <View style={styles.container}>
@@ -205,6 +255,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
                             </View>
                         </Content>
                     </Container>
+                    {this.state.isResourcesUpdating ? <Loader /> : null}
                 </ImageBackground>
             </SafeAreaView>
         );
@@ -310,7 +361,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             index: Constant.index,
             content: Constant.content,
         })
-        this.props.navigation.navigate('Home')
+        this.props.navigation.navigate('Home', { userName: 'Lucy' })
     }
 
     private goToPreviousScreen() {
@@ -341,11 +392,53 @@ class ResourceExplorerScreen extends Component<Props, State> {
         });
         this.props.navigation.goBack(key);
     }
+
+    public async updateResouces() {
+        this.setState({ isResourcesUpdating: true })
+        await this.props.requestDeviceTokenApi(Constant.deviceToken, 1, Constant.deviceOS, Constant.bearerToken);
+        if (this.props.deviceTokenResponse.error !== '') {
+            Alert.alert(Config.APP_NAME, this.props.deviceTokenResponse.error);
+            return;
+        }
+        await this.props.updateresource(Constant.bearerToken);
+        if (this.props.resourceState.error !== '') {
+            Alert.alert(Config.APP_NAME, this.props.resourceState.error);
+            return;
+        }
+        await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
+            Constant.fetchAllFiles = allFiles;
+            this.setState({ downloadedFiles: downloadedFiles });
+            Constant.navigationKey = [];
+            Constant.content = []
+            Constant.index = 0;
+            this.setState({ index: Constant.index, content: Constant.content })
+            this.props.navigation.navigate('Home', { downloadedFiles: downloadedFiles, screen: 'subfolder' })
+        });
+        this.setState({ isResourcesUpdating: false })
+    }
+
+    public async closeSearch() {
+        this.setState({ searchText: '', isSearchEnable: false });
+        await this.props.searchFilter('', Constant.fetchAllFiles);
+        Keyboard.dismiss();
+    }
+
+    public async searchFilterFunction(textData: string) {
+        let item = this.props.navigation.getParam('item');
+        const filesFromFolder = await item.Children.filter(function (data) {
+            return data.ResourceType === 1
+        });
+        this.setState({ searchText: textData });
+        await this.props.searchFilter(textData, filesFromFolder);
+    }
 }
 
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
     downloadedFiles: state.downloadedFilesData,
+    resourceState: state.resource,
+    deviceTokenResponse: state.settings,
+    searchState: state.searchData,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -354,5 +447,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     addDownloadedFile: bindActionCreators(AddItem, dispatch),
     removeDownloadedFile: bindActionCreators(RemoveItem, dispatch),
     fetchdownloadedFiles: bindActionCreators(FetchAllDownloadedFiles, dispatch),
+    requestDeviceTokenApi: bindActionCreators(deviceTokenApi, dispatch),
+    updateresource: bindActionCreators(updateResources, dispatch),
+    searchFilter: bindActionCreators(searchFilter, dispatch),
+
 });
 export default connect(mapStateToProps, mapDispatchToProps)(ResourceExplorerScreen);

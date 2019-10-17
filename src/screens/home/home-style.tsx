@@ -3,7 +3,6 @@ import Config from 'react-native-config';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
     },
     headerBg: {
         backgroundColor: 'transparent',
@@ -54,9 +53,6 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     iconColor: {
-        color: '#fff',
-    },
-    headerTitle: {
         color: '#fff',
     },
     searchBarHeader: {
@@ -129,7 +125,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     searchBarContainer: {
-        backgroundColor: 'lightgray',
+        backgroundColor: '#fff',
         flex: 1,
         height: 40,
         justifyContent: 'center',
@@ -137,31 +133,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginLeft: 20,
         marginRight: 5,
-        marginBottom: 1,        
-    },
-    popup: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-    },
-    inner: {
-        position: 'absolute',
-        left: '10%',
-        right: '10%',
-        top: '40%',
-        height: 150,
-        bottom: 25,
-        backgroundColor: '#fff',
-        borderRadius: 20
-    },
-    refreshTitle: {
-        fontSize: 20,
-        fontWeight: 'bold'
+        marginBottom: 1,
     },
     downloadFile: {
         height: 30,
@@ -173,7 +145,21 @@ const styles = StyleSheet.create({
     searchTitle: {
         padding: 10,
         width: '50%'
+    },
+    searchButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        flex: 1
+    },
+    searchIcon: {
+        fontSize: 35,
+        color: '#fff'
+    },
+    headerTitle: {
+        fontWeight: 'bold',
+        fontSize: 20
     }
+
 });
 
 export default styles;

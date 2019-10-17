@@ -195,11 +195,52 @@ const styles = StyleSheet.create({
         marginRight: 2
     },
     downloadFile: {
-        height: 30, 
-        width: 30, 
-        position: 'absolute', 
-        marginTop: 55, 
-        marginLeft: 55 
+        height: 30,
+        width: 30,
+        position: 'absolute',
+        marginTop: 55,
+        marginLeft: 55
+    },
+    refreshContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    refreshImage: {
+        width: 30,
+        height: 30
+    },
+    downloadManagerContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    searchBarContainer: {
+        backgroundColor: '#fff',
+        flex: 1,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+        marginLeft: 20,
+        marginRight: 5,
+        marginBottom: 1,
+    },
+    searchButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        flex: 1
+    },
+    searchIcon: {
+        fontSize: 35,
+        color: '#fff'
+    },
+    refreshHeader: {
+        flex: 0.2,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly'
     }
 });
 

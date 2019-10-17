@@ -34,6 +34,7 @@ import badgeNumber from '../components/badge-number';
 import Popup from '../components/popup';
 const Device = require('react-native-device-detection');
 import images from '../../assets/index';
+import Loader from '../components/loader';
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
@@ -68,6 +69,7 @@ interface State {
     height: number;
     isLoading: boolean;
     showPopup: boolean;
+    isSearchEnable: boolean;
 }
 
 class HomeScreen extends Component<Props, State> {
@@ -86,6 +88,7 @@ class HomeScreen extends Component<Props, State> {
             height: Dimensions.get('window').height,
             isLoading: false,
             showPopup: false,
+            isSearchEnable: false
         };
         Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
     }
@@ -100,9 +103,10 @@ class HomeScreen extends Component<Props, State> {
     }
 
     public async componentDidMount() {
+        console.log('componentDidMount')
         Dimensions.addEventListener('change', () => {
             StatusBar.setHidden(false);
-       })
+        })
         this.setState({ isLoading: true });
         handleOrientationOfScreen((orientation) => { this.setState({ orientation: orientation }); });
         handleScreenDimensions((width, height) => { this.setState({ width: width, height: height }); });
@@ -145,16 +149,18 @@ class HomeScreen extends Component<Props, State> {
             return;
         }
         console.log('updated resources', this.props.resourceState);
-        await LocalDbManager.getAllFiles((downloadedFiles, allFiles) => {
+        await LocalDbManager.getAllFiles(async (downloadedFiles, allFiles) => {
             console.log('updated files', downloadedFiles);
             console.log('allfiles...', allFiles);
             Constant.fetchAllFiles = allFiles;
+            await this.props.fetchdownloadedFiles(downloadedFiles);
             this.setState({ downloadedFiles: downloadedFiles });
         });
         if (Constant.confirmationMessageModifiedDate !== this.props.deviceTokenResponse.settings.ConfirmationMessageModifiedDate && Constant.confirmationMessageText.length > 5) {
             this.setState({ showPopup: true });
         }
     }
+
 
     public componentWillUnmount() {
         removeOrientationOfScreen();
@@ -179,13 +185,13 @@ class HomeScreen extends Component<Props, State> {
                             extraData={this.props}
                             data={this.props.searchState.searchArray}
                             renderItem={({ item }) =>
-                            <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
-                                <TouchableOpacity onPress={() => this.resourceDetails(item)}>
-                                    <View style={styles.searchContainer}>
-                                        <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} downloadFile={styles.downloadFile} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false}/>
-                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.searchTitle}>{item.ResourceName}</Text>
-                                    </View>
-                                </TouchableOpacity>
+                                <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
+                                    <TouchableOpacity onPress={() => this.resourceDetails(item)}>
+                                        <View style={styles.searchContainer}>
+                                            <FileImageComponent fileImage={item.ResourceImage || ''} fileType={item.FileExtension} styles={styles.resourceImage} downloadFile={styles.downloadFile} filesDownloaded={this.props.downloadedFiles.downloadedfiles} ResourceId={item.ResourceId} isFromDownloadManager={false} />
+                                            <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.searchTitle}>{item.ResourceName}</Text>
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
                             }
                         />
@@ -199,54 +205,41 @@ class HomeScreen extends Component<Props, State> {
                 );
             }
         } else {
-            if (this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading) {
+            if (this.props.resourceState.resources.length === 0 || this.props.resourceState.resources.length === undefined) {
                 return (
-                    <View style={styles.popup}>
-                        <View style={styles.inner}>
-                            <View style={styles.loadingContainer}>
-                                <Text style={styles.refreshTitle}>Refreshing Resources...</Text>
-                                <Spinner color={Config.PRIMARY_COLOR}></Spinner>
-                            </View>
-                        </View>
+                    <View style={styles.noDataContainer}>
+                        <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
                     </View>
                 );
             } else {
-                if (this.props.resourceState.resources.length === 0 || this.props.resourceState.resources.length === undefined) {
-                    return (
-                        <View style={styles.noDataContainer}>
-                            <Text style={{ color: Constant.blackColor }}>No Data Found </Text>
-                        </View>
-                    );
-                } else {
-                    return (
-                        <View style={styles.resourceListContainer}>
-                            <ListView removeClippedSubviews={false} contentContainerStyle={{
-                                paddingBottom: Constant.platform === 'android' ? 30 : 0, flexDirection: 'row',
-                                flexWrap: 'wrap'
-                            }}
-                                dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
-                                renderRow={(rowData: ResourceModel) =>
-                                    <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
-                                        <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
-                                            <View style={styles.resourceImageConatiner}>
-                                                <FolderImageComponet styles={styles.resourceImage} folderImage={rowData.ResourceImage} />
-                                                {badgeNumber(rowData, this.state.downloadedFiles)}
-                                            </View>
-                                            <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                }
-                            />
-                        </View>
-                    );
-                }
+                return (
+                    <View style={styles.resourceListContainer}>
+                        <ListView removeClippedSubviews={false} contentContainerStyle={{
+                            paddingBottom: Constant.platform === 'android' ? 30 : 0, flexDirection: 'row',
+                            flexWrap: 'wrap'
+                        }}
+                            dataSource={ds.cloneWithRows(this.props.resourceState.resources)}
+                            renderRow={(rowData: ResourceModel) =>
+                                <View style={{ width: this.state.orientation === Constant.portrait ? Device.isPhone ? '100%' : '50%' : Device.isTablet ? '33%' : '50%' }}>
+                                    <TouchableOpacity style={styles.listItem} onPress={() => this.props.navigation.push('File', { 'item': rowData })}>
+                                        <View style={styles.resourceImageConatiner}>
+                                            <FolderImageComponet styles={styles.resourceImage} folderImage={rowData.ResourceImage} />
+                                            {badgeNumber(rowData, this.state.downloadedFiles)}
+                                        </View>
+                                        <Text numberOfLines={2} ellipsizeMode={'tail'} style={{ marginLeft: 10 }}>{rowData.ResourceName}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            }
+                        />
+                    </View>
+                );
             }
         }
     }
 
 
     public async closeSearch() {
-        this.setState({ searchText: '' });
+        this.setState({ searchText: '', isSearchEnable: false });
         await this.props.searchFilter('', Constant.fetchAllFiles);
         Keyboard.dismiss();
     }
@@ -259,22 +252,28 @@ class HomeScreen extends Component<Props, State> {
                     onDidFocus={() => this.render()}
                 />
                 <ImageBackground source={{ uri: this.state.orientation === Constant.portrait ? Constant.portraitImagePath : Constant.landscapeImagePath }} style={{ width: this.state.width, height: this.state.height }}>
-                    {this.props.downloadState.isLoading || this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading ? <View /> : <Header style={styles.headerContainer} >
+                    {this.props.downloadState.isLoading ? null : <Header style={styles.headerContainer} >
                         <Image source={{ uri: Constant.headerImage }} style={styles.imageLogo} />
-                        <View style={styles.searchBarContainer}>
-                                <Item>
-                                    <Icon name='search' />
-                                    <Input placeholder={Constant.searchPlaceholder}
-                                        autoCorrect={false}
-                                        onChangeText={text => this.searchFilterFunction(text)}
-                                        value={this.state.searchText}
-                                    />
-                                    <Icon name={this.state.searchText.length >= 1 ? 'close' : ''} onPress={() => this.closeSearch()} />
-                                </Item>
-                            </View>
+                        {this.state.isSearchEnable ? <View style={styles.searchBarContainer}>
+                            <Item>
+                                <Icon name='search' style={{ marginLeft: 10 }} />
+                                <Input placeholder={Constant.searchPlaceholder}
+                                    autoCorrect={false}
+                                    onChangeText={text => this.searchFilterFunction(text)}
+                                    value={this.state.searchText}
+                                />
+                                <Icon name='close' style={{ fontSize: 30 }} onPress={() => this.closeSearch()} />
+                            </Item>
+                        </View> : null}
+                        {this.state.isSearchEnable ? null : <View style={styles.searchButtonContainer}>
+                            <Icon name='search' style={styles.searchIcon} onPress={() => {
+                                this.setState({ isSearchEnable: true })
+                            }} />
+                        </View>}
                     </Header>}
                     <Container style={styles.containerColor}>
-                        {this.props.downloadState.isLoading || this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading ? <View /> : <View style={styles.subHeaderContainer}>
+                        {this.props.downloadState.isLoading ? null : <View style={styles.subHeaderContainer}>
+                            <View style={styles.container}><Text style={styles.headerTitle}>Home</Text></View>
                             <View style={styles.refreshContainer}>
                                 <TouchableOpacity onPress={() => this.updateResouces()}>
                                     <Image source={images.refresh} style={styles.refreshImage} />
@@ -285,7 +284,6 @@ class HomeScreen extends Component<Props, State> {
                                     <Image source={images.downloadManager} style={styles.refreshImage} />
                                 </TouchableOpacity>
                             </View>
-                            
                         </View>}
                         <Content contentContainerStyle={[styles.containerColor, Constant.platform === 'android' ? { paddingBottom: 30 } : { paddingBottom: 0 }]}>
                             <View style={styles.container}>
@@ -294,6 +292,7 @@ class HomeScreen extends Component<Props, State> {
                         </Content>
                         {this.state.showPopup ? <Popup togglePopUp={this.togglePopup} message={Constant.confirmationMessageText || ''} /> : null}
                     </Container>
+                    {this.props.resourceState.isLoading || this.props.deviceTokenResponse.isLoading || this.state.isLoading ? <Loader /> : null}
                 </ImageBackground>
             </SafeAreaView>
         );

@@ -11,16 +11,22 @@ export default class CheckBoxComponent {
     public static async getSelectedFiles(id: number, rowId: any, ids: number[], selectedFiles: SubResourceModel[], resources: SubResourceModel[], callBack: (selectedIds: number[], selectedFiles: SubResourceModel[]) => void) {
         let tmp = ids;
         let newData = selectedFiles;
+        console.log('getSelectedFiles', newData)
         if (tmp.includes(id)) {
             tmp.splice(tmp.indexOf(id), 1);
             let index = newData.findIndex(item => item.ResourceId === id);
             if (index > -1) {
                 newData.splice(index, 1);
+                console.log('getSelectedFiles', newData)                
             }
         } else {
+            console.log('getSelectedFiles push', resources, rowId)            
             tmp.push(id);
-            let file = resources[rowId];
+            // let file = resources[rowId];
+            let file = resources[resources.findIndex(file => file.ResourceId === id)]
+            console.log(' file pushed', file);
             newData.push(file);
+            console.log('getSelectedFiles', newData)            
         }
         callBack(tmp, newData);
     }

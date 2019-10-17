@@ -11,6 +11,7 @@ import VideoPlayer from 'react-native-video-controls';
 import Orientation from 'react-native-orientation';
 import { handleOrientationOfScreen, getInitialScreenOrientation, removeOrientationOfScreen } from '../components/screen-orientation';
 import images from '../../assets/index';
+const Device = require('react-native-device-detection');
 
 interface Props {
     // tslint:disable-next-line:no-any
@@ -116,16 +117,17 @@ export default class PreviewManagerScreen extends Component<Props, State> {
         const fileName = this.props.navigation.getParam('fileName') as string;
         return (
             <SafeAreaView style={styles.contentContainer} forceInset={{ top: 'never' }}>
-                <View style={styles.headerContainer}>
+                {this.state.orientation === Constant.portrait ? <Header style={styles.headerContainer}>
                     <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.props.navigation.navigate('Home')}>
                         <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
                     </TouchableOpacity>
-                </View>
+                </Header> : null}
                 <Container>
                     <View style={styles.backArrowContainer}>
                         <Button transparent onPress={() => this.props.navigation.pop()}>
                             <Image source={images.backArrow} style={styles.backArrow} />
                         </Button>
+                        <Text style={styles.fileName}>{fileName}</Text>
                     </View>
                     <Content contentContainerStyle={styles.contentContainer}>
                         {this.state.isLoading ? this.renderIndicator()

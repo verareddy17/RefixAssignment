@@ -219,6 +219,26 @@ const styles = StyleSheet.create({
         flex: 0.25,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    searchBarContainer: {
+        backgroundColor: '#fff',
+        flex: 1,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+        marginLeft: 20,
+        marginRight: 5,
+        marginBottom: 1,
+    },
+    searchButton: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        flex: 1,
+    },
+    search: {
+        fontSize: 35,
+        color: 'white'
     }
 });
 
