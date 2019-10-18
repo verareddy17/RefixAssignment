@@ -361,7 +361,7 @@ class ResourceExplorerScreen extends Component<Props, State> {
             index: Constant.index,
             content: Constant.content,
         })
-        this.props.navigation.navigate('Home', { userName: 'Lucy' })
+        this.props.navigation.navigate('Home')
     }
 
     private goToPreviousScreen() {
