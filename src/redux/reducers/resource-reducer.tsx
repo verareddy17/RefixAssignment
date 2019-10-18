@@ -31,7 +31,7 @@ const resourceReducer = (state = initialState, action: Action<ResourceModel>) =>
                 ...state,
                 isLoading: false,
                 error: action.payload,
-                resource: null,
+                // resource: null,
             };
         default:
             return state;

@@ -4,7 +4,7 @@ import { NavigationScreenProp, SafeAreaView, NavigationEvents } from 'react-navi
 import styles from './filemanager-style';
 import Config from 'react-native-config';
 import Swipeout from 'react-native-swipeout';
-import { TouchableOpacity, FlatList, Image, ImageBackground, Dimensions, Alert, ListView, Platform, ProgressBarAndroid, ProgressViewIOS, BackHandler } from 'react-native';
+import { TouchableOpacity, FlatList, Image, ImageBackground, Dimensions, Alert, ListView, Platform, ProgressBarAndroid, ProgressViewIOS, BackHandler, Keyboard } from 'react-native';
 import { FileType, Constant } from '../../constant';
 import { SubResourceModel } from '../../models/resource-model';
 import LocalDbManager from '../../manager/localdb-manager';
@@ -23,17 +23,19 @@ import DownloadProgressComponent from '../components/download-progress';
 import { RemoveItem, DownloadedResources, AddItem } from '../../redux/actions/downloaded-file-action';
 import CheckBoxComponent from '../components/handle-check-box';
 import images from '../../assets/index';
-
+import searchFilter, { SearchFilterArray } from '../../redux/actions/search-action';
 
 interface Props {
     // tslint:disable-next-line:no-any
     navigation: NavigationScreenProp<any>;
     downloadState: DownloadResourceFileProgress;
     downloadedFiles: DownloadedResources;
+    searchState: SearchFilterArray;
     requestDownloadFile(bearer_token: string, AppUserResourceID: number, filename: string, filetype: string): (dispatch: Dispatch<AnyAction>) => Promise<void>;
     requestDownloadCancel(): (dispatch: Dispatch<AnyAction>, getState: Function) => Promise<void>;
     removeDownloadedFile(resourceId: number): (dispatch: Dispatch, getState: Function) => Promise<void>;
     addownloadedFile(downloadedFile: DownloadedFilesModel): (dispatch: Dispatch, getState: Function) => Promise<void>;
+    searchFilter(text: string, allFiles: SubResourceModel[]): (dispatch: Dispatch<AnyAction>) => Promise<void>;
 }
 
 interface State {
@@ -51,6 +53,11 @@ interface State {
     allFiles: Array<SubResourceModel>;
     width: number;
     height: number;
+    searchText: string;
+    isSearch: boolean;
+    searchFiles: Array<DownloadedFilesModel>;
+    searchFilesNotDownloaded: SubResourceModel[];
+    isSearchEnable: boolean;
 }
 class FileManagerScreen extends Component<Props, State> {
     constructor(props: Props) {
@@ -70,6 +77,11 @@ class FileManagerScreen extends Component<Props, State> {
             allFiles: [],
             width: Dimensions.get('window').width,
             height: Dimensions.get('window').height,
+            searchText: '',
+            isSearch: false,
+            searchFiles: [],
+            searchFilesNotDownloaded: [],
+            isSearchEnable: false,
         };
         this.handleAndroidBackButton = this.handleAndroidBackButton.bind(this);
         Orientation.getOrientation((_err, orientations) => this.setState({ orientation: orientations }));
@@ -103,6 +115,7 @@ class FileManagerScreen extends Component<Props, State> {
 
     public selectComponent(activePage: number) {
         this.setState({ activePage: activePage });
+        this.closeSearch()
     }
 
     public renderHeader() {
@@ -137,6 +150,22 @@ class FileManagerScreen extends Component<Props, State> {
                         <TouchableOpacity style={styles.headerLogoContainer} onPress={() => this.props.navigation.pop()}>
                             <Image source={{ uri: Constant.headerImage }} style={styles.headerImage} />
                         </TouchableOpacity>
+                        {this.state.isSearchEnable ? <View style={styles.searchBarContainer}>
+                            <Item>
+                                <Icon name='search' style={{ marginLeft: 10 }} />
+                                <Input placeholder={Constant.searchPlaceholder}
+                                    autoCorrect={false}
+                                    onChangeText={text => this.searchFilterFunction(text)}
+                                    value={this.state.searchText}
+                                />
+                                <Icon name='close' style={{ fontSize: 35 }} onPress={() => this.closeSearch()} />
+                            </Item>
+                        </View> : null}
+                        {this.state.isSearchEnable ? null : <View style={styles.searchButton}>
+                            <Icon name='search' style={styles.search} onPress={() => {
+                                this.setState({ isSearchEnable: true })
+                            }} />
+                        </View>}
                     </Header>}
                     <Container style={styles.containerColor}>
                         {this.props.downloadState.isLoading ? <View /> : <View style={styles.backArrowContainer}>
@@ -164,13 +193,13 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public renderComponent() {
-        console.log('props downloaded files', this.props.downloadedFiles.downloadedfiles);
+        console.log('props downloaded files sort', this.props.downloadedFiles.downloadedfiles.sort((a, b) => parseFloat(b.resourceFileSize) - parseFloat(a.resourceFileSize)));
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         if (this.state.activePage === 1) {
             return (
                 <View style={styles.container}>
                     <FlatList
-                        data={this.props.downloadedFiles.downloadedfiles}
+                        data={this.state.isSearch ? this.state.searchFiles : this.props.downloadedFiles.downloadedfiles}
                         renderItem={({ item }) =>
                             <TouchableOpacity onPress={() => {
                                 this.previewFile(item);
@@ -196,7 +225,7 @@ class FileManagerScreen extends Component<Props, State> {
             console.log('resources', this.state.resources);
             return (
                 <ListView
-                    dataSource={ds.cloneWithRows(this.state.resources)}
+                    dataSource={ds.cloneWithRows(this.state.isSearch ? this.state.searchFilesNotDownloaded : this.state.resources)}
                     renderRow={(item: SubResourceModel, secId, rowId) =>
                         <View>
                             <ListItem style={styles.filesContainer}>
@@ -231,6 +260,7 @@ class FileManagerScreen extends Component<Props, State> {
     }
 
     public onCheckBoxPress(id: number, rowId: any) {
+        console.log('search selected id', id);
         CheckBoxComponent.getSelectedFiles(id, rowId, this.state.selectedFileIds, this.state.selectedFiles, this.state.resources, (selectedIds, selectedFiles) => {
             this.setState({ selectedFileIds: selectedIds, selectedFiles: selectedFiles });
         });
@@ -257,6 +287,7 @@ class FileManagerScreen extends Component<Props, State> {
         }
         await this.isSelectedFiles(this.state.selectedFiles);
         for (let i = 0; i < this.state.selectedFiles.length; i++) {
+            console.log('donwload search file', this.state.selectedFiles, this.state.selectedFiles[i].ResourceId);
             const { ResourceName, ResourceId, FileExtension, ResourceImage, LauncherFile, ResourceSizeInKB } = this.state.selectedFiles[i];
             const filename = FileExtension === FileType.zip ? `${ResourceId}${FileExtension}` : FileExtension === FileType.video ? ResourceName.split(' ').join('') : ResourceName;
             await this.props.requestDownloadFile(Constant.bearerToken, this.state.selectedFiles[i].ResourceId, filename, this.state.selectedFiles[i].FileExtension);
@@ -269,10 +300,13 @@ class FileManagerScreen extends Component<Props, State> {
                 });
             }
         }
-        this.setState({ selectedFiles: [], selectedFileIds: [], isSelectAll: false });
+        this.setState({ selectedFiles: [], selectedFileIds: [], isSelectAll: false, activePage: 1 });
+        this.closeSearch()
     }
 
     public async removeFileFromLocalDB(data: DownloadedFilesModel) {
+        const newSearchArray = this.state.searchFiles.filter((item) => item.resourceId !== data.resourceId);
+        this.setState({ searchFiles: newSearchArray })
         await this.props.removeDownloadedFile(data.resourceId);
         console.log('all files', Constant.fetchAllFiles);
         CheckBoxComponent.removeFile(data, this.props.downloadedFiles.downloadedfiles, (resources) => {
@@ -290,15 +324,45 @@ class FileManagerScreen extends Component<Props, State> {
         }
     }
 
+    public async searchFilterFunction(textData: string) {
+        this.setState({ searchText: textData });
+        if (textData.length >= 3) {
+            this.setState({ isSearch: true })
+            if (this.state.activePage === 2) {
+                let filteredArray = await this.state.resources.filter((item: { ResourceName: string; }) => {
+                    let name = item.ResourceName.toUpperCase();
+                    return name.indexOf(textData.toUpperCase()) > -1;
+                });
+                this.setState({ searchFilesNotDownloaded: filteredArray })
+            } else {
+                let filteredArray = await this.props.downloadedFiles.downloadedfiles.filter((item: { resourceName: string; }) => {
+                    let name = item.resourceName.toUpperCase();
+                    return name.indexOf(textData.toUpperCase()) > -1;
+                });
+                this.setState({ searchFiles: filteredArray })
+            }
+        } else {
+            this.setState({ isSearch: false, searchFiles: [], searchFilesNotDownloaded: [] })
+        }
+    }
+
+    public async closeSearch() {
+        this.setState({ isSearchEnable: false })
+        this.setState({ searchText: '', isSearch: false, searchFiles: [], searchFilesNotDownloaded: [] });
+        Keyboard.dismiss();
+    }
+
 }
 const mapStateToProps = (state: AppState) => ({
     downloadState: state.downloadProgress,
     downloadedFiles: state.downloadedFilesData,
+    searchState: state.searchData,
 });
 const mapDispatchToProps = (dispatch: Dispatch) => ({
     requestDownloadFile: bindActionCreators(downloadFile, dispatch),
     requestDownloadCancel: bindActionCreators(downloadCancel, dispatch),
     removeDownloadedFile: bindActionCreators(RemoveItem, dispatch),
     addownloadedFile: bindActionCreators(AddItem, dispatch),
+    searchFilter: bindActionCreators(searchFilter, dispatch),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(FileManagerScreen);

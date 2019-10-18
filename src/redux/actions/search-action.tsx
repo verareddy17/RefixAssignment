@@ -1,7 +1,6 @@
 import { Dispatch } from 'redux';
 import { LOAD_SEARCH_FILES } from './action-types';
 import { SubResourceModel } from '../../models/resource-model';
-
 export const loadSearchedFiles = (searchArray: SubResourceModel[], isSearch: boolean) => {
     return {
         type: LOAD_SEARCH_FILES,

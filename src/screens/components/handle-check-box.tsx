@@ -19,8 +19,10 @@ export default class CheckBoxComponent {
             }
         } else {
             tmp.push(id);
-            let file = resources[rowId];
-            newData.push(file);
+            const index = resources.findIndex(file => file.ResourceId === id)
+            if(index > -1) {
+                newData.push(resources[index] );                
+            }
         }
         callBack(tmp, newData);
     }

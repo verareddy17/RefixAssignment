@@ -121,7 +121,6 @@ export default class PreviewManager {
         for (let i = 0; i < children.Children.length; i++) {
             await this.recurseSubFolders(children.Children[i], resultArray);
         }
-        console.log('resultArray', result);
     }
 
     public static async getFilesFromAllFolders(json: ResourceModel[]) {

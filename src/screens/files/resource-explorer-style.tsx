@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 10,
         marginBottom: 5,
-        borderRadius: 5
+        borderRadius: 15
     },
     folderImage: {
         marginLeft: 10,
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         height: 75,
         width: 75,
-        borderRadius: 5
+        borderRadius: 15
     },
     badge: {
         backgroundColor: Config.PRIMARY_COLOR,
@@ -195,11 +195,53 @@ const styles = StyleSheet.create({
         marginRight: 2
     },
     downloadFile: {
-        height: 30, 
-        width: 30, 
-        position: 'absolute', 
-        marginTop: 55, 
-        marginLeft: 55 
+        height: 30,
+        width: 30,
+        position: 'absolute',
+        marginTop: 55,
+        marginLeft: 55
+    },
+    refreshContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    refreshImage: {
+        width: 30,
+        height: 30
+    },
+    downloadManagerContainer: {
+        width: 40,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10
+    },
+    searchBarContainer: {
+        backgroundColor: '#fff',
+        flex: 1,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+        marginLeft: 20,
+        marginRight: 5,
+        marginBottom: 1,
+    },
+    searchButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        flex: 1
+    },
+    searchIcon: {
+        fontSize: 35,
+        color: '#fff'
+    },
+    refreshHeader: {
+        flex: 0.2,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
     }
 });
 
