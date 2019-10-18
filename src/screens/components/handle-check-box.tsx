@@ -22,11 +22,10 @@ export default class CheckBoxComponent {
         } else {
             console.log('getSelectedFiles push', resources, rowId)            
             tmp.push(id);
-            // let file = resources[rowId];
-            let file = resources[resources.findIndex(file => file.ResourceId === id)]
-            console.log(' file pushed', file);
-            newData.push(file);
-            console.log('getSelectedFiles', newData)            
+            const index = resources.findIndex(file => file.ResourceId === id)
+            if(index > -1) {
+                newData.push(resources[index] );                
+            }
         }
         callBack(tmp, newData);
     }
